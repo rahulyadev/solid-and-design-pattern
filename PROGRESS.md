@@ -73,7 +73,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | Unit ID | Title | Priority | Artifact state | Learning state | Last evidence | Next review | Weakest point | Evidence link |
 |---|---|---|---|---|---|---|---|---|
 | `SDP-FND-010` | [Design vocabulary: principle, pattern, idiom, framework, and architecture](CURRICULUM.md#sdp-fnd-010) | Core | Approved | Not started | — | — | — | — |
-| `SDP-FND-020` | [Change pressure, responsibilities, and boundaries](CURRICULUM.md#sdp-fnd-020) | Core | Absent | Not started | — | — | — | — |
+| `SDP-FND-020` | [Change pressure, responsibilities, and boundaries](CURRICULUM.md#sdp-fnd-020) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-030` | [Cohesion, coupling, and dependency direction](CURRICULUM.md#sdp-fnd-030) | Core | Absent | Not started | — | — | — | — |
 | `SDP-FND-040` | [Abstraction, encapsulation, information hiding, and contracts](CURRICULUM.md#sdp-fnd-040) | Core | Absent | Not started | — | — | — | — |
 | `SDP-FND-050` | [Composition, delegation, and inheritance](CURRICULUM.md#sdp-fnd-050) | Core | Absent | Not started | — | — | — | — |
