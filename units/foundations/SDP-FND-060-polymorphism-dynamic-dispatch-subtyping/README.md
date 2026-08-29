@@ -148,7 +148,7 @@ meaning, raise a new routine exception, mutate shared state, or violate a histor
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency fields above are curriculum judgments, not measurements from a population survey.
 
@@ -324,7 +324,7 @@ as a semantic relationship. Its central requirement is that properties establish
 supertype specification continue to hold for subtype objects. The paper distinguishes signature
 compatibility from the stronger behavioural requirement and reasons about invariants and history
 properties as well as individual method calls
-([Liskov and Wing, 1994, DOI 10.1145/197320.197383](https://doi.org/10.1145/197320.197383)).
+([Liskov and Wing, 1994, DOI 10.1145/197320.197383](https://www.cs.cmu.edu/~wing/publications/LiskovWing94.pdf)).
 
 The formal paper uses specification and proof machinery beyond this D2 unit. The useful production
 translation is:
@@ -1750,4 +1750,4 @@ Minimum bridge:
 4. Python Software Foundation, [Python 3.14 built-in functions, `super`](https://docs.python.org/3.14/library/functions.html#super) — MRO-relative proxy search and cooperative inheritance.
 5. Python Typing Council, [Typing specification, “Type system concepts”](https://typing.python.org/en/latest/spec/concepts.html) — dynamic/gradual typing, subtyping, and assignability terminology.
 6. Python Software Foundation, [Python 3.14 `functools.singledispatch`](https://docs.python.org/3.14/library/functools.html#functools.singledispatch) — generic-function dispatch from the first argument's runtime type.
-7. Barbara H. Liskov and Jeannette M. Wing, [“A Behavioral Notion of Subtyping,” *ACM TOPLAS* 16(6), 1994](https://doi.org/10.1145/197320.197383) — semantic substitutability, invariants, and history properties.
+7. Barbara H. Liskov and Jeannette M. Wing, [“A Behavioral Notion of Subtyping,” *ACM TOPLAS* 16(6), 1994](https://www.cs.cmu.edu/~wing/publications/LiskovWing94.pdf), DOI 10.1145/197320.197383 — semantic substitutability, invariants, and history properties.
