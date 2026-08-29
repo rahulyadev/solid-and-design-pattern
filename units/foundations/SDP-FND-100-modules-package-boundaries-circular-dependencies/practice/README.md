@@ -415,7 +415,7 @@ Focused tests:
 
 ```text
 ..............                                                           [100%]
-14 passed in 0.24s
+14 passed in 0.25s
 ```
 
 Ruff:

@@ -149,7 +149,7 @@ an import-timing technique.
 | Evidence profile | E+I+D+(X)+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency fields above are curriculum judgments, not measurements from a population survey.
 
