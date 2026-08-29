@@ -135,7 +135,7 @@ rules, or an exception taxonomy. The slogan is a review prompt, not a ban.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency fields above are curriculum judgments, not measurements from a population survey.
 
