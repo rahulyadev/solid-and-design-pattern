@@ -154,7 +154,7 @@ write races but does not make multi-object business operations automatically ato
 | Evidence profile | E+I+D+(X)+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency fields above are curriculum judgments, not measurements from a population survey.
 
@@ -649,24 +649,30 @@ Prefer a domain snapshot when possible:
 from dataclasses import dataclass
 
 
+@dataclass
+class MutableJob:
+    job_id: str
+    attempts: int
+    labels: list[str]
+
+
 @dataclass(frozen=True, slots=True)
-class LineView:
-    sku: str
-    quantity: int
+class JobView:
+    job_id: str
+    attempts: int
     labels: tuple[str, ...]
 
 
-def snapshot_line(line: object) -> LineView:
-    return LineView(
-        sku=line.sku,
-        quantity=line.quantity,
-        labels=tuple(line.labels),
+def snapshot_job(job: MutableJob) -> JobView:
+    return JobView(
+        job_id=job.job_id,
+        attempts=job.attempts,
+        labels=tuple(job.labels),
     )
 ```
 
 The transformation states which data crosses the boundary and how nested mutable labels become a
-snapshot. In production code, give `line` a real type; `object` is used here only to emphasize the
-shape of the boundary.
+snapshot.
 
 ### Copy-in and copy-out decisions
 
