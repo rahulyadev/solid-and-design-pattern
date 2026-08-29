@@ -82,7 +82,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-FND-080` | [Dependency management, test seams, and test doubles](CURRICULUM.md#sdp-fnd-080) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-090` | [Mutability, shared state, ownership, and object lifetime](CURRICULUM.md#sdp-fnd-090) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-100` | [Modules, package boundaries, and circular dependencies](CURRICULUM.md#sdp-fnd-100) | Core | Approved | Not started | — | — | — | — |
-| `SDP-FND-110` | [Simplicity heuristics and collaboration laws](CURRICULUM.md#sdp-fnd-110) | Core | Absent | Not started | — | — | — | — |
+| `SDP-FND-110` | [Simplicity heuristics and collaboration laws](CURRICULUM.md#sdp-fnd-110) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-010` | [Single Responsibility Principle](CURRICULUM.md#sdp-sol-010) | Core | Absent | Not started | — | — | — | — |
 | `SDP-SOL-020` | [Open/Closed Principle](CURRICULUM.md#sdp-sol-020) | Core | Absent | Not started | — | — | — | — |
 | `SDP-SOL-030` | [Liskov Substitution Principle and behavioural subtyping](CURRICULUM.md#sdp-sol-030) | Core | Absent | Not started | — | — | — | — |
