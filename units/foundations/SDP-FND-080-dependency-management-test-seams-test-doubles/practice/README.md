@@ -632,9 +632,9 @@ contract_faithful_fake=True
 ```text
 shared contract
      │
-     ├── add Rahul@Example.test
-     ├── find rahul@example.test
-     └── reject RAHUL@example.test as duplicate
+     ├── add Owner@Example.test
+     ├── find owner@example.test
+     └── reject OWNER@example.test as duplicate
              │
       ┌──────┼──────────────┐
       ▼      ▼              ▼

@@ -92,12 +92,12 @@ class ContractFaithfulFakeAccountRepository:
 def preserves_case_insensitive_email_contract(repository: AccountRepository) -> bool:
     """Run the same observable contract against any repository implementation."""
 
-    original = Account("acct-1", "Rahul@Example.test")
+    original = Account("acct-1", "Owner@Example.test")
     repository.add(original)
-    if repository.find_by_email("rahul@example.test") != original:
+    if repository.find_by_email("owner@example.test") != original:
         return False
     try:
-        repository.add(Account("acct-2", "RAHUL@example.test"))
+        repository.add(Account("acct-2", "OWNER@example.test"))
     except DuplicateEmailError:
         return True
     return False

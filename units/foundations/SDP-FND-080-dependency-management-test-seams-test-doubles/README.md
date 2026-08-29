@@ -163,7 +163,7 @@ not the definition of dependency injection.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency fields above are curriculum judgments, not measurements from a population survey.
 
@@ -206,8 +206,7 @@ def create_report(
     database: ReportDatabase,
     export: ExportReport,
     now: Clock,
-) -> Report:
-    ...
+) -> Report: ...
 ```
 
 This does not mean every dependency must be fake. A test might use:
@@ -619,8 +618,7 @@ class AccountService:
     repository: AccountRepository
     send_welcome: SendWelcome
 
-    def register(self, command: RegisterAccount) -> Account:
-        ...
+    def register(self, command: RegisterAccount) -> Account: ...
 ```
 
 Advantages:
@@ -893,7 +891,7 @@ gateway.charge.return_value = Approved("pay-42")  # stub behavior
 
 result = service.execute(command)
 
-gateway.charge.assert_called_once_with(command)    # spy-like post-hoc assertion
+gateway.charge.assert_called_once_with(command)  # spy-like post-hoc assertion
 ```
 
 The Python object is a `Mock` instance. In test-double vocabulary it supplies a stubbed result and
@@ -1027,6 +1025,7 @@ Suppose:
 ```python
 # source.py
 class Gateway: ...
+
 
 # service.py
 from source import Gateway
