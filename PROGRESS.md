@@ -76,7 +76,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-FND-020` | [Change pressure, responsibilities, and boundaries](CURRICULUM.md#sdp-fnd-020) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-030` | [Cohesion, coupling, and dependency direction](CURRICULUM.md#sdp-fnd-030) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-040` | [Abstraction, encapsulation, information hiding, and contracts](CURRICULUM.md#sdp-fnd-040) | Core | Approved | Not started | — | — | — | — |
-| `SDP-FND-050` | [Composition, delegation, and inheritance](CURRICULUM.md#sdp-fnd-050) | Core | Absent | Not started | — | — | — | — |
+| `SDP-FND-050` | [Composition, delegation, and inheritance](CURRICULUM.md#sdp-fnd-050) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-060` | [Polymorphism, dynamic dispatch, and subtyping](CURRICULUM.md#sdp-fnd-060) | Core | Absent | Not started | — | — | — | — |
 | `SDP-FND-070` | [Duck typing, structural typing, nominal typing, Protocols, and ABCs](CURRICULUM.md#sdp-fnd-070) | Core | Absent | Not started | — | — | — | — |
 | `SDP-FND-080` | [Dependency management, test seams, and test doubles](CURRICULUM.md#sdp-fnd-080) | Core | Absent | Not started | — | — | — | — |
