@@ -79,7 +79,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-FND-050` | [Composition, delegation, and inheritance](CURRICULUM.md#sdp-fnd-050) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-060` | [Polymorphism, dynamic dispatch, and subtyping](CURRICULUM.md#sdp-fnd-060) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-070` | [Duck typing, structural typing, nominal typing, Protocols, and ABCs](CURRICULUM.md#sdp-fnd-070) | Core | Approved | Not started | — | — | — | — |
-| `SDP-FND-080` | [Dependency management, test seams, and test doubles](CURRICULUM.md#sdp-fnd-080) | Core | Absent | Not started | — | — | — | — |
+| `SDP-FND-080` | [Dependency management, test seams, and test doubles](CURRICULUM.md#sdp-fnd-080) | Core | Draft | Not started | — | — | — | — |
 | `SDP-FND-090` | [Mutability, shared state, ownership, and object lifetime](CURRICULUM.md#sdp-fnd-090) | Core | Absent | Not started | — | — | — | — |
 | `SDP-FND-100` | [Modules, package boundaries, and circular dependencies](CURRICULUM.md#sdp-fnd-100) | Core | Absent | Not started | — | — | — | — |
 | `SDP-FND-110` | [Simplicity heuristics and collaboration laws](CURRICULUM.md#sdp-fnd-110) | Core | Absent | Not started | — | — | — | — |
