@@ -158,7 +158,7 @@ an object with an incompatible same-named method can pass `isinstance()` and sti
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency fields above are curriculum judgments, not measurements from a population survey.
 

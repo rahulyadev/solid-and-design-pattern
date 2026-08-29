@@ -43,7 +43,7 @@ practice/
 ├── protocol_runtime_experiment.py
 ├── abc_virtual_subclass_experiment.py
 ├── protocol_static_experiment.py
-└── test_runtime_experiments.py
+└── test_interface_mechanism_experiments.py
 ```
 
 - `alert_delivery_lab.py` is the unsolved application-boundary refactoring starter.
@@ -55,7 +55,7 @@ practice/
   relationships.
 - `protocol_static_experiment.py` runs isolated positive and negative mypy cases without leaving
   the repository's normal type-check failing.
-- `test_runtime_experiments.py` makes all experiment outputs reproducible.
+- `test_interface_mechanism_experiments.py` makes all experiment outputs reproducible.
 
 ## Problem
 
@@ -635,7 +635,7 @@ guided by the Python typing specification.
 mypy: 1.20.2 (compiled: no)
 Configuration: --strict --no-incremental --no-error-summary --show-error-codes
 Python executing mypy: CPython 3.14.7
-Input files: generated isolated temporary sources
+Input programs: isolated source strings passed through mypy's `-c` option
 Network: none
 ```
 

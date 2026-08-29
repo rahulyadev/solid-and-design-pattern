@@ -5,8 +5,6 @@ from __future__ import annotations
 import re
 import subprocess
 import sys
-import tempfile
-from pathlib import Path
 from textwrap import dedent
 
 VALID_SOURCE = dedent(
@@ -46,11 +44,9 @@ INVALID_SOURCE = dedent(
 ).strip()
 
 
-def check_source(root: Path, label: str, source: str) -> tuple[int, int, str]:
+def check_source(source: str) -> tuple[int, int, str]:
     """Type-check one isolated source and summarize stable evidence."""
 
-    path = root / f"{label}.py"
-    path.write_text(f"{source}\n", encoding="utf-8")
     completed = subprocess.run(
         [
             sys.executable,
@@ -60,7 +56,8 @@ def check_source(root: Path, label: str, source: str) -> tuple[int, int, str]:
             "--no-incremental",
             "--no-error-summary",
             "--show-error-codes",
-            str(path),
+            "-c",
+            source,
         ],
         check=False,
         capture_output=True,
@@ -74,13 +71,9 @@ def check_source(root: Path, label: str, source: str) -> tuple[int, int, str]:
 def main() -> None:
     """Show that static compatibility considers signatures, not inheritance."""
 
-    with tempfile.TemporaryDirectory(prefix="sdp-fnd-070-") as directory:
-        root = Path(directory)
-        for label, source in (("compatible", VALID_SOURCE), ("wrong_signature", INVALID_SOURCE)):
-            returncode, error_count, codes = check_source(root, label, source)
-            print(
-                f"{label}: returncode={returncode} errors={error_count} codes={codes}"
-            )
+    for label, source in (("compatible", VALID_SOURCE), ("wrong_signature", INVALID_SOURCE)):
+        returncode, error_count, codes = check_source(source)
+        print(f"{label}: returncode={returncode} errors={error_count} codes={codes}")
 
 
 if __name__ == "__main__":
