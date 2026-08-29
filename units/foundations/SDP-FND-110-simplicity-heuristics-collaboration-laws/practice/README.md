@@ -472,6 +472,51 @@ python scripts/validate_repo.py
 Record actual commands and output. Never describe an expected failure or passing check as observed
 until the command has run.
 
+## Maintainer artifact verification — 2026-08-30
+
+This verifies the initialized starter, not Rahul's learning state or a completed learner attempt.
+
+Environment:
+
+```text
+Linux 7.0.0-30-generic x86_64
+Python 3.14.7
+```
+
+Observed runner result:
+
+```text
+order=order-7
+customer=customer-3
+email=rahul@example.test
+tier=PLUS
+country=GB
+support=priority
+subtotal=60.00
+discount=6.00
+shipping=0.00
+total=54.00
+```
+
+Observed checks:
+
+```text
+pytest: 20 passed
+all practice suites: 147 tests passed across 11 isolated directory runs
+Ruff: all unit files passed
+mypy: all 11 practice directories passed; this unit has 2 checked source files
+repository validator: PASSED on a clean content copy; all automated categories passed
+```
+
+The repository-wide practice suites were invoked per directory because older units contain repeated
+test module basenames that collide during one-shot pytest and mypy discovery. Isolated runs test
+the same files without altering those pre-existing units.
+
+The clean content copy excluded pre-existing ignored local environments and tool caches, so the
+repository-hygiene result represents the files eligible for commit. The original working copy's
+ignored `.venv`, `.pytest_cache`, `.ruff_cache`, `.mypy_cache`, and `__pycache__` directories were
+not modified or staged.
+
 ## Closure
 
 Add only after Rahul closes the exercise.
