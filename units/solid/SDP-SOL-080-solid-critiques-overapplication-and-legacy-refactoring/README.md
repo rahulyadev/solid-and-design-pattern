@@ -91,7 +91,7 @@ boundary, justified responsibilities, and evidence that the next change became e
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured statistics. The supporting
 experiment does not change the canonical evidence profile to require X.
