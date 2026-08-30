@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>SDP-SOL-070 · Which Python shape fits?</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: light-dark(#f7f8fa, #15191f);
+      --surface: light-dark(#ffffff, #20262f);
+      --ink: light-dark(#172b40, #edf3fa);
+      --secondary: light-dark(#46596a, #b8c8d8);
+      --line: light-dark(#bccbd8, #536272);
+      --accent: light-dark(#006452, #83dfc9);
+      --wash: light-dark(#e7f4f0, #233b37);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font: 16px/1.55 system-ui, sans-serif;
+    }
+    main { max-width: 940px; margin: auto; padding: 32px 28px; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.15; margin: 10px 0 12px; }
+    h2 { font-size: 1.35rem; line-height: 1.3; margin: 0 0 8px; }
+    h3 { font-size: 1rem; margin: 0 0 6px; }
+    p { margin: 0 0 14px; }
+    .kicker, .role { font-size: 0.8rem; letter-spacing: 0.045em; color: var(--secondary); }
+    .intro { max-width: 68ch; color: var(--secondary); }
+    label { display: block; font-weight: 600; margin: 24px 0 6px; }
+    select {
+      width: 100%; min-height: 46px; padding: 10px 34px 10px 12px;
+      font: inherit; background: var(--surface); color: var(--ink);
+      border: 1px solid var(--line); border-radius: 6px;
+    }
+    .selected { margin-top: 26px; }
+    .fit { color: var(--accent); font-weight: 600; }
+    .contract { color: var(--secondary); margin: 0; overflow-wrap: anywhere; }
+    .flow {
+      display: grid; grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+      align-items: center; gap: 14px; margin: 22px 0;
+    }
+    .node {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 8px; padding: 18px; min-width: 0;
+    }
+    .node.chosen { background: var(--wash); }
+    .name { display: block; font-size: 1.05rem; font-weight: 600; overflow-wrap: anywhere; }
+    .detail { display: block; color: var(--secondary); margin-top: 6px; overflow-wrap: anywhere; }
+    .arrow { text-align: center; color: var(--secondary); }
+    .arrow span { display: block; }
+    .arrow .shaft { font-size: 2rem; line-height: 1; }
+    .arrow .verb { font-size: 0.8rem; margin-top: 5px; }
+    .result { background: var(--wash); padding: 14px 18px; border-radius: 6px; }
+    .result pre { margin: 4px 0 0; }
+    pre, code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.88rem; }
+    dl { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px 18px; margin: 24px 0; }
+    dt { font-weight: 600; }
+    dd { margin: 0; }
+    details { border-top: 1px solid var(--line); padding: 14px 0; }
+    summary { cursor: pointer; min-height: 32px; font-weight: 600; }
+    .guidance { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 22px; }
+    .guidance p { color: var(--secondary); }
+    footer { margin-top: 24px; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    nav { display: flex; gap: 8px 22px; flex-wrap: wrap; }
+    nav a { padding: 8px 0; }
+    noscript p { padding: 18px; background: var(--wash); }
+    @media (max-width: 520px) {
+      main { padding: 24px 16px; }
+      .flow { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+      .arrow { display: flex; flex-direction: column; align-items: center; }
+      .arrow .shaft { transform: rotate(90deg); width: 32px; height: 32px; }
+      .node { padding: 15px; }
+      dl { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+      dd { margin-bottom: 12px; }
+      summary { min-height: 44px; }
+      nav a { min-height: 44px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="sdp-sol-070-chooser">
+    <header>
+      <div class="kicker">SDP-SOL-070 · PYTHONIC SOLID</div>
+      <h1>Which Python shape fits?</h1>
+      <p class="intro">Start with the caller's need. Change the pressure to see what earns
+        a function, configuration, a named capability, or an inherited skeleton.</p>
+    </header>
+    <label for="pressure">Change pressure</label>
+    <select id="pressure">
+      <option value="one">One operation varies</option>
+      <option value="config">Operation needs configuration</option>
+      <option value="capability">Caller needs metadata</option>
+      <option value="module">Stateless module fits</option>
+      <option value="family">Owned family shares steps</option>
+    </select>
+    <noscript><p>This comparison needs JavaScript for switching scenarios.
+      The <a href="../README.md">unit note</a> contains the static comparison.</p></noscript>
+    <section class="selected" aria-live="polite" aria-atomic="true">
+      <h2 id="fit" class="fit">Pass a function</h2>
+      <p id="contract" class="contract">Client contract: Callable[[str], str]</p>
+      <div class="flow" role="group" aria-label="Conceptual call flow">
+        <div class="node">
+          <span id="caller-role" class="role">CALLER</span>
+          <span id="caller" class="name">render_names</span>
+          <span id="caller-detail" class="detail">Keeps encounter order and duplicates.</span>
+        </div>
+        <div class="arrow" aria-hidden="true">
+          <span class="shaft">→</span><span id="verb" class="verb">calls</span>
+        </div>
+        <div class="node chosen">
+          <span id="provider-role" class="role">SUPPLIED OPERATION</span>
+          <span id="provider" class="name">plain_name</span>
+          <span id="provider-detail" class="detail">Receives a name and returns text.</span>
+        </div>
+      </div>
+      <p id="trace" class="contract">render_names calls the supplied plain_name function for each name.</p>
+      <div class="result">
+        <span class="role">ILLUSTRATIVE PYTHON RESULT</span>
+        <pre id="result">('Asha', 'Mina', 'Asha')</pre>
+      </div>
+      <dl>
+        <dt>Why it fits</dt><dd id="why">The client needs one operation and no provider metadata.</dd>
+        <dt>Smaller option</dt><dd id="smaller">Call the function directly if selection never varies.</dd>
+        <dt>Watch for</dt><dd id="risk">Being callable says nothing about keeping the result contract.</dd>
+      </dl>
+    </section>
+    <details>
+      <summary>See the composition code</summary>
+      <pre id="snippet">render_names(names, plain_name)</pre>
+    </details>
+    <section class="guidance">
+      <h3>How to read this visual</h3>
+      <p>Select a pressure, then follow the call from the left box to the right box
+        (top to bottom on a phone). The text under the flow states the same relationship.</p>
+      <h3>Key insight</h3>
+      <p>A shape earns its place by serving the caller's contract. These scenarios
+        are alternatives for different needs, not levels in a maturity ladder.</p>
+      <h3>Simplification or limitation</h3>
+      <p>The arrows are conceptual call flow, not imports or memory layout. Results are
+        fixed examples from the runnable files; this page does not execute Python.
+        Type shape and abstract membership do not prove business correctness.</p>
+    </section>
+    <footer>
+      <nav aria-label="Continue studying">
+        <a href="../README.md">Unit note</a>
+        <a href="../practice/README.md">Unsolved practice</a>
+        <a href="../experiments/EXP-01-protocol-boundary/README.md">Protocol experiment</a>
+        <a href="../experiments/EXP-02-abc-boundary/README.md">ABC experiment</a>
+      </nav>
+    </footer>
+  </main>
+  <script>
+    (() => {
+      const root = document.getElementById("sdp-sol-070-chooser");
+      const chooser = root.querySelector("#pressure");
+      const scenarios = {
+        one: {
+          fit: "Pass a function",
+          contract: "Client contract: Callable[[str], str]",
+          "caller-role": "CALLER", caller: "render_names",
+          "caller-detail": "Keeps encounter order and duplicates.",
+          "provider-role": "SUPPLIED OPERATION", provider: "plain_name",
+          "provider-detail": "Receives a name and returns text.", verb: "calls",
+          trace: "render_names calls the supplied plain_name function for each name.",
+          result: "('Asha', 'Mina', 'Asha')",
+          why: "The client needs one operation and no provider metadata.",
+          smaller: "Call the function directly if selection never varies.",
+          risk: "Being callable says nothing about keeping the result contract.",
+          snippet: "render_names(names, plain_name)"
+        },
+        config: {
+          fit: "Closure or callable object",
+          contract: "Same call contract; configuration belongs to the supplied operation.",
+          "caller-role": "CALLER", caller: "render_names",
+          "caller-detail": "Does not know where the prefix is stored.",
+          "provider-role": "CONFIGURED OPERATION", provider: "make_prefix / NamePrefix",
+          "provider-detail": "One closure or instance owns the chosen prefix.", verb: "calls",
+          trace: "render_names calls a configured renderer; each factory call or instance can use a different prefix.",
+          result: "('Guest: Asha', 'Guest: Mina', 'Guest: Asha')",
+          why: "A closure keeps small configuration nearby; an instance makes the owner explicit.",
+          smaller: "Use one function with an explicit prefix when a stored callable is unnecessary.",
+          risk: "Capturing mutable configuration does not copy it or make it safe to share.",
+          snippet: "render_names(names, make_prefix(\"Guest: \"))\nrender_names(names, NamePrefix(\"Guest: \"))"
+        },
+        capability: {
+          fit: "A client-shaped Protocol",
+          contract: "BadgeLayout: read content_type; call render(attendee, *, event).",
+          "caller-role": "POLICY", caller: "prepare_badge",
+          "caller-detail": "Validates the request and returns a document.",
+          "provider-role": "INDEPENDENT IMPLEMENTATION", provider: "JsonBadgeLayout",
+          "provider-detail": "Owns JSON formatting and its content type.", verb: "reads / calls",
+          trace: "prepare_badge reads layout.content_type and calls layout.render; JSON details stay in the layout.",
+          result: "{\"event\": \"Open Lab\", \"attendee\": \"Asha\"}",
+          why: "The caller needs both representation and metadata, not every provider feature.",
+          smaller: "A renderer plus explicit metadata can be enough for a simpler application.",
+          risk: "A matching signature does not prove that the body represents the correct values.",
+          snippet: "request = BadgeRequest(\"Asha\", \"Open Lab\")\nprepare_badge(request, JsonBadgeLayout())"
+        },
+        module: {
+          fit: "Pass the compatible module",
+          contract: "The same BadgeLayout contract; no inheritance or wrapper is required.",
+          "caller-role": "POLICY", caller: "prepare_badge",
+          "caller-detail": "Uses the same two members as before.",
+          "provider-role": "MODULE OBJECT", provider: "plain_badges",
+          "provider-detail": "Exports content_type and a render function.", verb: "reads / calls",
+          trace: "prepare_badge reads a module attribute and calls a module function through the supplied layout.",
+          result: "Open Lab\nAsha",
+          why: "The existing stateless public members already match the client.",
+          smaller: "Import its function directly if no replaceable capability is needed.",
+          risk: "Mutable module globals can share configuration across callers.",
+          snippet: "import plain_badges\nprepare_badge(request, plain_badges)"
+        },
+        family: {
+          fit: "An ABC for an owned family",
+          contract: "Shared render skeleton; subclasses implement the name_line hook.",
+          "caller-role": "SHARED ALGORITHM", caller: "FramedBadgeLayout.render",
+          "caller-detail": "Keeps the event frame in one implementation.",
+          "provider-role": "OVERRIDDEN HOOK", provider: "StaffBadgeLayout.name_line",
+          "provider-detail": "Supplies the role line for this family member.", verb: "calls",
+          trace: "The inherited render method calls the staff implementation of name_line; prepare_badge still accepts BadgeLayout.",
+          result: "[Open Lab]\nSTAFF: Asha",
+          why: "An owned family has a real shared skeleton and explicit extension hooks.",
+          smaller: "Pass a name-line function if inheritance provides no further value.",
+          risk: "An override can break the promise. Unrelated providers need not inherit this base.",
+          snippet: "prepare_badge(request, StaffBadgeLayout())"
+        }
+      };
+      function showScenario() {
+        const current = scenarios[chooser.value];
+        for (const [id, value] of Object.entries(current)) {
+          root.querySelector("#" + id).textContent = value;
+        }
+      }
+      chooser.addEventListener("change", showScenario);
+      showScenario();
+    })();
+  </script>
+</body>
+</html>
