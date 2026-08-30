@@ -94,7 +94,7 @@ assert read_twice(entries.__getitem__, "x") == ("parcel", "parcel")
 | Evidence profile | E+I+D+X+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11; the same supplied code is used |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Files are not learning
 evidence. Read the [practice](practice/README.md) and [experiment guides](#runtime-experiments)
@@ -519,6 +519,6 @@ Opened for this unit on 2026-08-30; explanations, scenarios, diagrams, and code 
 7. Python 3.14, [handling exceptions](https://docs.python.org/3.14/tutorial/errors.html#handling-exceptions); exception-class matching.
 8. Python 3.14, [super](https://docs.python.org/3.14/library/functions.html#super); method-resolution delegation.
 
-The material's checks will be recorded in the unit's maintainer validation record. Publication
-does not mark the practice attempted or establish understanding. `SDP-SOL-040` is the next
-requested unit and is not initialized here.
+The material's checks are recorded in [VALIDATION.md](VALIDATION.md), a maintainer record.
+Publication does not mark the practice attempted or establish understanding. `SDP-SOL-040`
+is the next requested unit and is not initialized here.
