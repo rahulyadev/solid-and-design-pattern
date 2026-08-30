@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Where does the change go? · SDP-SOL-020</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: light-dark(#fafbf9, #151916);
+      --ink: light-dark(#1d2b23, #e7eee8);
+      --secondary: light-dark(#4f6256, #afc2b4);
+      --line: light-dark(#c4d0c7, #47584c);
+      --stable: light-dark(#e3eee7, #203a2a);
+      --edit: light-dark(#faebcb, #483820);
+      --blocked: light-dark(#f8e1de, #482b2a);
+      --control: light-dark(#ffffff, #223027);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); font-family: system-ui, sans-serif; }
+    main { max-width: 1080px; margin: auto; padding: 32px 24px 44px; }
+    h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); line-height: 1.15; font-weight: 600; margin: 8px 0 14px; }
+    h2 { font-size: 1.05rem; font-weight: 600; margin: 0 0 6px; }
+    h3 { font-size: 1rem; font-weight: 600; margin: 0 0 6px; }
+    p { line-height: 1.55; margin: 8px 0 18px; }
+    .eyebrow, .secondary { color: var(--secondary); }
+    .eyebrow { font-size: .85rem; letter-spacing: .05em; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; }
+    select { width: 100%; max-width: 560px; min-height: 44px; padding: 10px 12px; font: inherit; color: var(--ink); background: var(--control); border: 1px solid var(--line); border-radius: 6px; }
+    a { color: var(--ink); text-underline-offset: 3px; }
+    .assumption { margin: 12px 0 24px; max-width: 850px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 12px 0 20px; }
+    .key { display: inline-flex; align-items: center; gap: 7px; font-size: .9rem; }
+    .swatch { width: 16px; height: 16px; border: 1px solid var(--line); }
+    .stable { background: var(--stable); }
+    .edit, .add { background: var(--edit); }
+    .limit { background: var(--blocked); }
+    .lane { display: grid; grid-template-columns: minmax(150px, 1.1fr) repeat(3, minmax(0, 1fr)); gap: 12px; padding: 18px 0; border-top: 1px solid var(--line); }
+    .lane-heading { align-self: center; padding-right: 12px; }
+    .lane-heading p { margin: 0; font-size: .9rem; color: var(--secondary); }
+    .node { min-width: 0; padding: 14px; border-radius: 6px; }
+    .node-role { display: block; margin-bottom: 8px; font-size: .85rem; }
+    .node-status { display: block; font-weight: 650; margin-bottom: 6px; }
+    .node-detail { display: block; line-height: 1.45; overflow-wrap: anywhere; }
+    .conclusion { border-top: 1px solid var(--line); padding-top: 16px; margin-bottom: 26px; }
+    .guides { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; border-top: 1px solid var(--line); padding-top: 22px; }
+    .guides p { margin: 0; font-size: .95rem; }
+    footer { margin-top: 28px; color: var(--secondary); font-size: .85rem; line-height: 1.5; }
+    @media (max-width: 780px) {
+      .lane { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lane-heading { grid-column: 1 / -1; }
+      .guides { grid-template-columns: 1fr; gap: 18px; }
+    }
+    @media (max-width: 470px) {
+      main { padding: 24px 16px 32px; }
+      .lane { grid-template-columns: 1fr; gap: 8px; }
+      .node { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 3px 8px; padding: 12px; }
+      .node-role { grid-row: 1 / 3; margin: 0; }
+      .node-status { margin: 0; }
+      .node-detail { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <main id="sdp-sol-020-map">
+    <header>
+      <div class="eyebrow">SDP-SOL-020 · OPEN/CLOSED PRINCIPLE</div>
+      <h1>Where does the change go?</h1>
+      <p>Compare three designs under the same requirement. A useful boundary protects a specific kind of change.</p>
+    </header>
+    <label for="change">New requirement</label>
+    <select id="change">
+      <option value="layout">Add a compact report layout</option>
+      <option value="labels">Rename the two text labels</option>
+      <option value="bytes">Require bytes instead of text</option>
+      <option value="audit">Audit successfully before writing</option>
+    </select>
+    <p id="assumption" class="assumption secondary"></p>
+    <div class="legend" aria-label="Change status legend">
+      <span class="key"><span class="swatch stable" aria-hidden="true"></span>Stable implementation</span>
+      <span class="key"><span class="swatch edit" aria-hidden="true"></span>Add or edit</span>
+      <span class="key"><span class="swatch limit" aria-hidden="true"></span>Current boundary is insufficient</span>
+    </div>
+    <div id="lanes" aria-label="Change map for the selected requirement"></div>
+    <p id="conclusion" class="conclusion" aria-live="polite"></p>
+    <section class="guides" aria-label="Reading guide">
+      <div>
+        <h3>How to read this visual</h3>
+        <p>Choose a requirement and read each row left to right. Boxes name roles affected by the change. Their labels distinguish stable code, edits, and limits.</p>
+      </div>
+      <div>
+        <h3>Key insight</h3>
+        <p>A stable workflow can use new behavior. Wiring still changes, and a new shared promise can require edits on both sides.</p>
+      </div>
+      <div>
+        <h3>Simplification or limitation</h3>
+        <p>This is a hand-authored conceptual map, not a diff analyzer or cost measurement. Roles may share files. A stable box can still produce changed output.</p>
+      </div>
+    </section>
+    <noscript><p>This comparison needs JavaScript. The unit's visual guide includes a static source-dependency diagram.</p></noscript>
+    <footer>No network requests, telemetry, or external libraries. The labels-only design supports its stated schema; other data languages could express more, at an additional cost.</footer>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+      const root = document.getElementById("sdp-sol-020-map");
+      const select = root.querySelector("#change");
+      const lanes = root.querySelector("#lanes");
+      const assumption = root.querySelector("#assumption");
+      const conclusion = root.querySelector("#conclusion");
+      const designs = [
+        { name: "Conditional workflow", detail: "Formats live inside publication." },
+        { name: "Supplied renderer", detail: "Publication calls an explicit collaborator." },
+        { name: "Labels as data", detail: "One fixed text layout; two configured labels." }
+      ];
+      const scenarios = {
+        layout: {
+          assumption: "The existing input and text-output contract stay the same. Add the compact layout ok:4/error:1 to the starting text/JSON example; the labels-only alternative cannot change its separators.",
+          conclusion: "A supplied renderer isolates a new layout. A labels-only schema does not support every representation.",
+          rows: [
+            [["edit", "Edit workflow", "Add another format branch."], ["edit", "Same core edit", "New formatting code is embedded in that branch."], ["edit", "Edit wiring", "Callers can select the new name."]],
+            [["stable", "Stable", "publish_summary keeps the same steps."], ["add", "Add renderer", "Provide the compact representation."], ["edit", "Edit wiring", "Register or directly supply the callable."]],
+            [["stable", "Stable", "The publication sequence can remain."], ["limit", "Needs a new seam", "Labels alone cannot change this layout."], ["limit", "Data is insufficient", "A label-record addition cannot satisfy the request."]]
+          ]
+        },
+        labels: {
+          assumption: "Only display wording changes: completed becomes finished and failed becomes errors. Counts, layout, output type, and operation order stay the same.",
+          conclusion: "When only values vary, configured data is often enough. No new subclass or plugin loader is needed.",
+          rows: [
+            [["edit", "Edit workflow", "Change the labels in its text branch."], ["edit", "Same core edit", "The two literal labels live there."], ["stable", "Stable", "The selected format name is unchanged."]],
+            [["stable", "Stable", "The publication steps are unchanged."], ["edit", "Edit renderer", "Update text_summary's display labels."], ["stable", "Stable", "Existing registration still points to it."]],
+            [["stable", "Stable", "The publication steps are unchanged."], ["stable", "Stable algorithm", "LabeledText uses the supplied values."], ["edit", "Edit label data", "Supply finished and errors at setup."]]
+          ]
+        },
+        bytes: {
+          assumption: "Every renderer must now return bytes and every writer must accept bytes. This intentionally changes the shared output promise, including type annotations and validation policy.",
+          conclusion: "Changing the shared contract legitimately requires coordinated edits. OCP does not make this a drop-in renderer addition.",
+          rows: [
+            [["edit", "Revise contract", "Update publication types and output handling."], ["edit", "Edit embedded formats", "Every branch must produce bytes."], ["edit", "Update writer", "Supply a bytes-compatible sink."]],
+            [["edit", "Revise contract", "Update the Renderer and publication signatures."], ["edit", "Edit implementations", "All renderers must honor the new promise."], ["edit", "Update writer", "Supply a bytes-compatible sink."]],
+            [["edit", "Revise contract", "Update publication types and output handling."], ["edit", "Edit algorithm", "LabeledText must now return bytes."], ["edit", "Update writer", "Changing labels alone is insufficient."]]
+          ]
+        },
+        audit: {
+          assumption: "The application must successfully audit the rendered body before writing it. An audit failure must prevent the write. Renderers still only return text.",
+          conclusion: "The workflow requirement itself changed. Edit that workflow deliberately instead of hiding auditing inside each renderer.",
+          rows: [
+            [["edit", "Edit workflow", "Insert audit between rendering and writing."], ["stable", "Stable formats", "Representation rules need not change."], ["edit", "Edit wiring", "Supply an audit collaborator."]],
+            [["edit", "Edit workflow", "Insert audit between rendering and writing."], ["stable", "Stable renderers", "Their existing contract still fits."], ["edit", "Edit wiring", "Supply an audit collaborator."]],
+            [["edit", "Edit workflow", "Insert audit between rendering and writing."], ["stable", "Stable layout", "Label data and formatting stay the same."], ["edit", "Edit wiring", "Supply an audit collaborator."]]
+          ]
+        }
+      };
+      function update() {
+        const scenario = scenarios[select.value];
+        assumption.textContent = scenario.assumption;
+        lanes.replaceChildren();
+        designs.forEach((design, index) => {
+          const lane = document.createElement("section");
+          lane.className = "lane";
+          lane.setAttribute("aria-label", design.name);
+          const heading = document.createElement("div");
+          heading.className = "lane-heading";
+          const title = document.createElement("h2");
+          title.textContent = design.name;
+          const detail = document.createElement("p");
+          detail.textContent = design.detail;
+          heading.append(title, detail);
+          lane.append(heading);
+          scenario.rows[index].forEach(([status, label, detailText], column) => {
+            const node = document.createElement("div");
+            node.className = `node ${status}`;
+            const role = document.createElement("span");
+            role.className = "node-role";
+            role.textContent = ["Workflow", "Representation", "Wiring / data"][column];
+            const state = document.createElement("span");
+            state.className = "node-status";
+            state.textContent = label;
+            const detail = document.createElement("span");
+            detail.className = "node-detail";
+            detail.textContent = detailText;
+            node.append(role, state, detail);
+            lane.append(node);
+          });
+          lanes.append(lane);
+        });
+        conclusion.textContent = scenario.conclusion;
+      }
+      select.addEventListener("change", update);
+      update();
+    })();
+  </script>
+</body>
+</html>

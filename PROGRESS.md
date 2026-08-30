@@ -84,7 +84,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-FND-100` | [Modules, package boundaries, and circular dependencies](CURRICULUM.md#sdp-fnd-100) | Core | Approved | Not started | — | — | — | — |
 | `SDP-FND-110` | [Simplicity heuristics and collaboration laws](CURRICULUM.md#sdp-fnd-110) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-010` | [Single Responsibility Principle](CURRICULUM.md#sdp-sol-010) | Core | Approved | Not started | — | — | — | — |
-| `SDP-SOL-020` | [Open/Closed Principle](CURRICULUM.md#sdp-sol-020) | Core | Absent | Not started | — | — | — | — |
+| `SDP-SOL-020` | [Open/Closed Principle](CURRICULUM.md#sdp-sol-020) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-030` | [Liskov Substitution Principle and behavioural subtyping](CURRICULUM.md#sdp-sol-030) | Core | Absent | Not started | — | — | — | — |
 | `SDP-SOL-040` | [Interface Segregation Principle](CURRICULUM.md#sdp-sol-040) | Core | Absent | Not started | — | — | — | — |
 | `SDP-SOL-050` | [Dependency Inversion Principle](CURRICULUM.md#sdp-sol-050) | Core | Absent | Not started | — | — | — | — |
