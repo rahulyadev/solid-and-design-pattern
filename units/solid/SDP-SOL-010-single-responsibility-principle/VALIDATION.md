@@ -30,9 +30,10 @@ The unit was initialized from synchronized `main` at
 | Responsive visual | 1060, 736, 360, and 320 px viewport checks; no horizontal overflow in the inspected layouts |
 | Appearance | Dark appearance and a temporary forced-light copy inspected; QA copy removed |
 
-The local artifact review is complete. The initial commit retains Draft as required by the
-initialization workflow; the separately requested finalization may approve the material.
-Learning state remains Not started regardless of publication.
+The local artifact review is complete. The validated initialization commit `01d2cd8` recorded
+Draft as required by the workflow. The separately requested finalization marks the material
+Approved for publication on 2026-08-30. Learning state remains Not started; approval does not
+represent completion of the learner exercises.
 
 ## Environment and reproducibility
 

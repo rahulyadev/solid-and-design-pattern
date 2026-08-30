@@ -102,7 +102,7 @@ unrelated policies. Moving each method into another class does not establish goo
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels and estimates are curriculum judgments, not measured population statistics.
 Generated artifacts and passing starter tests do not establish learner mastery.
