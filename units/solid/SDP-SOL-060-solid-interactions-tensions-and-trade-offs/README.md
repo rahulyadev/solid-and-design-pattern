@@ -90,7 +90,7 @@ formatting boundary has a concrete purpose.
 | Evidence profile | E+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11; supplied code uses the same syntax |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured statistics. The optional
 experiments support the canonical E+D+T profile without changing it. Generated files and
@@ -99,6 +99,7 @@ maintainer test runs do not establish learner progress.
 Use the [visual guide](visuals/README.md), [worked example](examples/run_alert_demo.py),
 [practice brief](practice/README.md), [shape experiment](experiments/EXP-01-compatible-shape/README.md),
 and [split-operation experiment](experiments/EXP-02-split-operation/README.md).
+The [maintainer validation record](VALIDATION.md) reports artifact checks separately from learning evidence.
 
 ## 1. Simple explanation and prerequisite bridge
 
@@ -283,9 +284,9 @@ capabilities. It is deliberately not a renamed copy of this solved formatting ex
 ## 9. Typed implementation and contract limits
 
 The runnable implementation already uses explicit types. `Reading` has named `station` and
-`celsius` fields, and validates that a station is not blank. Integers are the typed input
-contract; this is not a parser for arbitrary JSON values, floats, or booleans. Validate those
-at an actual input boundary rather than pretending annotations perform runtime validation.
+`celsius` fields, and validates that a station is not blank. The annotated integer inputs are
+assumed; this is not a parser for arbitrary external payloads. Validate those at an actual
+input boundary rather than pretending annotations perform runtime validation.
 
 Passing a tuple prevents a formatter from reordering the supplied collection in place.
 The frozen dataclass blocks normal field reassignment; it is not a security boundary or a
