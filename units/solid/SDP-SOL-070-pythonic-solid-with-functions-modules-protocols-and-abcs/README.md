@@ -93,7 +93,7 @@ and check behaviour, errors, state ownership, and dependency direction.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not survey results. Runtime experiments
 support this unit; they do not add a required X outcome to its canonical evidence profile.
