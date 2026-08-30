@@ -90,7 +90,9 @@ keyboard or accessibility audit is claimed.
 
 ## Artifact and learning state
 
-The initialization artifact is Draft. The explicit publication request permits a separate final
-artifact approval after validation; it does not establish learner completion. Learning state remains
-Not started, with no change to evidence dates or other unit rows. `SDP-SOL-030` is referenced as the
-next unit but is not initialized by this operation.
+Initialization commit `49a4b9b5f360c2bd941deb765d83de4f39c23cbe` recorded Draft as required.
+The separately requested finalization marks the coherent, source-checked, runnable material
+Approved on 2026-08-30 after the checks and manual review above. Publication is explicitly
+authorized on `topic/SDP-SOL-020`; artifact approval does not establish learner completion.
+Learning state remains Not started, with no change to evidence dates or other unit rows.
+`SDP-SOL-030` is referenced as the next unit but is not initialized by this operation.

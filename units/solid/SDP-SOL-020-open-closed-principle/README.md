@@ -96,7 +96,7 @@ assert outbox == ["done=4; failed=1"]
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured percentages. Generated material and a
 successful publication do not establish learning evidence.
