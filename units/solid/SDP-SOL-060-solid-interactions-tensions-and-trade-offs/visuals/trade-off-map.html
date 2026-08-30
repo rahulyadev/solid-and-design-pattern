@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>SDP-SOL-060 — Choose the smallest coherent change</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --surface: light-dark(#fafaf7, #191d20);
+      --text: light-dark(#202b32, #edf1f3);
+      --secondary-text: light-dark(#50616b, #b6c3cb);
+      --line: light-dark(#c6d0d5, #49575f);
+      --panel: light-dark(#ffffff, #232a2f);
+      --change: light-dark(#9b4205, #ffb16d);
+      --change-wash: light-dark(#fff1e2, #382c24);
+      --retain: light-dark(#106d61, #86ddc9);
+      --retain-wash: light-dark(#e8f5f0, #203831);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--surface);
+      font-family: system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    main { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+    a { color: var(--retain); text-underline-offset: 3px; }
+    h1 { font-size: clamp(1.65rem, 4vw, 2.35rem); line-height: 1.2; font-weight: 650; margin: 12px 0; }
+    h2 { font-size: 1.15rem; line-height: 1.4; margin: 0 0 8px; }
+    h3 { font-size: 1rem; margin: 0 0 4px; }
+    p { margin: 0 0 14px; }
+    .eyebrow, .caption { color: var(--secondary-text); font-size: .875rem; }
+    .eyebrow { letter-spacing: .04em; }
+    .intro { max-width: 68ch; }
+    .control { margin: 24px 0; max-width: 560px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    select {
+      display: block;
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px 12px;
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+    }
+    .scenario { border-top: 1px solid var(--line); padding-top: 20px; }
+    .principles { color: var(--secondary-text); margin-bottom: 20px; }
+    figure { margin: 20px 0 24px; }
+    .lane-label { font-weight: 600; margin: 0 0 8px; }
+    .flow {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr) 26px minmax(0, 1fr);
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+    .node {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .node strong { display: block; font-weight: 650; margin-bottom: 4px; }
+    .node span { font-size: .875rem; }
+    .node.change { background: var(--change-wash); border-color: var(--change); }
+    .node.retain { background: var(--retain-wash); border-color: var(--retain); }
+    .arrow { display: grid; place-items: center; font-size: 22px; color: var(--secondary-text); }
+    .decision { border-left: 3px solid var(--retain); padding-left: 16px; margin: 22px 0; }
+    .decision p:last-child { margin-bottom: 0; }
+    .key { font-weight: 600; }
+    .reading-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 28px 0; }
+    footer { border-top: 1px solid var(--line); padding-top: 16px; }
+    footer nav { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+    @media (max-width: 580px) {
+      main { padding: 22px 16px; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { place-self: center; width: 26px; height: 26px; transform: rotate(90deg); }
+      .node { padding: 12px; }
+      .reading-guide { grid-template-columns: 1fr; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="solid-trade-off-map">
+    <header>
+      <div class="eyebrow">SDP-SOL-060 · SOLID interactions, tensions, and trade-offs</div>
+      <h1>Choose the smallest coherent change</h1>
+      <p class="intro">Start with a real pressure. Protect the caller's promises. Stop when the useful boundary is clear.</p>
+    </header>
+    <div class="control">
+      <label for="scenario-choice">Change pressure</label>
+      <select id="scenario-choice">
+        <option value="stable">One stable format</option>
+        <option value="format" selected>Another output format</option>
+        <option value="replacement">A replacement changes shared data</option>
+        <option value="split">A shared operation is split</option>
+        <option value="speculation">A framework without a real need</option>
+      </select>
+    </div>
+    <section class="scenario" aria-labelledby="scenario-title">
+      <h2 id="scenario-title">Another format should not duplicate selection</h2>
+      <p id="pressure">Text and JSON change independently; the inclusive cutoff, order, and duplicate readings must stay the same.</p>
+      <p class="principles" id="principles">Primary: SRP / OCP · Supporting: DIP / ISP · Contract check: LSP</p>
+      <figure aria-labelledby="map-caption">
+        <p class="lane-label" id="before-label">Current pressure</p>
+        <div class="flow" id="before-flow" role="group" aria-label="Current design">
+          <div class="node"><strong>Caller</strong><span>Wants text or JSON</span></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node change"><strong>Selection duplicated</strong><span>Each format copies the rule</span></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node"><strong>Two representations</strong><span>Rules can drift apart</span></div>
+        </div>
+        <p class="lane-label" id="after-label">Smallest useful response</p>
+        <div class="flow" id="after-flow" role="group" aria-label="Proposed response">
+          <div class="node"><strong>Caller</strong><span>Chooses one formatter</span></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node retain"><strong>Shared selection</strong><span>One rule, selected tuple</span></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node"><strong>Chosen formatter</strong><span>Represents the selected data</span></div>
+        </div>
+        <figcaption class="caption" id="map-caption">Conceptual responsibility maps. Read each row from start to finish; arrows show collaboration, not source imports.</figcaption>
+      </figure>
+      <div class="decision">
+        <p id="invariant"><span class="key">Keep:</span> cutoff, order, duplicates, and legacy text when that format is requested.</p>
+        <p id="move"><span class="key">Move:</span> separate selection from presentation; pass one function only if the pipeline is reused.</p>
+        <p id="cost"><span class="key">Cost:</span> each formatter must satisfy the shared semantic contract and its own output format.</p>
+      </div>
+      <p class="caption" id="scenario-status" aria-live="polite">Selected: another output format.</p>
+    </section>
+    <section class="reading-guide" aria-label="Reading guide and limitations">
+      <div>
+        <h3>How to read this visual</h3>
+        <p>Choose a pressure, compare the two rows, then check what must remain true. The tinted middle node marks the responsibility being examined.</p>
+        <h3>Key insight</h3>
+        <p>One useful boundary can address several principles. Correct promises matter more than the number of interfaces.</p>
+      </div>
+      <div>
+        <h3>Simplification or limitation</h3>
+        <p id="limitation">The maps are authored design comparisons, not executed Python, memory layouts, or numerical design scores. The linked scripts establish their own runtime results.</p>
+        <p class="caption" id="specific-limit">The caller already has stable input; no network, concurrency, or plugin lifecycle is modeled.</p>
+      </div>
+    </section>
+    <footer>
+      <nav aria-label="Unit resources">
+        <a href="../README.md">Unit note</a>
+        <a href="../practice/README.md">Unsolved practice</a>
+        <a href="../experiments/EXP-01-compatible-shape/README.md">Shape experiment</a>
+        <a href="../experiments/EXP-02-split-operation/README.md">Split-operation experiment</a>
+      </nav>
+    </footer>
+    <noscript><p>JavaScript is disabled. The default format comparison remains visible; the unit note contains the other comparisons.</p></noscript>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+      const root = document.getElementById("solid-trade-off-map");
+      const choice = root.querySelector("#scenario-choice");
+      const scenarios = {
+        stable: {
+          title: "A small stable function can stay small",
+          pressure: "One caller needs one format. No independent presentation change or reusable pipeline has appeared.",
+          principles: "Primary: change evidence · Supporting: SRP · No automatic need for an OCP seam",
+          beforeLabel: "Current design",
+          afterLabel: "Keep the direct design",
+          before: [["Caller", "One known use"], ["Select and format", "One local function"], ["Text", "One agreed result"]],
+          after: [["Caller", "One known use"], ["Select and format", "Keep the tested function"], ["Text", "Same agreed result"]],
+          invariant: "the existing results, error meanings, and input ownership.",
+          move: "none yet; preserve behaviour and watch for a concrete independent change.",
+          cost: "a future variation may require a later refactoring; that can be reasonable.",
+          limit: "This judgment assumes the stated small scope. Hidden clients or recurring changes could reverse it."
+        },
+        format: {
+          title: "Another format should not duplicate selection",
+          pressure: "Text and JSON change independently; the inclusive cutoff, order, and duplicate readings must stay the same.",
+          principles: "Primary: SRP / OCP · Supporting: DIP / ISP · Contract check: LSP",
+          beforeLabel: "Current pressure",
+          afterLabel: "Smallest useful response",
+          before: [["Caller", "Wants text or JSON"], ["Selection duplicated", "Each format copies the rule"], ["Two representations", "Rules can drift apart"]],
+          after: [["Caller", "Chooses one formatter"], ["Shared selection", "One rule, selected tuple"], ["Chosen formatter", "Represents the selected data"]],
+          invariant: "cutoff, order, duplicates, and legacy text when that format is requested.",
+          move: "separate selection from presentation; pass one function only if the pipeline is reused.",
+          cost: "each formatter must satisfy the shared semantic contract and its own output format.",
+          limit: "The caller already has stable input; no network, concurrency, or plugin lifecycle is modeled."
+        },
+        replacement: {
+          title: "The same type can hide a broken promise",
+          pressure: "A maximum-reading replacement returns the right number but sorts a list shared with a timeline consumer.",
+          principles: "Primary: LSP · Supporting: OCP · Evidence: input and later observations",
+          beforeLabel: "Replacement with a compatible signature",
+          afterLabel: "Preserve the declared contract",
+          before: [["Readings list", "Acquired: 30, 10, 20"], ["Maximum sorts list", "Returns 30; changes order"], ["Timeline consumer", "Now sees latest = 30"]],
+          after: [["Readings list", "Acquired: 30, 10, 20"], ["Maximum preserves list", "Returns 30; keeps order"], ["Timeline consumer", "Still sees latest = 20"]],
+          invariant: "the caller's non-mutation and acquisition-order promises, not only the maximum.",
+          move: "repair or reject the replacement; do not change the promise silently.",
+          cost: "contract tests must include state effects and later observations.",
+          limit: "Sorting is valid under a different contract. This example specifically promises to preserve acquisition order."
+        },
+        split: {
+          title: "Tiny methods can move an invariant into callers",
+          pressure: "Two consumers each see one token before either consumes it. Both then act on the old check.",
+          principles: "Primary: invariant ownership · Supporting: SRP / ISP · Concurrency needs a real mechanism",
+          beforeLabel: "Split check and consume",
+          afterLabel: "Cohesive serial operation",
+          before: [["A and B check", "Both see one token"], ["Each consumes later", "Both accept the request"], ["Remaining quota", "−1: invariant broken"]],
+          after: [["A then B request", "Fresh state per call"], ["Owner checks and consumes", "A accepted; B rejected"], ["Remaining quota", "0: serial invariant held"]],
+          invariant: "capacity must not become negative under the promised execution model.",
+          move: "give the state owner one meaningful transition; implement synchronization when real concurrency requires it.",
+          cost: "a cohesive method is not automatically atomic or thread-safe.",
+          limit: "The experiment interleaves whole calls only. It does not test threads, locks, transactions, or distributed rate limiting."
+        },
+        speculation: {
+          title: "An abstraction needs a reason to exist",
+          pressure: "A single report gains a registry, factory, and lifecycle interfaces for formats nobody has requested.",
+          principles: "Primary: simplicity judgment · Supporting: scoped OCP / DIP · Evidence before extension machinery",
+          beforeLabel: "Speculative design",
+          afterLabel: "Return to the actual requirement",
+          before: [["Simple report", "One caller, one format"], ["Registry and factories", "Many contracts to navigate"], ["Same text", "No new required behaviour"]],
+          after: [["Simple report", "One caller, one format"], ["Direct function", "Explicit data and calls"], ["Same text", "Known behaviour preserved"]],
+          invariant: "the tested report behaviour while removing unnecessary coordination.",
+          move: "remove speculative machinery; retain a boundary only when it has a current purpose.",
+          cost: "future extension may need fresh design work; revisit when the evidence changes.",
+          limit: "A real independently distributed plugin ecosystem has different requirements and can justify this machinery."
+        }
+      };
+      function setText(selector, value) {
+        root.querySelector(selector).textContent = value;
+      }
+      function drawFlow(selector, nodes, emphasis) {
+        const container = root.querySelector(selector);
+        const fragment = document.createDocumentFragment();
+        nodes.forEach((entry, index) => {
+          if (index > 0) {
+            const arrow = document.createElement("span");
+            arrow.className = "arrow";
+            arrow.setAttribute("aria-hidden", "true");
+            arrow.textContent = "→";
+            fragment.append(arrow);
+          }
+          const node = document.createElement("div");
+          node.className = index === 1 ? `node ${emphasis}` : "node";
+          const title = document.createElement("strong");
+          title.textContent = entry[0];
+          const detail = document.createElement("span");
+          detail.textContent = entry[1];
+          node.append(title, detail);
+          fragment.append(node);
+        });
+        container.replaceChildren(fragment);
+      }
+      function setDecision(selector, label, detail) {
+        const line = root.querySelector(selector);
+        const heading = document.createElement("span");
+        heading.className = "key";
+        heading.textContent = label;
+        line.replaceChildren(heading, document.createTextNode(` ${detail}`));
+      }
+      function update() {
+        const state = scenarios[choice.value];
+        setText("#scenario-title", state.title);
+        setText("#pressure", state.pressure);
+        setText("#principles", state.principles);
+        setText("#before-label", state.beforeLabel);
+        setText("#after-label", state.afterLabel);
+        drawFlow("#before-flow", state.before, "change");
+        drawFlow("#after-flow", state.after, "retain");
+        setDecision("#invariant", "Keep:", state.invariant);
+        setDecision("#move", "Move:", state.move);
+        setDecision("#cost", "Cost:", state.cost);
+        setText("#specific-limit", state.limit);
+        setText("#scenario-status", `Selected: ${choice.selectedOptions[0].textContent}.`);
+      }
+      choice.addEventListener("change", update);
+      update();
+    })();
+  </script>
+</body>
+</html>
