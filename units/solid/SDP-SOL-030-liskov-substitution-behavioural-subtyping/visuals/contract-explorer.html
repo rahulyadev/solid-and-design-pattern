@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>SDP-SOL-030 — Contract explorer</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --surface: #fafbf9;
+      --ink: #202a27;
+      --muted: #56645e;
+      --line: #ccd4ce;
+      --panel: #eef2ee;
+      --good: #176448;
+      --good-wash: #e3f2e8;
+      --bad: #9e302c;
+      --bad-wash: #fce9e6;
+      --active: #244ea6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --surface: #171d1b;
+        --ink: #edf2ee;
+        --muted: #b8c5bd;
+        --line: #45544c;
+        --panel: #222c26;
+        --good: #8bdfb2;
+        --good-wash: #233e2e;
+        --bad: #ffb4a8;
+        --bad-wash: #442724;
+        --active: #a8c3ff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--surface); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; }
+    main { max-width: 940px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 32px); }
+    h1 { margin: 4px 0 8px; font-size: clamp(25px, 4vw, 34px); line-height: 1.2; font-weight: 600; }
+    h2 { font-size: 18px; margin: 26px 0 10px; font-weight: 600; }
+    p { margin: 6px 0 14px; }
+    .eyebrow, .label { color: var(--muted); font-size: 13px; letter-spacing: .03em; }
+    .label { display: block; margin-bottom: 8px; }
+    .controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: end; margin: 24px 0 18px; }
+    label { display: block; min-width: 0; }
+    select, button { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-height: 44px; padding: 8px 12px; }
+    select { display: block; width: 100%; margin-top: 6px; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    button:not(:disabled):hover { border-color: var(--active); }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    code { font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
+    .verdict { border-left: 4px solid var(--good); background: var(--good-wash); padding: 12px 14px; }
+    .verdict[data-broken="true"] { border-color: var(--bad); background: var(--bad-wash); }
+    .verdict strong { display: block; font-weight: 600; }
+    #reason { margin: 4px 0 0; }
+    .flow { display: grid; grid-template-columns: 1fr 24px 1fr 24px 1fr; gap: 8px; margin: 24px 0; align-items: center; }
+    .stage { min-width: 0; align-self: stretch; padding: 14px; background: var(--panel); border-radius: 6px; }
+    .stage code { display: block; font-size: 16px; }
+    .arrow { text-align: center; color: var(--muted); }
+    .expectation { margin-top: 12px; font-size: 14px; color: var(--muted); }
+    .expectation code { font-size: 14px; color: var(--ink); }
+    .trace { padding: 0; margin: 0; list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .trace li { min-width: 0; border-top: 3px solid var(--line); padding: 8px 0; overflow-wrap: anywhere; }
+    .trace li[data-current="true"] { border-color: var(--active); }
+    .trace code, .trace small { display: block; }
+    .trace small { color: var(--muted); font-size: 13px; }
+    .trace .failure { color: var(--bad); }
+    .trace .success { color: var(--good); }
+    .caption { font-size: 14px; color: var(--muted); margin-top: 22px; }
+    footer { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+    @media (max-width: 650px) {
+      .controls { grid-template-columns: 1fr; gap: 12px; }
+      .flow { grid-template-columns: 1fr; gap: 4px; }
+      .arrow { transform: rotate(90deg); }
+      .stage { padding: 12px 14px; }
+      .trace { grid-template-columns: 1fr; gap: 0; }
+      .trace li { display: grid; grid-template-columns: 35px minmax(0, 1fr) 95px; gap: 8px; border-top-width: 1px; align-items: baseline; }
+      .trace li[data-current="true"] { border-top-width: 3px; }
+      main { padding-top: 20px; }
+    }
+  </style>
+</head>
+<body>
+<main id="contract-explorer">
+  <header>
+    <div class="eyebrow">SDP-SOL-030 · LISKOV SUBSTITUTION</div>
+    <h1>Same method. Same promise?</h1>
+    <p>Step through a stable catalog: exact labels, documented absence, and unchanged entries.</p>
+  </header>
+  <div class="controls">
+    <label for="provider">Replacement provider
+      <select id="provider">
+        <option value="DictCatalog">DictCatalog · dictionary snapshot</option>
+        <option value="TupleCatalog">TupleCatalog · tuple snapshot</option>
+        <option value="RestrictedCatalog">RestrictedCatalog · restricted inputs</option>
+        <option value="BlankOnMissingCatalog">BlankOnMissingCatalog · fallback value</option>
+        <option value="ConsumingCatalog">ConsumingCatalog · consuming reads</option>
+        <option value="LeakyErrorCatalog">LeakyErrorCatalog · storage error</option>
+      </select>
+    </label>
+    <nav aria-label="Call sequence">
+      <button type="button" id="previous">Previous call</button>
+      <button type="button" id="next">Next call</button>
+    </nav>
+  </div>
+  <section id="verdict" class="verdict" aria-live="polite" aria-atomic="true" data-broken="false">
+    <strong id="status">No violation in the first call</strong>
+    <p id="reason">The result and remaining entries match the contract.</p>
+  </section>
+  <div class="flow" role="group" aria-label="Current call, outcome, and remaining state">
+    <section class="stage">
+      <span class="label" id="call-number">CALL 1 OF 5</span>
+      <code id="call">lookup('box')</code>
+      <div class="expectation">Valid input for every provider.</div>
+    </section>
+    <span class="arrow" aria-hidden="true">→</span>
+    <section class="stage">
+      <span class="label">OBSERVED OUTCOME</span>
+      <code id="actual">'crate'</code>
+      <div class="expectation">Contract requires <code id="expected">'crate'</code></div>
+    </section>
+    <span class="arrow" aria-hidden="true">→</span>
+    <section class="stage">
+      <span class="label">REMAINING CODES</span>
+      <code id="state">box, x</code>
+      <div class="expectation">Contract requires <code>box, x</code></div>
+    </section>
+  </div>
+  <h2>Observation history</h2>
+  <ol class="trace" id="trace" aria-label="Five calls and their contract results"></ol>
+  <p class="caption">State is a conceptual view of stored entries. A real client detects a consumed
+    entry through a later lookup. Changing providers restarts the sequence.</p>
+  <footer>Original teaching model, matching the unit's Python examples. No Python runs here;
+    finite traces illustrate violations and do not prove all possible behaviour. No external requests.</footer>
+  <noscript><p>JavaScript is needed for stepping through calls. The unit note and Python runner
+    provide the same contract examples without this explorer.</p></noscript>
+</main>
+<script>
+(() => {
+  "use strict";
+  const root = document.getElementById("contract-explorer");
+  const provider = root.querySelector("#provider");
+  const previous = root.querySelector("#previous");
+  const next = root.querySelector("#next");
+  const codes = ["box", "x", "x", "absent", "box"];
+  const initial = {box: "crate", x: "parcel"};
+  let step = 0;
+
+  function outcome(value, error) {
+    return error || "'" + value + "'";
+  }
+
+  function simulate(name) {
+    const entries = {...initial};
+    return codes.map(code => {
+      let value;
+      let error;
+      if (name === "RestrictedCatalog" && code.length < 3) {
+        error = "ValueError";
+      } else if (!Object.hasOwn(entries, code)) {
+        if (name === "BlankOnMissingCatalog") value = "";
+        else error = name === "LeakyErrorCatalog" ? "KeyError" : "UnknownCode";
+      } else {
+        value = entries[code];
+        if (name === "ConsumingCatalog") delete entries[code];
+      }
+      const actual = outcome(value, error);
+      const expected = Object.hasOwn(initial, code) ? outcome(initial[code]) : "UnknownCode";
+      const state = Object.keys(entries).sort().join(", ") || "(empty)";
+      const valid = actual === expected && state === "box, x";
+      return {code, actual, expected, state, valid};
+    });
+  }
+
+  function render() {
+    const trace = simulate(provider.value);
+    const current = trace[step];
+    const firstBroken = trace.slice(0, step + 1).findIndex(item => !item.valid);
+    root.querySelector("#call-number").textContent = `CALL ${step + 1} OF ${codes.length}`;
+    root.querySelector("#call").textContent = `lookup('${current.code}')`;
+    root.querySelector("#actual").textContent = current.actual;
+    root.querySelector("#expected").textContent = current.expected;
+    root.querySelector("#state").textContent = current.state;
+    root.querySelector("#verdict").dataset.broken = String(firstBroken >= 0);
+    root.querySelector("#status").textContent = firstBroken < 0
+      ? (step === 0 ? "No violation in the first call" : `No violation in the first ${step + 1} calls`)
+      : `Contract broken at call ${firstBroken + 1}`;
+    const reasons = {
+      RestrictedCatalog: "A valid short code is rejected by an extra input restriction.",
+      BlankOnMissingCatalog: "Documented absence is replaced with an empty success value.",
+      ConsumingCatalog: "A lookup changes entries that later calls are entitled to read.",
+      LeakyErrorCatalog: "The client receives an undocumented storage exception."
+    };
+    root.querySelector("#reason").textContent = firstBroken < 0
+      ? "The observed outcomes and remaining entries match the contract so far."
+      : reasons[provider.value];
+    const history = root.querySelector("#trace");
+    history.replaceChildren();
+    trace.forEach((item, index) => {
+      const row = document.createElement("li");
+      row.dataset.current = String(index === step);
+      if (index === step) row.setAttribute("aria-current", "step");
+      const number = document.createElement("small");
+      number.textContent = `${index + 1}.`;
+      const call = document.createElement("code");
+      call.textContent = `lookup('${item.code}')`;
+      const result = document.createElement("small");
+      result.textContent = index > step ? "Not run" : item.valid ? "Matches" : "Violation";
+      if (index <= step) result.className = item.valid ? "success" : "failure";
+      row.append(number, call, result);
+      history.append(row);
+    });
+    previous.disabled = step === 0;
+    next.disabled = step === codes.length - 1;
+  }
+
+  provider.addEventListener("change", () => { step = 0; render(); });
+  previous.addEventListener("click", () => { if (step > 0) step -= 1; render(); });
+  next.addEventListener("click", () => { if (step < codes.length - 1) step += 1; render(); });
+  render();
+})();
+</script>
+</body>
+</html>
