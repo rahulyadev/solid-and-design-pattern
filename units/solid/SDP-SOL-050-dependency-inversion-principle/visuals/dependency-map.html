@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-SOL-050 · Dependency direction</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: CanvasText;
+      --paper: Canvas;
+      --line: color-mix(in srgb, CanvasText 25%, transparent);
+      --wash: color-mix(in srgb, CanvasText 5%, Canvas);
+      --accent: LinkText;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.6 system-ui, sans-serif;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 32px; }
+    h1 { font-size: clamp(25px, 4vw, 36px); line-height: 1.2; font-weight: 600; }
+    h2 { font-size: 18px; font-weight: 600; }
+    p { margin: 12px 0; }
+    .eyebrow { letter-spacing: .08em; font-size: 13px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 20px; margin: 26px 0; }
+    label { flex: 1 1 220px; min-width: 0; }
+    select {
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      margin-top: 6px;
+      padding: 8px;
+      font: inherit;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .legend { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+    .flow { display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr) 64px minmax(0, 1fr); align-items: center; gap: 8px; margin: 24px 0; }
+    .node { padding: 18px 12px; min-width: 0; background: var(--wash); border: 1px solid var(--line); border-radius: 8px; }
+    .node strong { display: block; font-size: 17px; font-weight: 600; }
+    code { font-size: 13px; overflow-wrap: anywhere; }
+    .arrow { text-align: center; }
+    .arrow-symbol { display: block; color: var(--accent); font-size: 30px; line-height: 1.1; }
+    .arrow-label { font-size: 12px; }
+    .vertical { display: none; }
+    .detail { padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .guidance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+    .guidance p { font-size: 14px; }
+    a { color: var(--accent); }
+    footer { margin-top: 28px; font-size: 14px; }
+    @media (max-width: 600px) {
+      main { padding: 20px; }
+      .controls { gap: 12px; }
+      .flow { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+      .node { min-height: 0; }
+      .horizontal { display: none; }
+      .vertical { display: block; }
+      .guidance { grid-template-columns: minmax(0, 1fr); gap: 0; }
+      .arrow { display: flex; justify-content: center; align-items: center; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main id="dip-map">
+    <div class="eyebrow">SDP-SOL-050 · DEPENDENCY INVERSION</div>
+    <h1>Two kinds of arrows</h1>
+    <p>Change the design. Then compare source imports with runtime calls.</p>
+    <div class="controls">
+      <label for="design">Design
+        <select id="design">
+          <option value="concrete">Injected concrete type</option>
+          <option value="inverted" selected>Policy-owned contract</option>
+        </select>
+      </label>
+      <label for="view">View
+        <select id="view">
+          <option value="source" selected>Source imports</option>
+          <option value="runtime">Runtime calls</option>
+        </select>
+      </label>
+    </div>
+    <p class="legend" id="legend">Arrows mean “source code imports definitions from.”</p>
+    <div class="flow" id="flow" role="group" aria-label="Policy imports contract; SQLite adapter imports contract">
+      <div class="node"><strong>Policy</strong><code>replenishment_policy.py</code></div>
+      <div class="arrow" aria-label="imports"><span class="arrow-symbol horizontal" aria-hidden="true">→</span><span class="arrow-symbol vertical" aria-hidden="true">↓</span><span class="arrow-label">imports</span></div>
+      <div class="node"><strong>Stock contract</strong><code>stock_contract.py</code></div>
+      <div class="arrow" aria-label="adapter imports contract"><span class="arrow-symbol horizontal" aria-hidden="true">←</span><span class="arrow-symbol vertical" aria-hidden="true">↑</span><span class="arrow-label">imports</span></div>
+      <div class="node"><strong>SQLite adapter</strong><code>sqlite_stock.py</code></div>
+    </div>
+    <div class="detail" aria-live="polite">
+      <h2 id="verdict">Both sides refer to policy-owned definitions.</h2>
+      <p id="detail">The adapter also imports sqlite3. The policy does not import either the adapter or its driver.</p>
+      <p id="setup">Setup imports policy and adapter, supplies the object, and owns the connection.</p>
+    </div>
+    <div class="guidance">
+      <section><h2>How to read this visual</h2><p>Read left to right, or top to bottom on a narrow display. In the inverted source view, the adapter's arrow points back to the contract.</p></section>
+      <section><h2>Key insight</h2><p>Policy can call a concrete object without importing its implementation. Injection and source dependency direction are different questions.</p></section>
+      <section><h2>Simplification or limitation</h2><p>Conceptual maps of one successful read. The contract is not a runtime relay. Errors, concurrency, and most setup imports are omitted.</p></section>
+    </div>
+    <noscript><p>The default source map remains visible. Runtime calls follow policy → SQLite adapter → SQLite connection in both designs.</p></noscript>
+    <footer><a href="../README.md">Unit note</a> · <a href="README.md">Visual guide</a> · <a href="../experiments/EXP-01-import-isolation/README.md">Import experiment</a></footer>
+  </main>
+  <script>
+    (() => {
+      const root = document.getElementById('dip-map');
+      const design = root.querySelector('#design');
+      const view = root.querySelector('#view');
+      const flow = root.querySelector('#flow');
+      const legend = root.querySelector('#legend');
+      const verdict = root.querySelector('#verdict');
+      const detail = root.querySelector('#detail');
+
+      function node(label, file) {
+        const element = document.createElement('div');
+        element.className = 'node';
+        const title = document.createElement('strong');
+        title.textContent = label;
+        const code = document.createElement('code');
+        code.textContent = file;
+        element.append(title, code);
+        return element;
+      }
+
+      function arrow(reverse, label) {
+        const element = document.createElement('div');
+        element.className = 'arrow';
+        element.setAttribute('aria-label', reverse ? 'adapter imports contract' : label);
+        const horizontal = document.createElement('span');
+        horizontal.className = 'arrow-symbol horizontal';
+        horizontal.setAttribute('aria-hidden', 'true');
+        horizontal.textContent = reverse ? '←' : '→';
+        const vertical = document.createElement('span');
+        vertical.className = 'arrow-symbol vertical';
+        vertical.setAttribute('aria-hidden', 'true');
+        vertical.textContent = reverse ? '↑' : '↓';
+        const text = document.createElement('span');
+        text.className = 'arrow-label';
+        text.textContent = label;
+        element.append(horizontal, vertical, text);
+        return element;
+      }
+
+      function render() {
+        const inverted = design.value === 'inverted';
+        const runtime = view.value === 'runtime';
+        const policyFile = inverted ? 'replenishment_policy.py' : 'coupled_replenishment.py';
+        let middle;
+        let end;
+        if (runtime) {
+          middle = node('SQLite adapter', 'SqliteStock object');
+          end = node('SQLite connection', 'sqlite3.Connection');
+          legend.textContent = 'Arrows mean “calls the supplied object.”';
+          verdict.textContent = 'The runtime call direction stays the same.';
+          detail.textContent = inverted
+            ? 'The policy calls units_available on the adapter. The Protocol is not a runtime relay.'
+            : 'The caller injected the adapter, but the policy source still refers to its concrete implementation.';
+          flow.setAttribute('aria-label', 'Policy calls SQLite adapter; adapter calls SQLite connection');
+        } else if (inverted) {
+          middle = node('Stock contract', 'stock_contract.py');
+          end = node('SQLite adapter', 'sqlite_stock.py');
+          legend.textContent = 'Arrows mean “source code imports definitions from.”';
+          verdict.textContent = 'Both sides refer to policy-owned definitions.';
+          detail.textContent = 'The adapter also imports sqlite3. The policy does not import either the adapter or its driver.';
+          flow.setAttribute('aria-label', 'Policy imports contract; SQLite adapter imports contract');
+        } else {
+          middle = node('SQLite adapter', 'sqlite_stock.py');
+          end = node('Database driver', 'sqlite3');
+          legend.textContent = 'Arrows mean “source code imports definitions from.”';
+          verdict.textContent = 'Injection leaves a concrete source dependency here.';
+          detail.textContent = 'Importing this policy reaches sqlite3 even before a stock reading is requested.';
+          flow.setAttribute('aria-label', 'Policy imports SQLite adapter; adapter imports sqlite3');
+        }
+        const firstLabel = runtime ? 'read stock' : 'imports';
+        const secondLabel = runtime ? 'query' : 'imports';
+        flow.replaceChildren(node('Policy', policyFile), arrow(false, firstLabel), middle,
+          arrow(inverted && !runtime, secondLabel), end);
+        root.dataset.state = design.value + '-' + view.value;
+      }
+      design.addEventListener('change', render);
+      view.addEventListener('change', render);
+      render();
+    })();
+  </script>
+</body>
+</html>
