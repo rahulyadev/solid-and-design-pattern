@@ -86,7 +86,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-SOL-010` | [Single Responsibility Principle](CURRICULUM.md#sdp-sol-010) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-020` | [Open/Closed Principle](CURRICULUM.md#sdp-sol-020) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-030` | [Liskov Substitution Principle and behavioural subtyping](CURRICULUM.md#sdp-sol-030) | Core | Approved | Not started | — | — | — | — |
-| `SDP-SOL-040` | [Interface Segregation Principle](CURRICULUM.md#sdp-sol-040) | Core | Draft | Not started | — | — | — | — |
+| `SDP-SOL-040` | [Interface Segregation Principle](CURRICULUM.md#sdp-sol-040) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-050` | [Dependency Inversion Principle](CURRICULUM.md#sdp-sol-050) | Core | Absent | Not started | — | — | — | — |
 | `SDP-SOL-060` | [SOLID interactions, tensions, and trade-offs](CURRICULUM.md#sdp-sol-060) | Core | Absent | Not started | — | — | — | — |
 | `SDP-SOL-070` | [Pythonic SOLID with functions, modules, Protocols, and ABCs](CURRICULUM.md#sdp-sol-070) | Core | Absent | Not started | — | — | — | — |

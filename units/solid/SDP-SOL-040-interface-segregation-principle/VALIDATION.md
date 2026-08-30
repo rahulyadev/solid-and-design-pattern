@@ -18,7 +18,8 @@ rewritten. The Local checkout's existing ignored environments and caches were pr
 They caused its initial filesystem-hygiene validation to fail; the clean topic baseline
 passed without changing the validator.
 
-The initialization records Draft. The user separately authorized finalization, latest-change
+Initialization commit `c06885afbe2d6b7540fe7cbd734bb7b587c47337` records Draft.
+The user separately authorized finalization, latest-change
 publication, a checked merge, and synchronizing the main checkout. Approval of the material
 after review is distinct from completion of learning.
 
@@ -27,17 +28,21 @@ after review is distinct from completion of learning.
 | Check | Observed result |
 |---|---|
 | Clean baseline repository validator | Passed, including uv lock consistency |
+| Complete initialized-unit validator | Passed, including IDs, links, Markdown, tracker parity, hygiene, and lock consistency |
 | Locked tool environments | Synchronized successfully for CPython 3.14.7 and 3.11.16 |
 | Canonical unit tests | 43 passed; no skips or expected failures |
 | Python 3.11 compatibility | The same 43 tests passed with the same lockfile |
 | Strict mypy | No issues in 8 source files with both 3.14 and 3.11 targets |
 | Ruff lint | All checks passed |
+| Ruff format | Check passed for all 13 applicable Python and Markdown files |
 | Note snippets | All 4 Python blocks executed on both interpreters |
 | Entry points | Archive demo, station starter, and dependency experiment ran on both interpreters with identical output |
 | Contract-growth experiment | Accepted / rejected for unused members / accepted, while all actual calls returned hello |
 | Type matrix | All 24 client/contract/provider combinations checked by mypy: 10 accepted, 14 rejected |
 | Full regression | 374 passed across all 15 initialized units, one pytest process per unit |
 | Visual scenarios and layout | 192 checks passed: 24 combinations × 4 widths × 2 appearances |
+| Browser console | No warnings or errors observed |
+| Diff whitespace | Unstaged and staged checks passed |
 
 The initial strict check flagged a direct identity comparison between two protocol-typed
 references as non-overlapping. The demo now compares both references with the actual provider
@@ -118,6 +123,7 @@ override was reset after testing.
 
 ## Publication and learning boundary
 
+Finalization marks this material Approved after the checks and review above.
 Artifact approval changes no learning-state or evidence field. `SDP-SOL-050` remains absent
 and uninitialized. The final task report records the exact initialization/finalization commits,
 pull request, checked merge, and synchronized main result.

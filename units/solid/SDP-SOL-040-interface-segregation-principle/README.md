@@ -91,7 +91,7 @@ assert preview(documents.__getitem__, "welcome") == "hello"
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11; the supplied code uses the same syntax |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured usage statistics. Generated material
 is not learner evidence. Start with the [practice prediction](practice/README.md#prediction-before-running)
