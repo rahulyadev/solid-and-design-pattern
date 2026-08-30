@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>SDP-SOL-080 · Compare observable behaviour</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: light-dark(#faf9f6, #15191c);
+      --text: light-dark(#1d3036, #e8eeef);
+      --muted: light-dark(#52656c, #b3c2c7);
+      --line: light-dark(#c7d2d2, #435259);
+      --soft: light-dark(#eaf2ef, #243632);
+      --accent: light-dark(#16634d, #8ce0ba);
+      --warn: light-dark(#844515, #ffbb80);
+      --warn-bg: light-dark(#fff0de, #3b2b20);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--text);
+      font-family: system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 36px 28px 44px; }
+    .eyebrow { color: var(--accent); font-size: .8rem; letter-spacing: .08em; margin: 0; }
+    h1 { font-size: clamp(1.65rem, 4vw, 2.65rem); line-height: 1.15; font-weight: 600; margin: 12px 0; }
+    h2 { font-size: 1.15rem; font-weight: 600; margin-top: 26px; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    p { margin: 8px 0; }
+    .intro { max-width: 70ch; color: var(--muted); }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 26px 0 20px; }
+    label { display: block; font-weight: 600; min-width: 0; }
+    select {
+      display: block; width: 100%; min-width: 0; margin-top: 6px;
+      font: inherit; color: var(--text); background: var(--page);
+      border: 1px solid var(--line); border-radius: 5px; padding: 10px 8px;
+    }
+    .result { padding: 12px 16px; border-left: 4px solid var(--accent); background: var(--soft); }
+    .result.diff { border-left-color: var(--warn); background: var(--warn-bg); }
+    .result p:first-child { font-weight: 600; }
+    .result p { margin: 2px 0; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 12px; }
+    th, td { padding: 10px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+    th { font-weight: 600; }
+    .summary th:first-child { width: 24%; }
+    .events th:first-child { width: 96px; }
+    code { font-family: ui-monospace, monospace; font-size: .88em; white-space: pre-wrap; }
+    .divergence { background: var(--warn-bg); }
+    .first-difference { display: block; color: var(--warn); font-size: .8rem; font-weight: 600; }
+    .caption { color: var(--muted); font-size: .88rem; }
+    .guidance { margin-top: 26px; border-top: 1px solid var(--line); padding-top: 12px; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    details { margin-top: 16px; }
+    summary { cursor: pointer; padding: 8px 0; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    @media (max-width: 560px) {
+      main { padding: 24px 14px 32px; }
+      .controls { grid-template-columns: 1fr; gap: 12px; }
+      th, td { padding: 8px 6px; }
+      .summary th:first-child { width: 30%; }
+      .events th:first-child { width: 80px; }
+      .first-difference { font-size: .75rem; }
+    }
+  </style>
+</head>
+<body>
+<main id="sol080-comparison">
+  <header>
+    <p class="eyebrow">SDP-SOL-080 · LEGACY REFACTORING</p>
+    <h1>Compare observable behaviour</h1>
+    <p class="intro">A result is only part of the contract. Compare input reads, write attempts,
+      saved lines, and the order in which they happen.</p>
+  </header>
+  <div class="controls">
+    <label for="scenario">Scenario
+      <select id="scenario">
+        <option value="success">All names valid</option>
+        <option value="empty-name" selected>Empty second name</option>
+        <option value="source-failure">Source fails after first name</option>
+        <option value="sink-before">Sink rejects second line</option>
+        <option value="sink-after">Sink saves, then raises</option>
+      </select>
+    </label>
+    <label for="candidate">Compare legacy with
+      <select id="candidate">
+        <option value="extracted">Extract one formatting helper</option>
+        <option value="eager" selected>Buffer every line before writing</option>
+      </select>
+    </label>
+  </div>
+  <div class="result diff" id="comparison-status" role="status" aria-live="polite" aria-atomic="true">
+    <p id="outcome-status"></p>
+    <p id="trace-status"></p>
+  </div>
+  <table class="summary" aria-label="Observed outcomes">
+    <thead><tr><th scope="col">Check</th><th scope="col">Legacy</th><th scope="col" id="candidate-heading">Eager rewrite</th></tr></thead>
+    <tbody id="observations"></tbody>
+  </table>
+  <h2>Execution order</h2>
+  <p class="caption">Each row compares event positions, not elapsed time. A call is an attempt; a save is an observed effect.</p>
+  <table class="events" aria-label="Event sequence comparison">
+    <thead><tr><th scope="col">Event</th><th scope="col">Legacy</th><th scope="col" id="candidate-events">Eager rewrite</th></tr></thead>
+    <tbody id="event-rows"></tbody>
+  </table>
+  <section class="guidance" aria-label="Reading guide">
+    <h3>How to read this visual</h3>
+    <p>Choose a scenario and a candidate. Read each execution column from top to bottom.
+      The highlighted row marks the first different event.</p>
+    <h3>Key insight</h3>
+    <p id="insight"></p>
+    <details>
+      <summary>Simplification and limits</summary>
+      <p>These are recorded observations from a synchronous Python probe with synthetic names
+        and an in-memory sink. This page does not run Python or contact a service.
+        Event positions do not measure duration. A matching trace covers the selected case,
+        not every possible input or a real storage guarantee.</p>
+      <p>The full trace is part of the chosen observation boundary here. Some applications
+        deliberately allow different read timing; establish that contract before accepting
+        such a change.</p>
+      <p><a href="../experiments/EXP-01-observable-trace/README.md">Experiment and reproduction</a>
+        · <a href="../README.md">Unit note</a></p>
+    </details>
+  </section>
+  <noscript><p>This comparison requires JavaScript. Read the linked experiment for the same observations in text.</p></noscript>
+</main>
+<script type="application/json" id="recorded-observations">
+{
+  "success": {
+    "legacy": {
+      "result": 3,
+      "error": null,
+      "consumed": [
+        "Mira",
+        "Omar",
+        "Asha"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]",
+        "[ASHA]"
+      ],
+      "saved": [
+        "[MIRA]",
+        "[OMAR]",
+        "[ASHA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read 'Omar'",
+        "call '[OMAR]'",
+        "save '[OMAR]'",
+        "read 'Asha'",
+        "call '[ASHA]'",
+        "save '[ASHA]'",
+        "return 3"
+      ]
+    },
+    "extracted": {
+      "result": 3,
+      "error": null,
+      "consumed": [
+        "Mira",
+        "Omar",
+        "Asha"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]",
+        "[ASHA]"
+      ],
+      "saved": [
+        "[MIRA]",
+        "[OMAR]",
+        "[ASHA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read 'Omar'",
+        "call '[OMAR]'",
+        "save '[OMAR]'",
+        "read 'Asha'",
+        "call '[ASHA]'",
+        "save '[ASHA]'",
+        "return 3"
+      ]
+    },
+    "eager": {
+      "result": 3,
+      "error": null,
+      "consumed": [
+        "Mira",
+        "Omar",
+        "Asha"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]",
+        "[ASHA]"
+      ],
+      "saved": [
+        "[MIRA]",
+        "[OMAR]",
+        "[ASHA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "read 'Omar'",
+        "read 'Asha'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "call '[OMAR]'",
+        "save '[OMAR]'",
+        "call '[ASHA]'",
+        "save '[ASHA]'",
+        "return 3"
+      ]
+    }
+  },
+  "empty-name": {
+    "legacy": {
+      "result": null,
+      "error": "ValueError: empty name",
+      "consumed": [
+        "Mira",
+        ""
+      ],
+      "attempts": [
+        "[MIRA]"
+      ],
+      "saved": [
+        "[MIRA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read ''",
+        "ValueError: empty name"
+      ]
+    },
+    "extracted": {
+      "result": null,
+      "error": "ValueError: empty name",
+      "consumed": [
+        "Mira",
+        ""
+      ],
+      "attempts": [
+        "[MIRA]"
+      ],
+      "saved": [
+        "[MIRA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read ''",
+        "ValueError: empty name"
+      ]
+    },
+    "eager": {
+      "result": null,
+      "error": "ValueError: empty name",
+      "consumed": [
+        "Mira",
+        ""
+      ],
+      "attempts": [],
+      "saved": [],
+      "trace": [
+        "read 'Mira'",
+        "read ''",
+        "ValueError: empty name"
+      ]
+    }
+  },
+  "source-failure": {
+    "legacy": {
+      "result": null,
+      "error": "RuntimeError: source unavailable",
+      "consumed": [
+        "Mira"
+      ],
+      "attempts": [
+        "[MIRA]"
+      ],
+      "saved": [
+        "[MIRA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "RuntimeError: source unavailable"
+      ]
+    },
+    "extracted": {
+      "result": null,
+      "error": "RuntimeError: source unavailable",
+      "consumed": [
+        "Mira"
+      ],
+      "attempts": [
+        "[MIRA]"
+      ],
+      "saved": [
+        "[MIRA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "RuntimeError: source unavailable"
+      ]
+    },
+    "eager": {
+      "result": null,
+      "error": "RuntimeError: source unavailable",
+      "consumed": [
+        "Mira"
+      ],
+      "attempts": [],
+      "saved": [],
+      "trace": [
+        "read 'Mira'",
+        "RuntimeError: source unavailable"
+      ]
+    }
+  },
+  "sink-before": {
+    "legacy": {
+      "result": null,
+      "error": "OSError: writer unavailable",
+      "consumed": [
+        "Mira",
+        "Omar"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "saved": [
+        "[MIRA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read 'Omar'",
+        "call '[OMAR]'",
+        "OSError: writer unavailable"
+      ]
+    },
+    "extracted": {
+      "result": null,
+      "error": "OSError: writer unavailable",
+      "consumed": [
+        "Mira",
+        "Omar"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "saved": [
+        "[MIRA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read 'Omar'",
+        "call '[OMAR]'",
+        "OSError: writer unavailable"
+      ]
+    },
+    "eager": {
+      "result": null,
+      "error": "OSError: writer unavailable",
+      "consumed": [
+        "Mira",
+        "Omar",
+        "Asha"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "saved": [
+        "[MIRA]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "read 'Omar'",
+        "read 'Asha'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "call '[OMAR]'",
+        "OSError: writer unavailable"
+      ]
+    }
+  },
+  "sink-after": {
+    "legacy": {
+      "result": null,
+      "error": "OSError: acknowledgement lost",
+      "consumed": [
+        "Mira",
+        "Omar"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "saved": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read 'Omar'",
+        "call '[OMAR]'",
+        "save '[OMAR]'",
+        "OSError: acknowledgement lost"
+      ]
+    },
+    "extracted": {
+      "result": null,
+      "error": "OSError: acknowledgement lost",
+      "consumed": [
+        "Mira",
+        "Omar"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "saved": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "read 'Omar'",
+        "call '[OMAR]'",
+        "save '[OMAR]'",
+        "OSError: acknowledgement lost"
+      ]
+    },
+    "eager": {
+      "result": null,
+      "error": "OSError: acknowledgement lost",
+      "consumed": [
+        "Mira",
+        "Omar",
+        "Asha"
+      ],
+      "attempts": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "saved": [
+        "[MIRA]",
+        "[OMAR]"
+      ],
+      "trace": [
+        "read 'Mira'",
+        "read 'Omar'",
+        "read 'Asha'",
+        "call '[MIRA]'",
+        "save '[MIRA]'",
+        "call '[OMAR]'",
+        "save '[OMAR]'",
+        "OSError: acknowledgement lost"
+      ]
+    }
+  }
+}
+</script>
+<script>
+(() => {
+  "use strict";
+  const root = document.getElementById("sol080-comparison");
+  const observations = JSON.parse(document.getElementById("recorded-observations").textContent);
+  const scenario = root.querySelector("#scenario");
+  const candidate = root.querySelector("#candidate");
+  const names = { extracted: "Extracted helper", eager: "Eager rewrite" };
+  const insights = {
+    success: "Identical saved lines and counts can hide different read/write order.",
+    "empty-name": "The same validation error leaves different saved prefixes.",
+    "source-failure": "Moving reads ahead of writes changes what survives a source failure.",
+    "sink-before": "An eager consumer reads the third name even though the second write fails.",
+    "sink-after": "An exception is not proof that a write had no effect."
+  };
+  const show = value => JSON.stringify(value);
+  function appendRow(body, label, oldValue, newValue) {
+    const row = document.createElement("tr");
+    const heading = document.createElement("th");
+    heading.scope = "row";
+    heading.textContent = label;
+    row.append(heading);
+    for (const value of [oldValue, newValue]) {
+      const cell = document.createElement("td");
+      const code = document.createElement("code");
+      code.textContent = value;
+      cell.append(code);
+      row.append(cell);
+    }
+    body.append(row);
+    return row;
+  }
+  function render() {
+    const old = observations[scenario.value].legacy;
+    const next = observations[scenario.value][candidate.value];
+    const equal = show(old) === show(next);
+    const sameOutcome = old.result === next.result && old.error === next.error;
+    const firstDifference = Array.from(
+      { length: Math.max(old.trace.length, next.trace.length) },
+      (_, index) => index
+    ).find(index => old.trace[index] !== next.trace[index]);
+    root.querySelector("#comparison-status").classList.toggle("diff", !equal);
+    root.querySelector("#outcome-status").textContent = sameOutcome
+      ? "Final outcomes match." : "Final outcomes differ.";
+    root.querySelector("#trace-status").textContent = equal
+      ? "The full observation also matches for this case."
+      : "The observation differs. First different event: " + (firstDifference + 1) + ".";
+    root.querySelector("#candidate-heading").textContent = names[candidate.value];
+    root.querySelector("#candidate-events").textContent = names[candidate.value];
+    const summary = root.querySelector("#observations");
+    summary.replaceChildren();
+    appendRow(summary, "Outcome", old.error || "return " + old.result, next.error || "return " + next.result);
+    appendRow(summary, "Names read", show(old.consumed), show(next.consumed));
+    appendRow(summary, "Write attempts", String(old.attempts.length), String(next.attempts.length));
+    appendRow(summary, "Saved lines", show(old.saved), show(next.saved));
+    const events = root.querySelector("#event-rows");
+    events.replaceChildren();
+    for (let i = 0; i < Math.max(old.trace.length, next.trace.length); i++) {
+      const row = appendRow(events, String(i + 1), old.trace[i] || "—", next.trace[i] || "—");
+      if (i === firstDifference) {
+        row.className = "divergence";
+        const label = document.createElement("span");
+        label.className = "first-difference";
+        label.textContent = "First difference";
+        row.firstElementChild.append(label);
+      }
+    }
+    root.querySelector("#insight").textContent = equal
+      ? "Extracting a helper kept when the work happens, including failures, in this case."
+      : insights[scenario.value];
+  }
+  scenario.addEventListener("change", render);
+  candidate.addEventListener("change", render);
+  render();
+})();
+</script>
+</body>
+</html>
