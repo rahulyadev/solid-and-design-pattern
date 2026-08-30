@@ -92,12 +92,13 @@ before deciding whether its dependency on the implementation has been removed.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11; supplied code uses the same syntax |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured usage statistics. Generated material
 does not prove learning. Begin with the [practice prediction](practice/README.md#prediction-before-running).
 The [visual guide](visuals/README.md), [runnable example](examples/run_replenishment_demo.py), and
 [import experiment](experiments/EXP-01-import-isolation/README.md) support the note.
+The [maintainer validation record](VALIDATION.md) distinguishes artifact checks from learner evidence.
 
 ## 1. Simple explanation and prerequisite bridge
 
