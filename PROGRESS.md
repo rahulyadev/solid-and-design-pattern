@@ -91,7 +91,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-SOL-060` | [SOLID interactions, tensions, and trade-offs](CURRICULUM.md#sdp-sol-060) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-070` | [Pythonic SOLID with functions, modules, Protocols, and ABCs](CURRICULUM.md#sdp-sol-070) | Core | Approved | Not started | — | — | — | — |
 | `SDP-SOL-080` | [SOLID critiques, overapplication, and legacy refactoring](CURRICULUM.md#sdp-sol-080) | Professional | Approved | Not started | — | — | — | — |
-| `SDP-PYT-010` | [Functions, closures, and callable objects as design tools](CURRICULUM.md#sdp-pyt-010) | Core | Absent | Not started | — | — | — | — |
+| `SDP-PYT-010` | [Functions, closures, and callable objects as design tools](CURRICULUM.md#sdp-pyt-010) | Core | Approved | Not started | — | — | — | — |
 | `SDP-PYT-020` | [Dispatch tables, dictionaries of callables, and registries](CURRICULUM.md#sdp-pyt-020) | Core | Absent | Not started | — | — | — | — |
 | `SDP-PYT-030` | [Python decorator syntax versus the Decorator pattern](CURRICULUM.md#sdp-pyt-030) | Core | Absent | Not started | — | — | — | — |
 | `SDP-PYT-040` | [Iterators, generators, and context managers as language-supported patterns](CURRICULUM.md#sdp-pyt-040) | Core | Absent | Not started | — | — | — | — |
