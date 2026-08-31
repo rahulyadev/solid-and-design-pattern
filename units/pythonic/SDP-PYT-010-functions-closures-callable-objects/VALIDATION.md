@@ -1,6 +1,6 @@
 # Maintainer validation — SDP-PYT-010
 
-Date: **2026-08-31**. Artifact state: **Draft**. Learning state: **Not started**.
+Date: **2026-08-31**. Artifact state: **Approved**. Learning state: **Not started**.
 The [practice](practice/README.md) is **Not attempted**. These are checks of the generated
 material, not Rahul's prediction, implementation, interview performance, or retention.
 
@@ -8,6 +8,8 @@ material, not Rahul's prediction, implementation, interview performance, or rete
 
 - Exact branch: `topic/SDP-PYT-010`.
 - Synchronized initialization base: `38fbb55b551df86bc1f55f4258b1fa14e89d400b`.
+- Initialization commit: `0ba323f`, with Draft artifact state. Material approval follows
+  the executed checks and manual review in this record, under the explicit publication request.
 - The dedicated Worktree was clean before recording `INIT_START` at that commit.
 - No existing exact topic branch, competing owner, or pre-existing changes were included.
 - Changes are limited to this unit and its matching artifact-state cell in `PROGRESS.md`.
