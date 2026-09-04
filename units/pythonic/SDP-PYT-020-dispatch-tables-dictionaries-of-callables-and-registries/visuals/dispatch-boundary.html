@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-PYT-020 dispatch boundary explorer</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f5f7fb;
+      --surface: #ffffff;
+      --surface-soft: #edf2f8;
+      --text: #172033;
+      --muted: #58657a;
+      --line: #aab5c5;
+      --accent: #155eef;
+      --accent-soft: #e4edff;
+      --good: #16794b;
+      --good-soft: #def6e9;
+      --warn: #9a5b00;
+      --warn-soft: #fff0cf;
+      --bad: #b42318;
+      --bad-soft: #fee7e5;
+      --focus: #7c3aed;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #0f1420;
+        --surface: #182132;
+        --surface-soft: #202c40;
+        --text: #f3f6fb;
+        --muted: #b9c4d4;
+        --line: #53627a;
+        --accent: #8eb2ff;
+        --accent-soft: #1f3766;
+        --good: #72d5a5;
+        --good-soft: #173d31;
+        --warn: #ffd27a;
+        --warn-soft: #4b3513;
+        --bad: #ff9a91;
+        --bad-soft: #552420;
+        --focus: #c4b5fd;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1040px, 100%);
+      margin: 0 auto;
+      padding: clamp(16px, 3vw, 36px);
+    }
+
+    header {
+      margin-bottom: 24px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: clamp(1.55rem, 4vw, 2.25rem);
+      line-height: 1.15;
+    }
+
+    h2 {
+      margin-bottom: 6px;
+      font-size: 1.25rem;
+    }
+
+    h3 {
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .lede,
+    .secondary {
+      color: var(--muted);
+    }
+
+    .lede {
+      max-width: 74ch;
+      margin-bottom: 0;
+    }
+
+    section {
+      margin-top: 20px;
+      padding: clamp(16px, 3vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .section-heading p {
+      margin-bottom: 0;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 20px;
+      padding: 0;
+      border: 0;
+    }
+
+    .controls legend {
+      width: 100%;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    button {
+      min-height: 40px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface-soft);
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--text);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 38px minmax(0, 1fr) 38px minmax(0, 1fr) 38px minmax(0, 1fr);
+      align-items: stretch;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .node {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-soft);
+    }
+
+    .node strong,
+    .node code,
+    .node span {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .node strong {
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .node code {
+      font-size: 0.93rem;
+    }
+
+    .node span {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .node.lookup {
+      border: 2px solid var(--bad);
+      background: var(--bad-soft);
+    }
+
+    .node.success {
+      border-color: var(--good);
+      background: var(--good-soft);
+    }
+
+    .node.failure {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+    }
+
+    .node.skipped {
+      border-style: dashed;
+      opacity: 0.72;
+    }
+
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .boundary-note {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .boundary-swatch {
+      width: 18px;
+      height: 12px;
+      flex: 0 0 auto;
+      border: 2px solid var(--bad);
+      border-radius: 3px;
+      background: var(--bad-soft);
+    }
+
+    .result-line {
+      margin: 18px 0 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .result-line strong {
+      display: inline-block;
+      margin-right: 7px;
+    }
+
+    .result-line code {
+      overflow-wrap: anywhere;
+    }
+
+    .lifecycle {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .registry-box {
+      min-height: 228px;
+      padding: 18px;
+      border-left: 5px solid var(--accent);
+      background: var(--surface-soft);
+    }
+
+    .phase {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .bindings {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .binding {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 0.8fr);
+      gap: 8px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .binding:last-child {
+      border-bottom: 0;
+    }
+
+    .binding code {
+      overflow-wrap: anywhere;
+    }
+
+    .policy-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .policy-list li + li {
+      margin-top: 10px;
+    }
+
+    .policy-ok {
+      color: var(--good);
+    }
+
+    .policy-warn {
+      color: var(--warn);
+    }
+
+    .policy-bad {
+      color: var(--bad);
+    }
+
+    .callout {
+      margin: 18px 0 0;
+      padding: 13px 15px;
+      border-left: 4px solid var(--warn);
+      background: var(--warn-soft);
+    }
+
+    footer {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 780px) {
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        min-height: 24px;
+        transform: rotate(90deg);
+      }
+
+      .lifecycle {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      main {
+        padding: 12px;
+      }
+
+      section {
+        border-radius: 12px;
+      }
+
+      .section-heading {
+        display: block;
+      }
+
+      button {
+        width: 100%;
+        min-height: 44px;
+      }
+
+      .binding {
+        grid-template-columns: 1fr;
+      }
+
+      .binding .binding-arrow {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Dispatch boundary explorer</h1>
+      <p class="lede">See where a key is selected, where a callable runs, and which policy a registry adds around an ordinary mapping.</p>
+    </header>
+
+    <section aria-labelledby="dispatch-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="dispatch-heading">Selection is not execution</h2>
+          <p class="secondary">Compare three requests without changing the control-flow shape.</p>
+        </div>
+      </div>
+
+      <fieldset class="controls" aria-label="Dispatch scenario">
+        <legend>Scenario</legend>
+        <button type="button" data-scenario="known" aria-pressed="true">Known key</button>
+        <button type="button" data-scenario="unknown" aria-pressed="false">Unknown key</button>
+        <button type="button" data-scenario="handler-failure" aria-pressed="false">Handler raises KeyError</button>
+      </fieldset>
+
+      <ol class="flow" aria-live="polite" aria-label="Current dispatch flow">
+        <li class="node" id="request-node">
+          <strong>1 · Request</strong>
+          <code id="request-key">record.created</code>
+          <span id="request-detail">Event A-17 arrives.</span>
+        </li>
+        <li class="arrow" aria-hidden="true">→</li>
+        <li class="node lookup" id="lookup-node">
+          <strong>2 · Lookup boundary</strong>
+          <code id="lookup-code">handlers[key]</code>
+          <span id="lookup-detail">Exact key found.</span>
+        </li>
+        <li class="arrow" aria-hidden="true">→</li>
+        <li class="node" id="handler-node">
+          <strong>3 · Selected handler</strong>
+          <code id="handler-name">index_created</code>
+          <span id="handler-detail">Called after lookup succeeds.</span>
+        </li>
+        <li class="arrow" aria-hidden="true">→</li>
+        <li class="node success" id="outcome-node">
+          <strong>4 · Outcome</strong>
+          <code id="outcome-value">tr-8:index:A-17</code>
+          <span id="outcome-detail">Handler result reaches caller.</span>
+        </li>
+      </ol>
+
+      <p class="boundary-note"><span class="boundary-swatch" aria-hidden="true"></span>The missing-key translation covers lookup only. Handler execution sits outside it.</p>
+      <p class="result-line" aria-live="polite"><strong>Observed:</strong><code id="dispatch-observation">tr-8:index:A-17</code></p>
+    </section>
+
+    <section aria-labelledby="registry-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="registry-heading">Registry lifecycle</h2>
+          <p class="secondary">A registry is a mapping plus explicit ownership and lifecycle rules.</p>
+        </div>
+      </div>
+
+      <fieldset class="controls" aria-label="Registry lifecycle step">
+        <legend>Lifecycle step</legend>
+        <button type="button" data-step="empty" aria-pressed="true">1 · Empty</button>
+        <button type="button" data-step="registered" aria-pressed="false">2 · Register</button>
+        <button type="button" data-step="sealed" aria-pressed="false">3 · Seal</button>
+        <button type="button" data-step="after" aria-pressed="false">4 · After seal</button>
+      </fieldset>
+
+      <div class="lifecycle" aria-live="polite">
+        <div class="registry-box">
+          <span class="phase" id="phase-label">Build phase</span>
+          <h3 id="registry-title">Private mutable builder</h3>
+          <p class="secondary" id="registry-description">The composition root owns an empty registry builder.</p>
+          <ul class="bindings" id="bindings-list" aria-label="Current name bindings">
+            <li class="secondary">No names registered.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Policy at this step</h3>
+          <ul class="policy-list">
+            <li id="duplicates-policy">Duplicates have not occurred.</li>
+            <li id="mutation-policy">Registration is open to the builder owner.</li>
+            <li id="state-policy">Callable-state policy remains a separate concern.</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="callout" id="lifecycle-observation">No consumer mapping exists yet.</p>
+    </section>
+
+    <footer>
+      Fixed observations are generated by the unit's Python example. This page performs no network request and no real dispatch.
+    </footer>
+  </main>
+
+  <script id="observations" type="application/json">
+{
+  "selection": {
+    "key": "record.created",
+    "available": [
+      "record.created",
+      "record.deleted"
+    ],
+    "result": "tr-8:index:A-17"
+  },
+  "unknown": {
+    "type": "UnknownEventType",
+    "message": "unsupported event type: record.missing"
+  },
+  "handler_failure": {
+    "type": "KeyError",
+    "argument": "required-field",
+    "same_object": true
+  },
+  "lifecycle": {
+    "published_names": [
+      "record.created",
+      "record.deleted"
+    ],
+    "post_seal_registration": "registry is sealed"
+  }
+}
+  </script>
+  <script>
+    const observations = JSON.parse(document.getElementById("observations").textContent);
+
+    const dispatchScenarios = {
+      known: {
+        requestKey: observations.selection.key,
+        requestDetail: "Event A-17 arrives.",
+        lookupDetail: "Exact key found.",
+        handlerName: "index_created",
+        handlerDetail: "Called after lookup succeeds.",
+        outcomeValue: observations.selection.result,
+        outcomeDetail: "Handler result reaches caller.",
+        handlerClass: "node",
+        outcomeClass: "node success",
+        observation: observations.selection.result
+      },
+      unknown: {
+        requestKey: "record.missing",
+        requestDetail: "Event B-4 arrives.",
+        lookupDetail: "Exact key is absent.",
+        handlerName: "not called",
+        handlerDetail: "No handler was selected.",
+        outcomeValue: observations.unknown.type,
+        outcomeDetail: observations.unknown.message,
+        handlerClass: "node skipped",
+        outcomeClass: "node failure",
+        observation: `${observations.unknown.type}: ${observations.unknown.message}`
+      },
+      "handler-failure": {
+        requestKey: "record.broken",
+        requestDetail: "Event C-2 arrives.",
+        lookupDetail: "Exact key found.",
+        handlerName: "broken",
+        handlerDetail: "Invocation raises its own KeyError.",
+        outcomeValue: observations.handler_failure.type,
+        outcomeDetail: `Original argument: ${observations.handler_failure.argument}`,
+        handlerClass: "node failure",
+        outcomeClass: "node failure",
+        observation: `${observations.handler_failure.type} preserved; same object = ${observations.handler_failure.same_object}`
+      }
+    };
+
+    function chooseScenario(name) {
+      const scenario = dispatchScenarios[name];
+      document.querySelectorAll("[data-scenario]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.scenario === name));
+      });
+      document.getElementById("request-key").textContent = scenario.requestKey;
+      document.getElementById("request-detail").textContent = scenario.requestDetail;
+      document.getElementById("lookup-detail").textContent = scenario.lookupDetail;
+      document.getElementById("handler-name").textContent = scenario.handlerName;
+      document.getElementById("handler-detail").textContent = scenario.handlerDetail;
+      document.getElementById("outcome-value").textContent = scenario.outcomeValue;
+      document.getElementById("outcome-detail").textContent = scenario.outcomeDetail;
+      document.getElementById("handler-node").className = scenario.handlerClass;
+      document.getElementById("outcome-node").className = scenario.outcomeClass;
+      document.getElementById("dispatch-observation").textContent = scenario.observation;
+    }
+
+    document.querySelectorAll("[data-scenario]").forEach((button) => {
+      button.addEventListener("click", () => chooseScenario(button.dataset.scenario));
+    });
+
+    function bindingMarkup(names) {
+      if (names.length === 0) {
+        return '<li class="secondary">No names registered.</li>';
+      }
+      const handlerNames = {
+        "record.created": "index_created",
+        "record.deleted": "archive_deleted"
+      };
+      return names.map((name) => `
+        <li class="binding">
+          <code>${name}</code>
+          <span class="binding-arrow" aria-hidden="true">→</span>
+          <code>${handlerNames[name]}</code>
+        </li>
+      `).join("");
+    }
+
+    const lifecycleSteps = {
+      empty: {
+        phase: "Build phase",
+        title: "Private mutable builder",
+        description: "The composition root owns an empty registry builder.",
+        names: [],
+        duplicates: "Duplicates have not occurred.",
+        mutation: "Registration is open to the builder owner.",
+        state: "Callable-state policy remains a separate concern.",
+        observation: "No consumer mapping exists yet.",
+        classes: ["", "", ""]
+      },
+      registered: {
+        phase: "Build phase",
+        title: "Validated unique bindings",
+        description: "Names are accepted in startup order; a repeated name would be rejected.",
+        names: observations.lifecycle.published_names,
+        duplicates: "Duplicate names are rejected, not overwritten.",
+        mutation: "Only the builder owner can still add a unique name.",
+        state: "Handlers are references to callable objects or functions.",
+        observation: `Diagnostic order: ${observations.lifecycle.published_names.join(" → ")}`,
+        classes: ["policy-ok", "", ""]
+      },
+      sealed: {
+        phase: "Published phase",
+        title: "Read-only copied bindings",
+        description: "The consumer receives a mapping that cannot add, replace, or remove names.",
+        names: observations.lifecycle.published_names,
+        duplicates: "The accepted unique set is now fixed.",
+        mutation: "Consumer mapping writes raise TypeError.",
+        state: "A mutable handler can still change its own later result.",
+        observation: "Binding stability does not imply handler immutability or thread safety.",
+        classes: ["policy-ok", "policy-ok", "policy-warn"]
+      },
+      after: {
+        phase: "Published phase",
+        title: "Extension window is closed",
+        description: "The builder and consumer agree that registration has ended.",
+        names: observations.lifecycle.published_names,
+        duplicates: "Existing names remain unchanged.",
+        mutation: `Later registration: ${observations.lifecycle.post_seal_registration}`,
+        state: "New deployment or a deliberately designed reconfiguration boundary is required.",
+        observation: `Post-seal registration is rejected: ${observations.lifecycle.post_seal_registration}.`,
+        classes: ["policy-ok", "policy-bad", "policy-warn"]
+      }
+    };
+
+    function chooseLifecycleStep(name) {
+      const step = lifecycleSteps[name];
+      document.querySelectorAll("[data-step]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.step === name));
+      });
+      document.getElementById("phase-label").textContent = step.phase;
+      document.getElementById("registry-title").textContent = step.title;
+      document.getElementById("registry-description").textContent = step.description;
+      document.getElementById("bindings-list").innerHTML = bindingMarkup(step.names);
+      const policyIds = ["duplicates-policy", "mutation-policy", "state-policy"];
+      const policyText = [step.duplicates, step.mutation, step.state];
+      policyIds.forEach((id, index) => {
+        const item = document.getElementById(id);
+        item.textContent = policyText[index];
+        item.className = step.classes[index];
+      });
+      document.getElementById("lifecycle-observation").textContent = step.observation;
+    }
+
+    document.querySelectorAll("[data-step]").forEach((button) => {
+      button.addEventListener("click", () => chooseLifecycleStep(button.dataset.step));
+    });
+  </script>
+</body>
+</html>
