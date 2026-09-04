@@ -106,7 +106,7 @@ trust, compatibility, failure isolation, ownership, and deployment policy.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured statistics. The two supplementary
 experiments do not change the evidence profile. Material validation is recorded in
