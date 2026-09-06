@@ -140,7 +140,7 @@ type `list`; item annotations are for static tools and do not add a dispatch dim
 | Evidence profile | `E+I+D+X+T` |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured survey results. Maintainer-authored
 notes, examples, experiments, tests, and publication can approve the artifact; they do not prove
