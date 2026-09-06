@@ -126,22 +126,23 @@ def _publish_once(
     """Run business workflow around one newly owned Product lifetime."""
 
     transport = make_transport()
-    observe(Observation("transport.created", alert.alert_id, transport.name))
     try:
-        receipt = transport.send(alert)
-    except Exception as error:
-        observe(
-            Observation(
-                "transport.failed",
-                alert.alert_id,
-                transport.name,
-                type(error).__name__,
+        observe(Observation("transport.created", alert.alert_id, transport.name))
+        try:
+            receipt = transport.send(alert)
+        except Exception as error:
+            observe(
+                Observation(
+                    "transport.failed",
+                    alert.alert_id,
+                    transport.name,
+                    type(error).__name__,
+                )
             )
-        )
-        raise
-    else:
-        observe(Observation("transport.sent", alert.alert_id, transport.name))
-        return receipt
+            raise
+        else:
+            observe(Observation("transport.sent", alert.alert_id, transport.name))
+            return receipt
     finally:
         transport.close()
         observe(Observation("transport.closed", alert.alert_id, transport.name))

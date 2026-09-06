@@ -105,7 +105,7 @@ Creator operation whose subclasses can decide the Concrete Product.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. A generated, tested, or
 published artifact does not establish learner evidence; Rahul's learning state remains separate.
@@ -437,22 +437,23 @@ def _publish_once(
     observe: Observer,
 ) -> Receipt:
     transport = make_transport()
-    observe(Observation("transport.created", alert.alert_id, transport.name))
     try:
-        receipt = transport.send(alert)
-    except Exception as error:
-        observe(
-            Observation(
-                "transport.failed",
-                alert.alert_id,
-                transport.name,
-                type(error).__name__,
+        observe(Observation("transport.created", alert.alert_id, transport.name))
+        try:
+            receipt = transport.send(alert)
+        except Exception as error:
+            observe(
+                Observation(
+                    "transport.failed",
+                    alert.alert_id,
+                    transport.name,
+                    type(error).__name__,
+                )
             )
-        )
-        raise
-    else:
-        observe(Observation("transport.sent", alert.alert_id, transport.name))
-        return receipt
+            raise
+        else:
+            observe(Observation("transport.sent", alert.alert_id, transport.name))
+            return receipt
     finally:
         transport.close()
         observe(Observation("transport.closed", alert.alert_id, transport.name))
@@ -467,6 +468,11 @@ The implementation makes several production decisions explicit:
 - observations use alert ID, Product name, phase, and exception class;
 - message contents and credentials are absent; and
 - the factory method owns construction only.
+
+The outer `finally` begins immediately after construction, so even a callback that violates the
+observer's documented non-raising contract cannot skip Product cleanup. An observer error may still
+become the visible workflow error; production telemetry isolation must choose and test whether to
+propagate, suppress, or route that secondary failure.
 
 These are example contracts, not universal Factory Method rules. A connection pool may return a
 borrowed resource; a framework may own cleanup; an observer may need isolation. Document the chosen

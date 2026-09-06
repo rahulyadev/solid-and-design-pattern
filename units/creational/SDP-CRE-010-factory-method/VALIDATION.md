@@ -7,16 +7,17 @@
 | Date | 2026-09-06 |
 | Exact branch | `topic/SDP-CRE-010` |
 | Initialization baseline (`INIT_START`) | `b6cc15a36f73c58d3ad78e2cdac0532c652a39b2` |
+| Initialization commit | `b0fa3674d3f45e93186fabdf372a5b2636654dba` |
 | Evidence profile | `E+I+D+T` |
 | Canonical runtime | CPython 3.14.7 |
 | Compatibility runtime | CPython 3.11.16 |
-| Artifact state during this record | Draft |
+| Artifact state during this record | Approved |
 | Learning state during this record | Not started |
 
 This record validates maintainer-authored curriculum material. It contains no learner prediction,
 attempt, explanation, delayed recall, transfer, refactoring submission, or interview answer.
-Therefore initialization advances only artifact state from Absent to Draft. Rahul's learning state
-and every learner-evidence field in `PROGRESS.md` remain unchanged.
+Therefore authoring advances only artifact state from Absent through Draft to Approved. Rahul's
+learning state and every learner-evidence field in `PROGRESS.md` remain unchanged.
 
 ## Sources actually read
 
@@ -39,16 +40,18 @@ concurrency, and performance advice is presented as professional judgment rather
 language guarantee. No external pattern diagram, book prose, book example, proprietary code,
 production data, credential, private message, or customer schema is reproduced.
 
-## Initialization checks executed
+## Checks executed
 
 | Check | Observed result |
 |---|---|
-| Focused unit tests, CPython 3.14.7 | 42 passed across worked examples, lifetime experiment, visual contracts, and unsolved-practice behavior. |
-| Focused unit tests, CPython 3.11.16 | The same 42 tests passed. |
+| Focused unit tests, CPython 3.14.7 | 44 passed across worked examples, lifetime experiment, visual contracts, and unsolved-practice behavior. |
+| Focused unit tests, CPython 3.11.16 | The same 44 tests passed. |
+| Repository regression, CPython 3.14.7 | 882 tests passed with no skips across all 58 discovered test directories, using a separate pytest process per directory. |
 | Ruff lint | Passed for the complete SDP-CRE-010 unit tree with cache disabled after import-order fixes. |
-| Ruff formatting | All 17 Python files were formatted or already compliant. |
+| Ruff formatting | All 18 format-eligible unit files were formatted or already compliant. |
 | Strict mypy, Python 3.14 target | No issues in all 7 non-test Python source files. |
 | Strict mypy, Python 3.11 target | No issues in the same 7 source files. |
+| Controlled negative mypy case | Both targets rejected a callable with an extra required keyword-only argument as incompatible with `ConfiguredTransportFactory`. |
 | README Python snippets | All 19 fenced Python snippets compiled on CPython 3.14.7 and CPython 3.11.16. |
 | Worked demo | Both runtimes produced identical class, callable, configured Product, and event output. |
 | Practice starter | Both runtimes exported one text report and reported `target_complete=False`. |
@@ -56,6 +59,7 @@ production data, credential, private message, or customer schema is reproduced.
 | Embedded visual model | Tests matched every field in all eight embedded scenarios to maintained Python data. |
 | HTML script syntax | The executable JavaScript block compiled with Node.js 24.19.0. |
 | Static visual structure | Required accessible targets, keyboard handlers, balanced CSS braces, and responsive media rules were present. |
+| Interactive browser rendering | Not performed: the in-app browser blocked the local `file:` URL under its URL security policy. No workaround, indirect navigation, alternate browser, or policy bypass was attempted. |
 | Repository validator | Passed all structural, metadata, Markdown, link, evidence, version, lock-file, and hygiene checks with zero forbidden-path violations. |
 | Git diff check | `git diff --check` passed; scope was one matching progress row plus the new SDP-CRE-010 unit tree. |
 
@@ -95,5 +99,17 @@ JSON, or generated runtime output is inside the Worktree. Initialization scope i
 SDP-CRE-010 tree and the matching `PROGRESS.md` row. Commit and current-operation-only push evidence
 is recorded in Git and in the task handoff after the workflow proof runs.
 
-Interactive browser rendering is intentionally deferred to final artifact review. Draft approval
-does not claim a rendered desktop/mobile or accessibility observation.
+The browser-policy limitation narrows visual evidence honestly: maintained-data parity, JavaScript
+syntax, DOM targets, keyboard handlers, CSS balance, and responsive-source checks passed, but this
+record does not claim a rendered desktop/mobile or accessibility observation.
+
+## Approval boundary
+
+The artifact is Approved because repository validation, dual-runtime focused tests, the complete
+repository regression, focused lint/formatting, strict dual-target typing, a controlled negative
+typing check, dual-runtime snippet compilation, worked demo and practice execution, the reproduced
+lifetime experiment, visual-data parity, JavaScript syntax, static visual checks, authoritative
+source review, and manual pedagogical/production review passed.
+
+Approval applies only to the teaching artifact. It does not claim Rahul has predicted,
+implemented, debugged, explained, recalled, transferred, demonstrated, or retained SDP-CRE-010.

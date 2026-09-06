@@ -11,6 +11,7 @@ from factory_method import (
     BufferedPublisher,
     BufferedTransport,
     ClosedTransportError,
+    FramedPublisher,
     Observation,
     Publisher,
     Receipt,
@@ -55,6 +56,23 @@ def test_injected_factory_function_accepts_same_product_contract() -> None:
 
     assert receipt.transport == "buffer"
     assert output == ["A-2:ok"]
+
+
+def test_second_concrete_creator_changes_product_not_workflow() -> None:
+    output: list[str] = []
+    events: list[Observation] = []
+
+    receipt = FramedPublisher(output.append, events.append, prefix="OPS").publish(
+        Alert("A-2B", "ready")
+    )
+
+    assert receipt == Receipt("A-2B", "framed")
+    assert output == ["OPS|A-2B|ready"]
+    assert [event.event for event in events] == [
+        "transport.created",
+        "transport.sent",
+        "transport.closed",
+    ]
 
 
 def test_closed_product_rejects_further_use() -> None:
@@ -118,6 +136,22 @@ def test_each_call_gets_an_independent_product_lifetime() -> None:
 
     assert len(created) == 2
     assert created[0] is not created[1]
+
+
+def test_observer_failure_after_construction_still_closes_owned_product() -> None:
+    trace: list[str] = []
+
+    def broken_observer(_event: Observation) -> None:
+        raise RuntimeError("synthetic observer failure")
+
+    with pytest.raises(RuntimeError, match="observer"):
+        publish_alert(
+            Alert("A-6B", "safe"),
+            lambda: TraceTransport(trace),
+            broken_observer,
+        )
+
+    assert trace == ["close"]
 
 
 def test_abstract_creator_cannot_be_instantiated() -> None:

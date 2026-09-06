@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
 import run_factory_demo
 
 
-def test_demo_output(capsys: object) -> None:
+def test_demo_output(capsys: pytest.CaptureFixture[str]) -> None:
     run_factory_demo.main()
-    output = capsys.readouterr().out.splitlines()  # type: ignore[attr-defined]
+    output = capsys.readouterr().out.splitlines()
 
     assert output == [
         "class=buffer:A-100:queue depth high",
