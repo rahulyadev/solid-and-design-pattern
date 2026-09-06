@@ -58,5 +58,5 @@ temp/
 *.trace
 transcripts/
 chat-exports/
-solid-design-pattern-bootstrap.zip
+*.zip
 solid-design-pattern-bootstrap-validation.json
