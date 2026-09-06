@@ -118,7 +118,7 @@ mechanism inside a broader design decision.
 | Evidence profile | `E+I+D+T` |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 ## 1. Simple explanation
 
