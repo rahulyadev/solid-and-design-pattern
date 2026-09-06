@@ -101,7 +101,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-PYT-080` | [singledispatch and open function extension](CURRICULUM.md#sdp-pyt-080) | Professional | Approved | Not started | — | — | — | — |
 | `SDP-PYT-090` | [Dynamic registration and plugin discovery mechanics](CURRICULUM.md#sdp-pyt-090) | Professional | Approved | Not started | — | — | — | — |
 | `SDP-PYT-100` | [Descriptors, class hooks, and metaclasses only when justified](CURRICULUM.md#sdp-pyt-100) | Advanced | Approved | Not started | — | — | — | — |
-| `SDP-CRE-010` | [Factory Method](CURRICULUM.md#sdp-cre-010) | Core | Absent | Not started | — | — | — | — |
+| `SDP-CRE-010` | [Factory Method](CURRICULUM.md#sdp-cre-010) | Core | Draft | Not started | — | — | — | — |
 | `SDP-CRE-020` | [Abstract Factory](CURRICULUM.md#sdp-cre-020) | Professional | Absent | Not started | — | — | — | — |
 | `SDP-CRE-030` | [Builder](CURRICULUM.md#sdp-cre-030) | Core | Absent | Not started | — | — | — | — |
 | `SDP-CRE-040` | [Prototype](CURRICULUM.md#sdp-cre-040) | Advanced | Absent | Not started | — | — | — | — |
