@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SDP-PYT-060 value boundary</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --page: #f5f1e8;
+        --ink: #17222c;
+        --muted: #53606a;
+        --panel: #fffdf7;
+        --line: #a7b0b6;
+        --accent: #125b66;
+        --accent-soft: #d8eef0;
+        --risk: #7a3d1b;
+        --risk-soft: #f8e4d6;
+        --shadow: 0 12px 32px rgb(23 34 44 / 12%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top right, rgb(18 91 102 / 12%), transparent 34rem),
+          var(--page);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      main {
+        width: min(72rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2.5rem 0 4rem;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      .eyebrow {
+        color: var(--accent);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .lede {
+        max-width: 52rem;
+        color: var(--muted);
+        font-size: 1.08rem;
+      }
+
+      .stage-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin: 1.5rem 0;
+      }
+
+      .stage-button {
+        border: 1px solid var(--accent);
+        border-radius: 999px;
+        padding: 0.68rem 1rem;
+        background: var(--panel);
+        color: var(--accent);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 750;
+      }
+
+      .stage-button[aria-pressed="true"] {
+        background: var(--accent);
+        color: white;
+      }
+
+      .stage-button:focus-visible {
+        outline: 3px solid #e9a33b;
+        outline-offset: 3px;
+      }
+
+      .canvas {
+        border: 1px solid var(--line);
+        border-radius: 1.25rem;
+        padding: clamp(1rem, 3vw, 2rem);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin: 1.2rem 0;
+      }
+
+      .card {
+        min-height: 7rem;
+        border: 1px solid var(--line);
+        border-top: 0.35rem solid var(--accent);
+        border-radius: 0.75rem;
+        padding: 0.9rem;
+        background: color-mix(in srgb, var(--panel) 88%, var(--accent-soft));
+        overflow-wrap: anywhere;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 0.93rem;
+      }
+
+      .arrow {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--accent);
+        font-weight: 800;
+      }
+
+      .arrow::before,
+      .arrow::after {
+        height: 1px;
+        flex: 1;
+        background: var(--accent);
+        content: "";
+      }
+
+      .risk {
+        border-left: 0.35rem solid var(--risk);
+        border-radius: 0.45rem;
+        padding: 0.85rem 1rem;
+        background: var(--risk-soft);
+        color: #4b2816;
+      }
+
+      .guidance {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .guidance section {
+        border-top: 2px solid var(--line);
+        padding-top: 0.8rem;
+      }
+
+      .guidance h2 {
+        font-size: 1rem;
+      }
+
+      .guidance p {
+        color: var(--muted);
+      }
+
+      @media (max-width: 760px) {
+        main {
+          width: min(100% - 1rem, 42rem);
+          padding-top: 1.25rem;
+        }
+
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .guidance {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+
+        .stage-button {
+          width: 100%;
+        }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .card,
+        .canvas {
+          transition: background-color 160ms ease, border-color 160ms ease;
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page: #10191e;
+          --ink: #edf4f4;
+          --muted: #bec9cd;
+          --panel: #17252b;
+          --line: #496169;
+          --accent: #7fd6dc;
+          --accent-soft: #17383d;
+          --risk: #f2a26f;
+          --risk-soft: #3e281d;
+        }
+
+        .stage-button[aria-pressed="true"] {
+          color: #082b30;
+        }
+
+        .risk {
+          color: #f9e8de;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">SDP-PYT-060 · conceptual value flow</p>
+      <h1>Validate once, then replace snapshots</h1>
+      <p class="lede">
+        Select a stage to see how open-ended transport data becomes a validated value graph and how
+        an explicit transition creates a new revision without changing the old one.
+      </p>
+
+      <div class="stage-picker" aria-label="Value-flow stage">
+        <button class="stage-button" type="button" data-stage="raw" aria-pressed="true">
+          Raw record
+        </button>
+        <button class="stage-button" type="button" data-stage="validated" aria-pressed="false">
+          Validated graph
+        </button>
+        <button class="stage-button" type="button" data-stage="replacement" aria-pressed="false">
+          Replacement snapshot
+        </button>
+      </div>
+
+      <section class="canvas" aria-live="polite">
+        <h2 id="stage-title"></h2>
+        <div class="cards" id="stage-nodes"></div>
+        <p class="arrow" id="stage-arrow"></p>
+        <p class="risk" id="stage-risk"></p>
+      </section>
+
+      <div class="guidance">
+        <section>
+          <h2>How to read this visual</h2>
+          <p>
+            Move left to right through each row, then select the next stage. The centered label names
+            the boundary operation; it is not an automatic dataclass conversion.
+          </p>
+        </section>
+        <section>
+          <h2>Key insight</h2>
+          <p>
+            A dataclass removes field boilerplate. The design comes from construction validation,
+            finite enum states, immutable reachable fields, and explicit replacement.
+          </p>
+        </section>
+        <section>
+          <h2>Simplification or limitation</h2>
+          <p>
+            This is conceptual, not CPython memory layout or transaction control. It omits storage
+            races, schema evolution, allocation cost, and garbage collection.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <script id="model-data" type="application/json">
+      {
+        "raw": {
+          "title": "1. Raw boundary record",
+          "risk": "Strings, integers, and a list can still describe an unknown state or invalid value.",
+          "nodes": ["dict/list", "state='draft'", "amount=750", "currency='INR'"],
+          "arrow": "parse and validate once"
+        },
+        "validated": {
+          "title": "2. Validated value graph",
+          "risk": "Field rebinding is blocked, and tuples remove the obvious nested-list mutation path.",
+          "nodes": ["Quote", "QuoteState.DRAFT", "QuoteLine", "Money(INR, 750)"],
+          "arrow": "confirm returns replacement"
+        },
+        "replacement": {
+          "title": "3. New immutable snapshot",
+          "risk": "The old draft remains observable; callers must choose which revision to retain.",
+          "nodes": ["draft@r1", "confirmed@r2", "shared immutable lines", "explicit wire record"],
+          "arrow": "serialize at boundary"
+        }
+      }
+    </script>
+    <script>
+      const model = JSON.parse(document.getElementById("model-data").textContent);
+      const title = document.getElementById("stage-title");
+      const nodes = document.getElementById("stage-nodes");
+      const arrow = document.getElementById("stage-arrow");
+      const risk = document.getElementById("stage-risk");
+      const buttons = Array.from(document.querySelectorAll(".stage-button"));
+
+      function render(stageName) {
+        const stage = model[stageName];
+        title.textContent = stage.title;
+        nodes.replaceChildren(
+          ...stage.nodes.map((label) => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.textContent = label;
+            return card;
+          }),
+        );
+        arrow.textContent = stage.arrow;
+        risk.textContent = stage.risk;
+        buttons.forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.stage === stageName));
+        });
+      }
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => render(button.dataset.stage));
+      });
+
+      render("raw");
+    </script>
+  </body>
+</html>
