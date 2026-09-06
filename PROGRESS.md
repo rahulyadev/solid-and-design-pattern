@@ -97,7 +97,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-PYT-040` | [Iterators, generators, and context managers as language-supported patterns](CURRICULUM.md#sdp-pyt-040) | Core | Approved | Not started | — | — | — | — |
 | `SDP-PYT-050` | [Modules, import caching, and dependency lifetimes](CURRICULUM.md#sdp-pyt-050) | Core | Approved | Not started | — | — | — | — |
 | `SDP-PYT-060` | [Dataclasses, immutable value objects, and enums](CURRICULUM.md#sdp-pyt-060) | Core | Approved | Not started | — | — | — | — |
-| `SDP-PYT-070` | [Practical interface design with Protocols, ABCs, and duck typing](CURRICULUM.md#sdp-pyt-070) | Core | Draft | Not started | — | — | — | — |
+| `SDP-PYT-070` | [Practical interface design with Protocols, ABCs, and duck typing](CURRICULUM.md#sdp-pyt-070) | Core | Approved | Not started | — | — | — | — |
 | `SDP-PYT-080` | [singledispatch and open function extension](CURRICULUM.md#sdp-pyt-080) | Professional | Absent | Not started | — | — | — | — |
 | `SDP-PYT-090` | [Dynamic registration and plugin discovery mechanics](CURRICULUM.md#sdp-pyt-090) | Professional | Absent | Not started | — | — | — | — |
 | `SDP-PYT-100` | [Descriptors, class hooks, and metaclasses only when justified](CURRICULUM.md#sdp-pyt-100) | Advanced | Absent | Not started | — | — | — | — |

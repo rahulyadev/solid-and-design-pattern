@@ -145,7 +145,7 @@ types. The real call can still fail, and only behavioral evidence supports the s
 | Evidence profile | `E+I+D+T` |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured survey results. Maintainer-generated
 examples and checks approve an artifact; they do not establish Rahul's learning evidence.
@@ -977,4 +977,4 @@ names, and explanations are original and synthetic.
 - [Independent predict/run/observe/explain/refactor/vary lab](practice/README.md)
 - [Worked example and tests](examples/)
 - [Interactive visual and reading guide](visuals/README.md)
-- Validation record: added only after final checks pass
+- [Validation record](VALIDATION.md)
