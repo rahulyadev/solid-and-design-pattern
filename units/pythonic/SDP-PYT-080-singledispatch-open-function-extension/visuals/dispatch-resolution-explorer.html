@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-PYT-080 dispatch resolution explorer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --surface: #121a2f;
+      --surface-2: #18233d;
+      --border: #34415f;
+      --text: #edf2ff;
+      --muted: #aebbd6;
+      --accent: #74d3ae;
+      --accent-2: #8fb4ff;
+      --warning: #ffd27d;
+      --error: #ff9b9b;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(93, 128, 255, 0.16), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    header { max-width: 820px; }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.7rem, 4vw, 2.7rem);
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+    }
+
+    header p, .guidance p, .detail p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .scenario-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 28px 0 22px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: var(--surface);
+      color: var(--muted);
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    button:hover { border-color: var(--accent-2); color: var(--text); }
+
+    button:focus-visible {
+      outline: 3px solid rgba(143, 180, 255, 0.42);
+      outline-offset: 2px;
+    }
+
+    button[aria-pressed="true"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #07140f;
+    }
+
+    .stage {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: rgba(18, 26, 47, 0.92);
+      padding: clamp(18px, 3vw, 30px);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    .stage-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .owner { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1.25fr auto 1.2fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .node {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface-2);
+      padding: 16px;
+    }
+
+    .node.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+    .node-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .node-value {
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: var(--accent-2);
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    ol {
+      margin: 0;
+      padding-left: 19px;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.85rem;
+      line-height: 1.65;
+    }
+
+    .detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .detail section {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .detail h2, .guidance h2 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+    }
+
+    .detail p { margin: 0; }
+    .warning { color: var(--warning) !important; }
+
+    .guidance {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .guidance section {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(18, 26, 47, 0.66);
+    }
+
+    .guidance p { margin: 0; font-size: 0.92rem; }
+
+    @media (max-width: 900px) {
+      .flow { grid-template-columns: 1fr; }
+      .arrow { min-height: 24px; transform: rotate(90deg); }
+      .guidance { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      main { width: min(100% - 20px, 1120px); padding-top: 24px; }
+      .stage-meta, .detail { grid-template-columns: 1fr; display: grid; }
+      .owner { font-size: 0.8rem; overflow-wrap: anywhere; }
+      button { flex: 1 1 145px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">SDP-PYT-080 · runtime type dispatch</div>
+      <h1>Which implementation handles this value?</h1>
+      <p>Choose a scenario, then follow the first argument through selection. One scenario switches
+        to startup time to show why registration ownership matters.</p>
+    </header>
+
+    <nav class="scenario-tabs" aria-label="Dispatch scenarios" id="scenario-tabs"></nav>
+
+    <article class="stage" aria-live="polite">
+      <div class="stage-meta">
+        <span class="eyebrow" id="phase"></span>
+        <span class="owner" id="owner"></span>
+      </div>
+
+      <div class="flow">
+        <section class="node">
+          <span class="node-label">First argument</span>
+          <div class="node-value" id="value"></div>
+        </section>
+        <div class="arrow" aria-hidden="true">→</div>
+        <section class="node">
+          <span class="node-label">Runtime type</span>
+          <div class="node-value" id="runtime-type"></div>
+        </section>
+        <div class="arrow" aria-hidden="true">→</div>
+        <section class="node">
+          <span class="node-label">Candidate path</span>
+          <ol id="candidate-path"></ol>
+        </section>
+        <div class="arrow" aria-hidden="true">→</div>
+        <section class="node selected">
+          <span class="node-label">Selected handler</span>
+          <div class="node-value" id="selected"></div>
+        </section>
+      </div>
+
+      <div class="detail">
+        <section>
+          <h2>Observable outcome</h2>
+          <p class="node-value" id="outcome"></p>
+        </section>
+        <section>
+          <h2>Decision rule</h2>
+          <p id="principle"></p>
+        </section>
+        <section>
+          <h2>Operational warning</h2>
+          <p class="warning" id="warning"></p>
+        </section>
+      </div>
+    </article>
+
+    <div class="guidance">
+      <section>
+        <h2>How to read this visual</h2>
+        <p>Read left to right. Solid arrows mean “used to choose,” not imports or memory references.</p>
+      </section>
+      <section>
+        <h2>Key insight</h2>
+        <p>Only the first argument's runtime type selects a handler; registration configures the choices.</p>
+      </section>
+      <section>
+        <h2>Simplification or limitation</h2>
+        <p>This conceptual trace omits private caches and compresses ABC resolution into a readable path.</p>
+      </section>
+    </div>
+  </main>
+
+  <script id="dispatch-scenarios" type="application/json">
+[
+  {
+    "id": "exact",
+    "title": "Exact type",
+    "phase": "request dispatch",
+    "value": "UserRegistered(evt-1)",
+    "runtime_type": "UserRegistered",
+    "candidate_path": ["UserRegistered", "AuditEvent", "object"],
+    "selected": "render_user_registered",
+    "outcome": "event=evt-1;actor=rahul;domain=example.test;audience=operations",
+    "principle": "An exact registered runtime type is the most specific candidate.",
+    "owner": "open_rendering.render_payload",
+    "warning": "Later arguments affect the body, not handler selection."
+  },
+  {
+    "id": "inheritance",
+    "title": "Inherited match",
+    "phase": "request dispatch",
+    "value": "PrivilegedUserRegistered(evt-2)",
+    "runtime_type": "PrivilegedUserRegistered",
+    "candidate_path": ["PrivilegedUserRegistered (unregistered)", "UserRegistered", "AuditEvent", "object"],
+    "selected": "render_user_registered",
+    "outcome": "event=evt-2;actor=sam;domain=example.test;audience=operations",
+    "principle": "MRO finds the nearest registered base implementation.",
+    "owner": "open_rendering.render_payload",
+    "warning": "The selected base handler does not automatically use subclass-only fields."
+  },
+  {
+    "id": "abc",
+    "title": "ABC match",
+    "phase": "request dispatch",
+    "value": "dict(count=2, state=ready)",
+    "runtime_type": "dict",
+    "candidate_path": ["dict", "Mapping (registered ABC)", "object"],
+    "selected": "render_mapping",
+    "outcome": "count=2,state='ready'",
+    "principle": "A registered ABC can serve its virtual subclasses.",
+    "owner": "open_rendering.render_payload",
+    "warning": "Registry key is collections.abc.Mapping; dict is not a key."
+  },
+  {
+    "id": "union",
+    "title": "Union registration",
+    "phase": "request dispatch",
+    "value": "bytes: b'ready'",
+    "runtime_type": "bytes",
+    "candidate_path": ["bytes", "object"],
+    "selected": "render_text",
+    "outcome": "ready",
+    "principle": "One union annotation installed the same handler for str and bytes.",
+    "owner": "open_rendering.render_payload",
+    "warning": "Union registration is supported from Python 3.11; it is still single dispatch."
+  },
+  {
+    "id": "fallback",
+    "title": "Default fallback",
+    "phase": "request dispatch",
+    "value": "tuple('unknown')",
+    "runtime_type": "tuple",
+    "candidate_path": ["tuple (unregistered)", "object (base/default)"],
+    "selected": "render_payload",
+    "outcome": "UnsupportedPayloadError",
+    "principle": "The original decorated function is the object fallback.",
+    "owner": "open_rendering.render_payload",
+    "warning": "A fail-closed default is a domain decision, not a singledispatch requirement."
+  },
+  {
+    "id": "imports",
+    "title": "Competing imports",
+    "phase": "startup configuration",
+    "value": "ExternalPayload(ext-9)",
+    "runtime_type": "ExternalPayload",
+    "candidate_path": ["import extension_alpha", "import extension_beta", "dispatch ExternalPayload"],
+    "selected": "extension_beta.summarize_external_beta",
+    "outcome": "alpha,beta -> beta:ext-9; beta,alpha -> alpha:ext-9",
+    "principle": "Registrations configure one generic function during module execution.",
+    "owner": "registration_target.summarize_external",
+    "warning": "A production owner should reject duplicates instead of accepting order dependence."
+  }
+]
+  </script>
+
+  <script>
+    const scenarios = JSON.parse(document.getElementById("dispatch-scenarios").textContent);
+    const tabs = document.getElementById("scenario-tabs");
+    const fields = {
+      phase: document.getElementById("phase"),
+      owner: document.getElementById("owner"),
+      value: document.getElementById("value"),
+      runtime_type: document.getElementById("runtime-type"),
+      selected: document.getElementById("selected"),
+      outcome: document.getElementById("outcome"),
+      principle: document.getElementById("principle"),
+      warning: document.getElementById("warning")
+    };
+    const candidatePath = document.getElementById("candidate-path");
+
+    function showScenario(scenarioId) {
+      const scenario = scenarios.find((item) => item.id === scenarioId);
+      if (!scenario) return;
+
+      Object.entries(fields).forEach(([key, node]) => {
+        node.textContent = scenario[key];
+      });
+      candidatePath.replaceChildren(...scenario.candidate_path.map((candidate) => {
+        const item = document.createElement("li");
+        item.textContent = candidate;
+        return item;
+      }));
+      tabs.querySelectorAll("button").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.scenario === scenarioId));
+      });
+    }
+
+    scenarios.forEach((scenario, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.scenario = scenario.id;
+      button.textContent = scenario.title;
+      button.setAttribute("aria-pressed", String(index === 0));
+      button.addEventListener("click", () => showScenario(scenario.id));
+      tabs.appendChild(button);
+    });
+
+    showScenario(scenarios[0].id);
+  </script>
+</body>
+</html>
