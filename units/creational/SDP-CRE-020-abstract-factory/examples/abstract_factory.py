@@ -279,7 +279,7 @@ class DeliveryBundle:
 
     family: WireFamily
     encoder: Encoder
-    channel_context: AbstractContextManager[Channel]
+    channel: Channel
     acknowledgement_decoder: AcknowledgementDecoder
 
 
@@ -315,9 +315,9 @@ def deliver(
         encoder = factory.create_encoder()
         decoder = factory.create_acknowledgement_decoder()
         _require_coherent_products(factory, encoder, decoder)
-        observe(Observation("family.products_created", event.event_id, factory.family.value))
         with factory.open_channel() as channel:
             _require_family(factory.family, channel.family, "factory channel")
+            observe(Observation("family.products_created", event.event_id, factory.family.value))
             payload = encoder.encode(event)
             raw_acknowledgement = channel.send(payload)
             receipt = decoder.decode(raw_acknowledgement)
@@ -349,11 +349,10 @@ def deliver_with_bundle(
         bundle.acknowledgement_decoder.family,
         "bundle acknowledgement decoder",
     )
+    _require_family(bundle.family, bundle.channel.family, "bundle channel")
     observe(Observation("bundle.selected", event.event_id, bundle.family.value))
-    with bundle.channel_context as channel:
-        _require_family(bundle.family, channel.family, "bundle channel")
-        payload = bundle.encoder.encode(event)
-        receipt = bundle.acknowledgement_decoder.decode(channel.send(payload))
+    payload = bundle.encoder.encode(event)
+    receipt = bundle.acknowledgement_decoder.decode(bundle.channel.send(payload))
     _require_family(bundle.family, receipt.family, "bundle receipt")
     return receipt
 

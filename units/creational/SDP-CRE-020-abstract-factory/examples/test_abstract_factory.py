@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 
@@ -16,6 +17,7 @@ from abstract_factory import (
     Encoder,
     Event,
     IncompatibleFamilyError,
+    InvalidAcknowledgementError,
     JsonAcknowledgementDecoder,
     JsonChannel,
     JsonDeliveryFactory,
@@ -32,6 +34,8 @@ from abstract_factory import (
     deliver_with_bundle,
     select_factory,
 )
+from hypothesis import given
+from hypothesis import strategies as st
 
 
 @pytest.mark.parametrize(
@@ -94,6 +98,44 @@ class MixedFactory:
         return PipeAcknowledgementDecoder()
 
 
+@dataclass(slots=True)
+class FailingSendChannel:
+    trace: list[str]
+
+    @property
+    def family(self) -> WireFamily:
+        return WireFamily.JSON_V1
+
+    def __enter__(self) -> Channel:
+        self.trace.append("channel.open")
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
+        self.trace.append("channel.close")
+
+    def send(self, payload: object) -> bytes:
+        self.trace.append("channel.send")
+        raise OSError("synthetic send failure")
+
+
+@dataclass(frozen=True, slots=True)
+class FailingSendFactory:
+    channel: FailingSendChannel
+
+    @property
+    def family(self) -> WireFamily:
+        return WireFamily.JSON_V1
+
+    def create_encoder(self) -> Encoder:
+        return JsonEncoder()
+
+    def open_channel(self) -> AbstractContextManager[Channel]:
+        return self.channel
+
+    def create_acknowledgement_decoder(self) -> AcknowledgementDecoder:
+        return JsonAcknowledgementDecoder()
+
+
 def test_mixed_products_fail_before_external_write() -> None:
     observations: list[Observation] = []
 
@@ -102,6 +144,22 @@ def test_mixed_products_fail_before_external_write() -> None:
 
     assert [item.phase for item in observations] == ["family.selected", "delivery.failed"]
     assert observations[-1].error_type == "IncompatibleFamilyError"
+
+
+def test_owned_channel_closes_when_send_fails() -> None:
+    trace: list[str] = []
+    observations: list[Observation] = []
+
+    with pytest.raises(OSError, match="synthetic send failure"):
+        deliver(
+            Event("EVT-FAIL", "cleanup still runs"),
+            FailingSendFactory(FailingSendChannel(trace)),
+            observations.append,
+        )
+
+    assert trace == ["channel.open", "channel.send", "channel.close"]
+    assert observations[-1].phase == "delivery.failed"
+    assert observations[-1].error_type == "OSError"
 
 
 def test_observations_allow_list_fields_and_omit_message() -> None:
@@ -144,17 +202,103 @@ def test_registry_alias_must_match_factory_family() -> None:
 
 def test_ready_bundle_is_a_smaller_dependency_injection_seam() -> None:
     wire: list[bytes] = []
+    borrowed_channel = JsonChannel(wire)
     bundle = DeliveryBundle(
         WireFamily.JSON_V1,
         JsonEncoder(),
-        JsonChannel(wire),
+        borrowed_channel,
         JsonAcknowledgementDecoder(),
     )
 
-    receipt = deliver_with_bundle(Event("EVT-6", "ready"), bundle)
+    first = deliver_with_bundle(Event("EVT-6", "ready"), bundle)
+    second = deliver_with_bundle(Event("EVT-7", "still borrowed"), bundle)
 
-    assert receipt.delivery_id == "json:EVT-6"
-    assert len(wire) == 1
+    assert first.delivery_id == "json:EVT-6"
+    assert second.delivery_id == "json:EVT-7"
+    assert len(wire) == 2
+
+
+def test_ready_bundle_rejects_mixed_channel_before_write() -> None:
+    pipe_wire: list[bytes] = []
+    bundle = DeliveryBundle(
+        WireFamily.JSON_V1,
+        JsonEncoder(),
+        PipeChannel(pipe_wire),
+        JsonAcknowledgementDecoder(),
+    )
+
+    with pytest.raises(IncompatibleFamilyError, match="bundle channel"):
+        deliver_with_bundle(Event("EVT-8", "do not write"), bundle)
+
+    assert pipe_wire == []
+
+
+def test_decoders_reject_wrong_acknowledgement_shapes() -> None:
+    with pytest.raises(InvalidAcknowledgementError):
+        JsonAcknowledgementDecoder().decode(b'{"accepted":"yes"}')
+    with pytest.raises(InvalidAcknowledgementError):
+        PipeAcknowledgementDecoder().decode(b"MAYBE|pipe:EVT-9")
+
+
+def test_disallowed_selection_does_not_construct_factory() -> None:
+    calls = 0
+
+    def build() -> DeliveryFamilyFactory:
+        nonlocal calls
+        calls += 1
+        return PipeDeliveryFactory([])
+
+    with pytest.raises(DisallowedFamilyError):
+        select_factory(
+            "pipe-v1",
+            allowed_names=frozenset({"json-v1"}),
+            registry={"pipe-v1": build},
+        )
+
+    assert calls == 0
+
+
+def test_observer_error_propagates_before_construction() -> None:
+    class ObserverFailure(RuntimeError):
+        pass
+
+    def fail(_observation: Observation) -> None:
+        raise ObserverFailure("telemetry policy is fail-closed")
+
+    wire: list[bytes] = []
+    with pytest.raises(ObserverFailure):
+        deliver(Event("EVT-10", "not sent"), JsonDeliveryFactory(wire), fail)
+
+    assert wire == []
+
+
+@pytest.mark.parametrize(
+    "factory_builder",
+    [
+        pytest.param(lambda: JsonDeliveryFactory([]), id="json-v1"),
+        pytest.param(lambda: PipeDeliveryFactory([]), id="pipe-v1"),
+    ],
+)
+@given(
+    event_id=st.text(alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-", min_size=1, max_size=20),
+    message=st.text(
+        alphabet=st.characters(blacklist_categories=("Cs",)),
+        min_size=1,
+        max_size=60,
+    ),
+)
+def test_family_contract_accepts_valid_unicode_messages(
+    factory_builder: Callable[[], DeliveryFamilyFactory],
+    event_id: str,
+    message: str,
+) -> None:
+    factory = factory_builder()
+
+    receipt = deliver(Event(event_id, message), factory)
+
+    assert receipt.family is factory.family
+    assert receipt.delivery_id.endswith(event_id)
+    assert receipt.accepted is True
 
 
 @pytest.mark.parametrize(

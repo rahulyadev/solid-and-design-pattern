@@ -116,7 +116,7 @@ bag unless one meaningful compatibility invariant relates them.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Maintainer-authored notes,
 tests, and publication do not establish learner evidence; Rahul's learning state stays separate.
@@ -182,13 +182,14 @@ searchable. “Depends on a concrete class” is not automatically a defect.
 ### 2.2 A ready coherent bundle through dependency injection
 
 ```python
-bundle = DeliveryBundle(
-    family=WireFamily.JSON_V1,
-    encoder=JsonEncoder(),
-    channel_context=JsonChannel(output),
-    acknowledgement_decoder=JsonAcknowledgementDecoder(),
-)
-receipt = deliver_with_bundle(event, bundle)
+with JsonChannel(output) as borrowed_json_channel:  # composition root owns this context
+    bundle = DeliveryBundle(
+        family=WireFamily.JSON_V1,
+        encoder=JsonEncoder(),
+        channel=borrowed_json_channel,
+        acknowledgement_decoder=JsonAcknowledgementDecoder(),
+    )
+    receipt = deliver_with_bundle(event, bundle)
 ```
 
 The composition root chooses and validates the family once. The policy receives exactly what it
@@ -207,9 +208,11 @@ def make_json_bundle(output: list[bytes]) -> DeliveryBundle:
     )
 ```
 
-This simple family factory function is often enough in Python. It can bind dependencies, validate
-configuration, and return one coherent bundle without a class hierarchy. Call it what it is; it
-has the Abstract Factory *responsibility*, but not necessarily the classic object collaboration.
+This simple family factory function is often enough in Python. Here the Channel is a borrowed
+ready Product whose outer owner must close it after the bundle's scope. The function can bind
+dependencies, validate configuration, and return one coherent bundle without a class hierarchy.
+Call it what it is; it has the Abstract Factory *responsibility*, but not necessarily the classic
+object collaboration.
 
 ### 2.4 A structural Abstract Factory
 
@@ -1038,7 +1041,7 @@ policy receives an already selected family.”
 Examples: “Timezone can be ambient context.” “The test depended on ambient process state.” “Pass
 the selected factory instead of reading an ambient locator.”
 
-## 36. Sources actually used in this draft
+## 36. Sources actually used
 
 - [InformIT: authorized Abstract Factory excerpt](https://www.informit.com/articles/article.aspx?p=1398599)
 - [O'Reilly/Addison-Wesley catalog preview for *Design Patterns*](https://www.oreilly.com/library/view/design-patterns-elements/0201633612/front.html)
