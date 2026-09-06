@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-CRE-020 product-family decision explorer</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --canvas: #101827;
+      --panel: #172338;
+      --ink: #f6f8fb;
+      --muted: #b8c4d7;
+      --line: #557094;
+      --accent: #65d6c4;
+      --amber: #ffc857;
+      --danger: #ff7b72;
+      --focus: #9ac6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, #233a58 0, var(--canvas) 42%);
+      color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1180px, 94vw); margin: 0 auto; padding: 2rem 0 3rem; }
+    h1 { margin: 0 0 .4rem; font-size: clamp(1.7rem, 3vw, 2.7rem); }
+    .lede { max-width: 78ch; color: var(--muted); margin-top: 0; }
+    .scenario-tabs {
+      display: flex;
+      gap: .55rem;
+      overflow-x: auto;
+      padding: .5rem .15rem 1rem;
+      scrollbar-width: thin;
+    }
+    button {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #142033;
+      color: var(--ink);
+      padding: .55rem .85rem;
+      cursor: pointer;
+    }
+    button[aria-selected="true"] { color: #071b20; background: var(--accent); border-color: var(--accent); }
+    button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1.6rem;
+      align-items: stretch;
+      margin-top: 1rem;
+    }
+    .card {
+      position: relative;
+      min-height: 230px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      box-shadow: 0 14px 35px rgb(0 0 0 / 18%);
+    }
+    .card:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -1.35rem;
+      top: 46%;
+      color: var(--accent);
+      font-size: 1.4rem;
+    }
+    .step { color: var(--accent); font-weight: 800; letter-spacing: .08em; font-size: .76rem; }
+    h2 { font-size: 1.02rem; margin: .35rem 0 .8rem; }
+    .value { color: var(--muted); margin: 0; }
+    ul { margin: 0; padding-left: 1.2rem; color: var(--muted); }
+    .verdict { border-color: var(--accent); }
+    .broken .coherence { border-color: var(--danger); }
+    .broken .coherence .step, .broken .coherence h2 { color: var(--danger); }
+    .adjacent .verdict { border-color: var(--amber); }
+    .adjacent .verdict .step { color: var(--amber); }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .8rem;
+      margin-top: 1.4rem;
+      color: var(--muted);
+    }
+    .legend span { border-left: 4px solid var(--accent); padding-left: .65rem; }
+    .legend span:nth-child(2) { border-color: var(--amber); }
+    .legend span:nth-child(3) { border-color: var(--danger); }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    @media (max-width: 900px) {
+      .flow { grid-template-columns: 1fr; gap: .8rem; }
+      .card { min-height: auto; }
+      .card:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -1.05rem; }
+      .legend { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Product-family decision explorer</h1>
+    <p class="lede">Choose a scenario, then read left to right. The visual separates a family
+      choice from product creation, compatibility enforcement, and the final design verdict.</p>
+    <div id="scenario-tabs" class="scenario-tabs" role="tablist" aria-label="Family scenarios"></div>
+    <section id="scenario-panel" class="flow" role="tabpanel" tabindex="0" aria-live="polite">
+      <article class="card">
+        <div class="step">01 PRESSURE</div>
+        <h2 id="scenario-title"></h2>
+        <p class="value" id="outcome"></p>
+      </article>
+      <article class="card">
+        <div class="step">02 SELECTION</div>
+        <h2>Who chooses?</h2>
+        <p class="value" id="selection"></p>
+      </article>
+      <article class="card">
+        <div class="step">03 PRODUCTS</div>
+        <h2>What travels together?</h2>
+        <ul id="products"></ul>
+      </article>
+      <article class="card coherence">
+        <div class="step">04 COHERENCE GATE</div>
+        <h2 id="coherence"></h2>
+        <p class="value" id="boundary"></p>
+      </article>
+      <article class="card verdict">
+        <div class="step">05 VERDICT</div>
+        <h2>Smallest justified design</h2>
+        <p class="value" id="verdict"></p>
+      </article>
+    </section>
+    <p id="keyboard-help" class="sr-only">Use left and right arrow keys on a scenario tab to change scenarios.</p>
+    <aside class="legend" aria-label="Visual legend">
+      <span>Teal: coherent family boundary</span>
+      <span>Amber: simpler or adjacent design</span>
+      <span>Red: compatibility invariant broken</span>
+    </aside>
+  </main>
+  <script>
+    const SCENARIOS = [
+      {"id":"direct-one","title":"One stable family","selection":"Policy constructs JSON products directly","products":["JsonEncoder","JsonChannel","JsonAckDecoder"],"coherence":"Visible but hard-coded","boundary":"Inside policy workflow","outcome":"Works; change touches policy","verdict":"Keep direct construction until family variation is real."},
+      {"id":"ready-bundle","title":"One startup-selected bundle","selection":"Composition root injects DeliveryBundle","products":["Encoder","Channel context","AckDecoder"],"coherence":"Validated once during assembly","boundary":"Composition root","outcome":"Policy stays concrete-free","verdict":"Ordinary dependency injection is the smaller answer."},
+      {"id":"family-factory","title":"Repeated per-job creation","selection":"Composition root injects one family factory","products":["create_encoder","open_channel","create_ack_decoder"],"coherence":"One family identity spans every role","boundary":"Factory plus runtime invariant gate","outcome":"Fresh related products per job","verdict":"Abstract Factory is earned by family-wide repeatable creation."},
+      {"id":"mixed-family","title":"Accidental mixed products","selection":"JSON encoder + PIPE channel + PIPE decoder","products":["JsonEncoder","PipeChannel","PipeAckDecoder"],"coherence":"Broken before use","boundary":"Family validation gate","outcome":"Reject before external write","verdict":"Compatibility is the invariant, not matching method names."},
+      {"id":"one-factory-method","title":"Only one product varies","selection":"Creator overrides create_channel","products":["One Channel product"],"coherence":"No multi-product relationship","boundary":"Creator method","outcome":"Stable workflow, one creation decision","verdict":"This is Factory Method, not Abstract Factory."},
+      {"id":"constructor-bag","title":"Bag of unrelated constructors","selection":"Object stores logger, clock, encoder factories","products":["make_logger","make_clock","make_encoder"],"coherence":"No shared compatibility rule","boundary":"Generic dependency container","outcome":"Names are grouped; semantics are not","verdict":"A constructor bag is DI plumbing, not an Abstract Factory."},
+      {"id":"registry-root","title":"Configuration registry at the root","selection":"Exact allowed name resolves a factory builder","products":["JsonDeliveryFactory or PipeDeliveryFactory"],"coherence":"Alias checked against factory identity","boundary":"Startup composition root","outcome":"Unknown and disallowed remain distinct","verdict":"Registry selection complements; it does not define the pattern."},
+      {"id":"dynamic-plugin","title":"Independently shipped family","selection":"Trusted entry point loads a provider","products":["Provider-supplied family factory"],"coherence":"Contract plus provider conformance tests","boundary":"Package discovery and trust policy","outcome":"New deployment can add families","verdict":"Discovery is a separate lifecycle and security boundary."}
+    ];
+
+    const tabs = document.querySelector("#scenario-tabs");
+    const panel = document.querySelector("#scenario-panel");
+    const fields = {
+      title: document.querySelector("#scenario-title"),
+      selection: document.querySelector("#selection"),
+      products: document.querySelector("#products"),
+      coherence: document.querySelector("#coherence"),
+      boundary: document.querySelector("#boundary"),
+      outcome: document.querySelector("#outcome"),
+      verdict: document.querySelector("#verdict")
+    };
+
+    function renderScenario(index, moveFocus = false) {
+      const scenario = SCENARIOS[index];
+      fields.title.textContent = scenario.title;
+      fields.selection.textContent = scenario.selection;
+      fields.products.replaceChildren(...scenario.products.map((name) => {
+        const item = document.createElement("li");
+        item.textContent = name;
+        return item;
+      }));
+      fields.coherence.textContent = scenario.coherence;
+      fields.boundary.textContent = scenario.boundary;
+      fields.outcome.textContent = scenario.outcome;
+      fields.verdict.textContent = scenario.verdict;
+      panel.classList.toggle("broken", scenario.id === "mixed-family");
+      panel.classList.toggle("adjacent", ["direct-one", "one-factory-method", "constructor-bag"].includes(scenario.id));
+      [...tabs.children].forEach((tab, tabIndex) => {
+        const selected = tabIndex === index;
+        tab.setAttribute("aria-selected", String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+      });
+      if (moveFocus) tabs.children[index].focus();
+    }
+
+    SCENARIOS.forEach((scenario, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.id = `tab-${scenario.id}`;
+      button.setAttribute("role", "tab");
+      button.setAttribute("aria-controls", "scenario-panel");
+      button.setAttribute("aria-describedby", "keyboard-help");
+      button.textContent = scenario.title;
+      button.addEventListener("click", () => renderScenario(index));
+      button.addEventListener("keydown", (event) => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        let next = index;
+        if (event.key === 'ArrowLeft') next = (index - 1 + SCENARIOS.length) % SCENARIOS.length;
+        if (event.key === 'ArrowRight') next = (index + 1) % SCENARIOS.length;
+        if (event.key === 'Home') next = 0;
+        if (event.key === 'End') next = SCENARIOS.length - 1;
+        renderScenario(next, true);
+      });
+      tabs.append(button);
+    });
+    renderScenario(0);
+  </script>
+</body>
+</html>
