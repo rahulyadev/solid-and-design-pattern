@@ -114,7 +114,7 @@ deterministically.
 | Evidence profile | E+I+D+X+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured statistics. Artifact creation and
 maintainer tests do not advance the learning state. Material verification is recorded in
@@ -566,9 +566,10 @@ need fail-fast configuration.
 ### Resource-dependent iterator escapes its context
 
 ```python
-with open(path) as handle:
-    rows = (parse(line) for line in handle)
-return rows  # later iteration uses a closed handle
+def unsafe_rows(path):
+    with open(path) as handle:
+        rows = (parse(line) for line in handle)
+    return rows  # later iteration uses a closed handle
 ```
 
 Consume within the block, return materialized data, or return an object that owns an explicit

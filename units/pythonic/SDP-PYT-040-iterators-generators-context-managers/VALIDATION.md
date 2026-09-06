@@ -10,7 +10,7 @@ attempted the lab, recalled the material, demonstrated transfer, or reached any 
 |---|---|
 | Branch | `topic/SDP-PYT-040` |
 | Initialization start | `b11c07e32399bfdf7ba4f12c4d5ea90ab0b8ee1c` |
-| Artifact state during this record | Draft |
+| Artifact state during this record | Approved |
 | Learning state | Not started |
 | Validation date | 2026-09-06 |
 | Canonical target | CPython 3.14.7 |
@@ -23,8 +23,8 @@ attempted the lab, recalled the material, demonstrated transfer, or reached any 
 - Canonical prerequisites: `SDP-FND-060` and `SDP-PYT-010`.
 - Classification: Core; High interview, production, and Python/backend relevance; D3; size L.
 - Evidence profile: `E+I+D+X+T`.
-- Progress edit: only the `SDP-PYT-040` artifact state changed from Absent to Draft; learning state
-  remained Not started.
+- Progress edit: only the `SDP-PYT-040` artifact state advanced from Absent through Draft to
+  Approved; learning state remained Not started.
 
 ## Artifact inventory
 
@@ -44,22 +44,31 @@ data model, yield expressions, object finalization, `with`, and context managers
 `contextlib`, built-in `iter`, and glossary entries; and PEPs 255, 343, and 380. The unit cites these
 near subtle semantics and uses original synthetic prose, code, exercises, and diagrams.
 
-## Executed checks so far
+## Executed checks
 
 | Check | Observed result |
 |---|---|
 | Unit tests, CPython 3.14.7 | 25 passed. |
+| Unit tests, CPython 3.11.16 | 25 passed. |
+| Repository regression, CPython 3.14.7 | 644 tests passed across 22 existing unit test directories, using a separate pytest process per directory. |
 | Ruff lint | Passed for the unit tree. |
-| Ruff formatting | Passed for all 13 Python and Markdown files considered by Ruff. |
+| Ruff formatting | Passed for all files in the unit tree considered by Ruff. |
 | Strict mypy, Python 3.14 target | No issues in 10 source files. |
+| Strict mypy, Python 3.11 target | No issues in the same 10 source files. |
+| README Python snippets | All 13 fenced snippets compiled on CPython 3.14.7 and CPython 3.11.16. |
 | Worked demo, CPython 3.14.7 | Wrote two selected rows, closed the sink, and produced the expected demand/exit trace. |
+| Worked demo and both probes, CPython 3.11.16 | Produced output identical to the CPython 3.14.7 run. |
 | Laziness/exhaustion probe, CPython 3.14.7 | Matched the recorded JSON: no pre-consumption, self-iterator identity, permanent exhaustion, and independent tuple passes. |
 | Context exit probe, CPython 3.14.7 | Matched the recorded JSON for normal, propagating, suppressing, and failed-entry paths. |
 | Practice starter, CPython 3.14.7 | Printed one selected synthetic row and `closed=True`; learner refactoring remains absent. |
 | Embedded visual observations | Unit test compared the full HTML JSON block with actual Python observations. |
+| HTML script syntax | The visual's executable JavaScript parsed successfully with Node.js. |
+| Browser interaction | All nine selectable states rendered the expected observation; the console contained no warning or error. |
+| Responsive visual review | The dark appearance was readable at desktop, 360 px, and 320 px widths, with no horizontal document overflow. |
+| Repository validator | All repository structure, metadata, link, evidence, version, lock-file, and source-policy checks passed. |
 
-Repository-wide, Python 3.11, HTML script, responsive visual, and final publication checks are
-recorded only after they actually run. Draft status is retained until every approval check passes.
+The browser review is a focused functional and responsive inspection, not an exhaustive
+accessibility certification or a claim about untested browsers and color modes.
 
 ## Manual content and boundary review
 
@@ -80,6 +89,8 @@ recorded only after they actually run. Draft status is retained until every appr
 
 ## Approval boundary
 
-Artifact approval requires final repository validation, complete unit quality checks on Python 3.14
-and 3.11, visual/script verification, review of the final diff, and a separate approval commit.
-Publication details cannot be claimed before the branch is pushed and merged.
+The artifact is Approved because repository validation, unit quality checks on Python 3.14 and
+3.11, the repository regression, visual/script verification, and final content review passed.
+This status approves the maintainer-created material only; it does not advance the learning state
+or assert learner evidence. Push, pull-request, merge, and synchronization results are reported
+after those operations actually complete because a commit cannot truthfully predict them.
