@@ -133,7 +133,7 @@ three-field value with no staged pressure may be only a verbose constructor.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Maintainer-authored notes,
 tests, and publication do not establish learner evidence; Rahul's learning state stays separate.
@@ -486,11 +486,16 @@ def build(self) -> ReportPlan:
     missing = self._missing_steps()
     if missing:
         raise MissingStepError(missing)
+    name = self._name
+    source = self._source
+    destination = self._destination
+    if name is None or source is None or destination is None:
+        raise AssertionError("missing-step check and Builder state disagree")
     return ReportPlan(
-        name=self._name,
-        source=self._source,
+        name=name,
+        source=source,
         columns=tuple(self._columns),
-        destination=self._destination,
+        destination=destination,
     )
 ```
 
@@ -1149,9 +1154,9 @@ representation.”
 ## 38. Python 3.11 and 3.14 version note
 
 The unit uses only features available in Python 3.11: `StrEnum`, `typing.Self`, `kw_only=True`,
-`slots=True`, `weakref_slot` availability, and `AsyncExitStack`. The official 3.11 dataclass contract
-already supports the flags used here.
-[Python 3.11 dataclasses](https://docs.python.org/3.11/library/dataclasses.html).
+`slots=True`, and `AsyncExitStack`. The official 3.11 contracts already support each feature used
+here. [Python 3.11 dataclasses](https://docs.python.org/3.11/library/dataclasses.html) and
+[Python 3.11 enums](https://docs.python.org/3.11/library/enum.html#enum.StrEnum).
 
 Python 3.14 adds `doc=` to `dataclasses.field()` and a `decorator=` hook to `make_dataclass()`. Neither
 improves this construction problem, so the examples intentionally avoid both and require no 3.11
@@ -1169,6 +1174,8 @@ These are standard-library and typing contracts, not claims about private CPytho
 - [Python 3.11 dataclasses](https://docs.python.org/3.11/library/dataclasses.html) and
   [Python 3.14 dataclasses](https://docs.python.org/3.14/library/dataclasses.html) for generated
   methods, keyword-only fields, slots, frozen semantics, and version differences.
+- [Python 3.11 `StrEnum`](https://docs.python.org/3.11/library/enum.html#enum.StrEnum) for the enum
+  compatibility baseline.
 - [Python typing specification for `Self`](https://typing.python.org/en/latest/spec/generics.html#self)
   and [Python 3.11 `typing.Self`](https://docs.python.org/3.11/library/typing.html#typing.Self) for
   fluent receiver typing.
