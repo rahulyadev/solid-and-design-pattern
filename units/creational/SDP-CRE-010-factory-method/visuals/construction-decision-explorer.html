@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-CRE-010 construction decision explorer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5f7ff;
+      --muted: #aab4cc;
+      --panel: rgba(20, 28, 48, 0.88);
+      --line: #3c4b70;
+      --cyan: #5ee7f2;
+      --amber: #ffc86b;
+      --violet: #b9a3ff;
+      --green: #88edb3;
+      --shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 15%, rgba(94, 231, 242, 0.16), transparent 35%),
+        radial-gradient(circle at 88% 5%, rgba(185, 163, 255, 0.18), transparent 32%),
+        linear-gradient(145deg, #090d18, #111a31 55%, #0b1020);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 56px;
+    }
+
+    header { max-width: 820px; }
+    .eyebrow {
+      color: var(--cyan);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+    h1 { margin: 10px 0 12px; font-size: clamp(2rem, 5vw, 4.5rem); line-height: 0.98; }
+    .lede { color: var(--muted); font-size: 1.05rem; line-height: 1.7; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 22px;
+      margin-top: 28px;
+    }
+
+    .workspace, .ladder-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .workspace { padding: 22px; }
+    .ladder-panel { padding: 20px; }
+
+    .tabs {
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      padding: 2px 2px 14px;
+      scrollbar-color: var(--line) transparent;
+    }
+
+    button {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--muted);
+      background: rgba(8, 13, 27, 0.72);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+    }
+    button:hover, button:focus-visible { border-color: var(--cyan); color: var(--ink); outline: none; }
+    button[aria-selected="true"] {
+      color: #071118;
+      border-color: var(--cyan);
+      background: var(--cyan);
+    }
+
+    .pressure {
+      padding: 18px;
+      border-left: 4px solid var(--amber);
+      border-radius: 14px;
+      background: rgba(255, 200, 107, 0.08);
+    }
+    .label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.7rem; font-weight: 800; }
+    .pressure p { margin: 8px 0 0; font-size: 1.18rem; line-height: 1.5; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .card {
+      min-height: 190px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(6, 11, 24, 0.62);
+    }
+    .card strong { display: block; margin: 9px 0 10px; font-size: 1.2rem; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .decision { border-color: rgba(136, 237, 179, 0.5); }
+    .decision strong { color: var(--green); }
+    .boundary strong { color: var(--cyan); }
+    .reject { border-color: rgba(185, 163, 255, 0.5); }
+    .reject strong { color: var(--violet); }
+
+    .reason {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: rgba(94, 231, 242, 0.08);
+      line-height: 1.6;
+    }
+
+    .ladder-panel h2 { margin: 0 0 6px; font-size: 1rem; }
+    .ladder-panel > p { margin: 0 0 18px; color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
+    ol { list-style: none; margin: 0; padding: 0; counter-reset: rung; }
+    li {
+      position: relative;
+      counter-increment: rung;
+      margin: 0 0 10px;
+      padding: 11px 12px 11px 42px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(7, 12, 25, 0.58);
+      font-size: 0.87rem;
+    }
+    li::before {
+      content: counter(rung);
+      position: absolute;
+      left: 11px;
+      top: 9px;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--line);
+      color: var(--ink);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+    li.active { border-color: var(--green); color: var(--ink); }
+    li.active::before { background: var(--green); color: #071118; }
+
+    footer { margin-top: 20px; color: var(--muted); font-size: 0.8rem; }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .ladder-panel { order: -1; }
+      ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      li { margin: 0; }
+    }
+
+    @media (max-width: 620px) {
+      main { width: min(100% - 20px, 1180px); padding-top: 24px; }
+      .workspace, .ladder-panel { border-radius: 16px; padding: 15px; }
+      .cards, ol { grid-template-columns: 1fr; }
+      .card { min-height: 0; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      button, .card, li { transition: color 160ms ease, border-color 160ms ease, background 160ms ease; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">SDP-CRE-010 · Factory Method</div>
+      <h1>How much factory do you actually need?</h1>
+      <p class="lede">Start with the change pressure. Stop at the smallest boundary that keeps construction variable and collaboration stable.</p>
+    </header>
+
+    <section class="layout" aria-label="Construction decision explorer">
+      <div class="workspace">
+        <div class="tabs" id="scenario-tabs" role="tablist" aria-label="Change-pressure scenarios"></div>
+        <div aria-live="polite">
+          <div class="pressure">
+            <span class="label">Pressure</span>
+            <p id="pressure"></p>
+          </div>
+          <div class="cards">
+            <article class="card decision">
+              <span class="label">Smallest decision</span>
+              <strong id="decision"></strong>
+              <p>The least powerful construction mechanism that meets this scenario.</p>
+            </article>
+            <article class="card boundary">
+              <span class="label">Explicit boundary</span>
+              <strong id="boundary"></strong>
+              <p>Where selection or construction remains visible to readers and tests.</p>
+            </article>
+            <article class="card reject">
+              <span class="label">Rejected next move</span>
+              <strong id="reject"></strong>
+              <p>Extra machinery that this pressure does not yet earn.</p>
+            </article>
+          </div>
+          <div class="reason"><span class="label">Why</span><br><span id="because"></span></div>
+        </div>
+      </div>
+
+      <aside class="ladder-panel">
+        <h2>Construction ladder</h2>
+        <p>Increasing indirection, not increasing quality.</p>
+        <ol id="ladder">
+          <li data-decision="direct construction">Direct construction</li>
+          <li data-decision="small conditional">Small conditional</li>
+          <li data-decision="dictionary of callables">Callable map</li>
+          <li data-decision="injected factory callable">Injected factory</li>
+          <li data-decision="GoF Factory Method">Creator override</li>
+          <li data-decision="dynamic registration boundary">Dynamic registration</li>
+          <li data-decision="reject service locator">Reject hidden lookup</li>
+        </ol>
+      </aside>
+    </section>
+    <footer>Conceptual design aid · self-contained · no network requests</footer>
+  </main>
+
+  <script id="construction-scenarios" type="application/json">
+[
+  {"id":"one-product","title":"One stable product","pressure":"The service always constructs one local formatter.","decision":"direct construction","boundary":"constructor call","reject":"factory function","because":"There is no variable creation decision to hide."},
+  {"id":"two-known","title":"Two fixed choices","pressure":"One application selects between two known transports at startup.","decision":"small conditional","boundary":"composition root","reject":"class hierarchy","because":"A visible branch is cheaper than a polymorphic family."},
+  {"id":"named-set","title":"Several application-owned choices","pressure":"Validated names select one of several explicit constructors.","decision":"dictionary of callables","boundary":"validated lookup","reject":"dynamic registration","because":"The application already owns and can list the complete set."},
+  {"id":"vary-construction","title":"One workflow, injected construction","pressure":"Tests and deployments supply different product construction.","decision":"injected factory callable","boundary":"function parameter","reject":"Creator subclasses","because":"Only construction varies; the workflow has no subclass identity."},
+  {"id":"creator-family","title":"Existing Creator family","pressure":"Each workflow subtype owns a stable product-creation policy.","decision":"GoF Factory Method","boundary":"overridable method","reject":"simple factory function","because":"Subclass polymorphism is already meaningful and controls creation."},
+  {"id":"same-type","title":"Parse another representation","pressure":"A class needs construction from a mapping as well as normal arguments.","decision":"alternate classmethod constructor","boundary":"class namespace","reject":"Factory Method label","because":"The method builds the same conceptual type, not a variable Product role."},
+  {"id":"independent-provider","title":"Independent providers","pressure":"Separately shipped packages contribute factories after discovery.","decision":"dynamic registration boundary","boundary":"startup discovery","reject":"hard-coded dictionary","because":"The application no longer owns the complete provider set."},
+  {"id":"global-lookup","title":"Hidden global access","pressure":"Code asks a global locator for whatever service happens to be registered.","decision":"reject service locator","boundary":"explicit dependency injection","reject":"global factory singleton","because":"Construction should not hide runtime dependencies from callers and tests."}
+]
+  </script>
+  <script>
+    const scenarios = JSON.parse(document.getElementById("construction-scenarios").textContent);
+    const tabs = document.getElementById("scenario-tabs");
+    const fields = ["pressure", "decision", "boundary", "reject", "because"];
+
+    function showScenario(index) {
+      const scenario = scenarios[index];
+      fields.forEach((field) => {
+        document.getElementById(field).textContent = scenario[field];
+      });
+      [...tabs.children].forEach((button, buttonIndex) => {
+        button.setAttribute("aria-selected", String(buttonIndex === index));
+        button.tabIndex = buttonIndex === index ? 0 : -1;
+      });
+      document.querySelectorAll("#ladder li").forEach((rung) => {
+        rung.classList.toggle("active", rung.dataset.decision === scenario.decision);
+      });
+    }
+
+    scenarios.forEach((scenario, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.role = "tab";
+      button.textContent = scenario.title;
+      button.addEventListener("click", () => showScenario(index));
+      button.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+        event.preventDefault();
+        const direction = event.key === "ArrowRight" ? 1 : -1;
+        const next = (index + direction + scenarios.length) % scenarios.length;
+        showScenario(next);
+        tabs.children[next].focus();
+      });
+      tabs.appendChild(button);
+    });
+    showScenario(0);
+  </script>
+</body>
+</html>
