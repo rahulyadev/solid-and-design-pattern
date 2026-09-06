@@ -167,7 +167,7 @@ conflict policy; loading normal Python code is not authentication, compatibility
 | Evidence profile | `E+I+D+X+T` |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured survey results. Maintainer-authored
 notes, examples, experiments, tests, and publication can approve this artifact. They do not prove
