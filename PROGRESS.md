@@ -95,7 +95,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-PYT-020` | [Dispatch tables, dictionaries of callables, and registries](CURRICULUM.md#sdp-pyt-020) | Core | Approved | Not started | — | — | — | — |
 | `SDP-PYT-030` | [Python decorator syntax versus the Decorator pattern](CURRICULUM.md#sdp-pyt-030) | Core | Absent | Not started | — | — | — | — |
 | `SDP-PYT-040` | [Iterators, generators, and context managers as language-supported patterns](CURRICULUM.md#sdp-pyt-040) | Core | Approved | Not started | — | — | — | — |
-| `SDP-PYT-050` | [Modules, import caching, and dependency lifetimes](CURRICULUM.md#sdp-pyt-050) | Core | Absent | Not started | — | — | — | — |
+| `SDP-PYT-050` | [Modules, import caching, and dependency lifetimes](CURRICULUM.md#sdp-pyt-050) | Core | Draft | Not started | — | — | — | — |
 | `SDP-PYT-060` | [Dataclasses, immutable value objects, and enums](CURRICULUM.md#sdp-pyt-060) | Core | Absent | Not started | — | — | — | — |
 | `SDP-PYT-070` | [Practical interface design with Protocols, ABCs, and duck typing](CURRICULUM.md#sdp-pyt-070) | Core | Absent | Not started | — | — | — | — |
 | `SDP-PYT-080` | [singledispatch and open function extension](CURRICULUM.md#sdp-pyt-080) | Professional | Absent | Not started | — | — | — | — |
