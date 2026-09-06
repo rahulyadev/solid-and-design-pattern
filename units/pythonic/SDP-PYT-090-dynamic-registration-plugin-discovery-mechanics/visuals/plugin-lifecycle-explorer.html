@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-PYT-090 plugin lifecycle explorer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #eef6f4;
+      --muted: #a9bbb7;
+      --page: #07110f;
+      --surface: #0d1b18;
+      --surface-raised: #132520;
+      --line: #2d4841;
+      --mint: #63e6be;
+      --blue: #8cbcff;
+      --amber: #ffd37a;
+      --red: #ff9d9d;
+      --green-soft: rgba(99, 230, 190, 0.12);
+      --red-soft: rgba(255, 157, 157, 0.11);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(99, 230, 190, 0.12), transparent 28rem),
+        radial-gradient(circle at 88% 18%, rgba(140, 188, 255, 0.09), transparent 24rem),
+        var(--page);
+      color: var(--ink);
+    }
+
+    main {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 58px;
+    }
+
+    header { max-width: 820px; }
+
+    .eyebrow {
+      color: var(--mint);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 12px;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: -0.045em;
+    }
+
+    header p, .guidance p, .summary p {
+      color: var(--muted);
+      line-height: 1.62;
+    }
+
+    .scenario-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 28px 0 18px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: var(--surface);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { color: var(--ink); border-color: var(--blue); }
+
+    button:focus-visible {
+      outline: 3px solid rgba(140, 188, 255, 0.45);
+      outline-offset: 2px;
+    }
+
+    button[aria-pressed="true"] {
+      color: #03110d;
+      border-color: var(--mint);
+      background: var(--mint);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.45fr);
+      gap: 18px;
+      padding: clamp(18px, 3vw, 30px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(13, 27, 24, 0.93);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+    }
+
+    .context {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .context-card, .result-card {
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 15px;
+      background: var(--surface-raised);
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .value {
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .rail-wrap {
+      min-width: 0;
+      border-left: 1px solid var(--line);
+      padding-left: clamp(18px, 3vw, 30px);
+    }
+
+    .rail-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 16px;
+    }
+
+    .rail-title h2 { margin: 0; font-size: 1.05rem; }
+
+    .rail {
+      position: relative;
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .rail::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      bottom: 18px;
+      left: 13px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 11px;
+      align-items: center;
+    }
+
+    .dot {
+      z-index: 1;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--line);
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 900;
+    }
+
+    .stage.ok .dot { border-color: var(--mint); color: var(--mint); }
+    .stage.error .dot { border-color: var(--red); color: var(--red); }
+    .stage.meta .dot { border-color: var(--blue); color: var(--blue); }
+
+    .stage-body {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 10px 12px;
+      background: var(--surface-raised);
+    }
+
+    .stage.ok .stage-body { background: var(--green-soft); }
+    .stage.error .stage-body { background: var(--red-soft); }
+
+    .stage-name {
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      overflow-wrap: anywhere;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .result-card.warning { border-color: rgba(255, 211, 122, 0.55); }
+    .result-card.warning .value { color: var(--amber); }
+
+    .summary { grid-column: 1 / -1; }
+    .summary p { margin: 0; }
+
+    .guidance {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .guidance section {
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 15px;
+      background: rgba(13, 27, 24, 0.72);
+    }
+
+    .guidance h2 { margin: 0 0 7px; font-size: 0.92rem; }
+    .guidance p { margin: 0; font-size: 0.9rem; }
+
+    @media (max-width: 780px) {
+      main { width: min(100% - 20px, 1160px); padding-top: 26px; }
+      .board { grid-template-columns: 1fr; }
+      .rail-wrap { border-left: 0; border-top: 1px solid var(--line); padding: 20px 0 0; }
+      .guidance { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      button { flex: 1 1 150px; }
+      .results { grid-template-columns: 1fr; }
+      .rail-title { display: grid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">SDP-PYT-090 · governed in-process extension</div>
+      <h1>Where did this plugin fail?</h1>
+      <p>Choose a scenario. Trace metadata through startup and request time without collapsing
+        discovery, execution, policy, and behavior into one “load plugins” box.</p>
+    </header>
+
+    <nav class="scenario-tabs" aria-label="Plugin lifecycle scenarios" id="scenario-tabs"></nav>
+
+    <article class="board" aria-live="polite">
+      <section class="context" aria-label="Scenario inputs">
+        <div class="context-card">
+          <span class="label">Candidates</span>
+          <div class="value" id="candidates"></div>
+        </div>
+        <div class="context-card">
+          <span class="label">Host policy</span>
+          <div class="value" id="policy"></div>
+        </div>
+        <div class="results">
+          <div class="result-card">
+            <span class="label">Published registry</span>
+            <div class="value" id="active"></div>
+          </div>
+          <div class="result-card">
+            <span class="label">Outcome</span>
+            <div class="value" id="outcome"></div>
+          </div>
+          <div class="result-card summary">
+            <span class="label">Owned decision</span>
+            <p id="decision"></p>
+          </div>
+          <div class="result-card warning summary">
+            <span class="label">Operational warning</span>
+            <div class="value" id="warning"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rail-wrap" aria-label="Lifecycle trace">
+        <div class="rail-title">
+          <h2 id="scenario-title"></h2>
+          <span class="eyebrow">stage : outcome</span>
+        </div>
+        <ol class="rail" id="lifecycle-rail"></ol>
+      </section>
+    </article>
+
+    <div class="guidance">
+      <section>
+        <h2>How to read this visual</h2>
+        <p>Inputs and policy are on the left. Follow the event rail downward; absence means a later
+          boundary was never reached.</p>
+      </section>
+      <section>
+        <h2>Key insight</h2>
+        <p>Each stage owns a different fact and failure. Activation publishes only the complete,
+          validated set.</p>
+      </section>
+      <section>
+        <h2>Simplification or limitation</h2>
+        <p>This is a conceptual process-local trace, not import internals, a trust proof, or a
+          sandbox.</p>
+      </section>
+    </div>
+  </main>
+
+  <script id="lifecycle-scenarios" type="application/json">
+[
+  {
+    "id": "success",
+    "title": "Successful lifecycle",
+    "policy": "fail fast",
+    "candidates": "invoice from Visual-Invoice==1.0",
+    "path": [
+      "invoice:discovery:metadata only",
+      "invoice:registration:accepted",
+      "invoice:load:ok",
+      "invoice:construction:ok",
+      "invoice:validation:ok",
+      "invoice:activation:published",
+      "invoice:invocation:ok"
+    ],
+    "active": "invoice → report.invoice",
+    "outcome": "text/plain; body returned but not logged",
+    "decision": "Publish only after the offer passes host-owned validation.",
+    "warning": "Discovery metadata did not authenticate or sandbox the provider."
+  },
+  {
+    "id": "duplicate-name",
+    "title": "Duplicate entry name",
+    "policy": "fail fast",
+    "candidates": "Visual-B and Visual-A both advertise invoice",
+    "path": [
+      "invoice:discovery:two metadata claims",
+      "invoice:registration:error:PluginPolicyError",
+      "invoice:registration:error:PluginPolicyError"
+    ],
+    "active": "none",
+    "outcome": "2 registration failures; zero candidates loaded",
+    "decision": "Reject every claimant before load; order chooses no winner.",
+    "warning": "Sorting makes failure deterministic, not one duplicate legitimate."
+  },
+  {
+    "id": "incompatible",
+    "title": "Compatibility failure",
+    "policy": "fail fast",
+    "candidates": "future declares plugin API major 2; host accepts 1",
+    "path": [
+      "future:discovery:metadata only",
+      "future:registration:accepted",
+      "future:load:ok",
+      "future:construction:ok",
+      "future:validation:error:ValueError"
+    ],
+    "active": "none",
+    "outcome": "validation: incompatible API major",
+    "decision": "Use the client contract and capabilities, not distribution version, to decide.",
+    "warning": "A version string is provenance input, not behavioral evidence."
+  },
+  {
+    "id": "duplicate-claim",
+    "title": "Duplicate semantic claim",
+    "policy": "quarantine optional providers",
+    "candidates": "alpha and beta have distinct names but both claim report.invoice",
+    "path": [
+      "group:discovery:two metadata entries",
+      "alpha:registration:accepted",
+      "alpha:load:ok",
+      "alpha:construction:ok",
+      "alpha:validation:ok",
+      "beta:registration:accepted",
+      "beta:load:ok",
+      "beta:construction:ok",
+      "beta:validation:ok",
+      "alpha:validation:error:PluginPolicyError",
+      "beta:validation:error:PluginPolicyError"
+    ],
+    "active": "none",
+    "outcome": "2 claim failures; both excluded",
+    "decision": "Validate the batch before publishing a claim index.",
+    "warning": "Unique entry-point names do not imply unique business ownership."
+  },
+  {
+    "id": "load-quarantine",
+    "title": "Optional load failure",
+    "policy": "quarantine optional providers",
+    "candidates": "broken import plus healthy status provider",
+    "path": [
+      "group:discovery:two metadata entries",
+      "broken:registration:accepted",
+      "broken:load:error:ImportError",
+      "status:registration:accepted",
+      "status:load:ok",
+      "status:construction:ok",
+      "status:validation:ok",
+      "status:activation:published"
+    ],
+    "active": "status",
+    "outcome": "broken quarantined; status published",
+    "decision": "Contain the optional failure without relabeling its load stage.",
+    "warning": "The same outcome is unsafe if broken is required for readiness."
+  },
+  {
+    "id": "invocation-failure",
+    "title": "Invocation failure",
+    "policy": "startup succeeded",
+    "candidates": "restricted is valid and active",
+    "path": [
+      "restricted:discovery:metadata only",
+      "restricted:registration:accepted",
+      "restricted:load:ok",
+      "restricted:construction:ok",
+      "restricted:validation:ok",
+      "restricted:activation:published",
+      "restricted:invocation:error:PermissionError"
+    ],
+    "active": "restricted",
+    "outcome": "PermissionError preserved at invocation",
+    "decision": "Preserve the handler exception and record only safe stage context.",
+    "warning": "Successful activation does not prove every future call succeeds."
+  }
+]
+  </script>
+
+  <script>
+    const scenarios = JSON.parse(document.getElementById("lifecycle-scenarios").textContent);
+    const tabs = document.getElementById("scenario-tabs");
+    const rail = document.getElementById("lifecycle-rail");
+    const fields = {
+      title: document.getElementById("scenario-title"),
+      candidates: document.getElementById("candidates"),
+      policy: document.getElementById("policy"),
+      active: document.getElementById("active"),
+      outcome: document.getElementById("outcome"),
+      decision: document.getElementById("decision"),
+      warning: document.getElementById("warning")
+    };
+
+    function stageClass(step) {
+      if (step.includes(":error:")) return "error";
+      if (step.includes(":discovery:")) return "meta";
+      return "ok";
+    }
+
+    function showScenario(scenarioId) {
+      const scenario = scenarios.find((item) => item.id === scenarioId);
+      if (!scenario) return;
+
+      Object.entries(fields).forEach(([name, node]) => {
+        node.textContent = scenario[name];
+      });
+
+      rail.replaceChildren(...scenario.path.map((step, index) => {
+        const item = document.createElement("li");
+        item.className = `stage ${stageClass(step)}`;
+
+        const dot = document.createElement("span");
+        dot.className = "dot";
+        dot.textContent = String(index + 1);
+
+        const body = document.createElement("div");
+        body.className = "stage-body";
+        const value = document.createElement("div");
+        value.className = "stage-name";
+        value.textContent = step;
+        body.appendChild(value);
+
+        item.append(dot, body);
+        return item;
+      }));
+
+      tabs.querySelectorAll("button").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.scenario === scenarioId));
+      });
+    }
+
+    scenarios.forEach((scenario, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.scenario = scenario.id;
+      button.textContent = scenario.title;
+      button.setAttribute("aria-pressed", String(index === 0));
+      button.addEventListener("click", () => showScenario(scenario.id));
+      tabs.appendChild(button);
+    });
+
+    showScenario(scenarios[0].id);
+  </script>
+</body>
+</html>

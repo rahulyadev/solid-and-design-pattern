@@ -99,7 +99,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-PYT-060` | [Dataclasses, immutable value objects, and enums](CURRICULUM.md#sdp-pyt-060) | Core | Approved | Not started | — | — | — | — |
 | `SDP-PYT-070` | [Practical interface design with Protocols, ABCs, and duck typing](CURRICULUM.md#sdp-pyt-070) | Core | Approved | Not started | — | — | — | — |
 | `SDP-PYT-080` | [singledispatch and open function extension](CURRICULUM.md#sdp-pyt-080) | Professional | Approved | Not started | — | — | — | — |
-| `SDP-PYT-090` | [Dynamic registration and plugin discovery mechanics](CURRICULUM.md#sdp-pyt-090) | Professional | Absent | Not started | — | — | — | — |
+| `SDP-PYT-090` | [Dynamic registration and plugin discovery mechanics](CURRICULUM.md#sdp-pyt-090) | Professional | Draft | Not started | — | — | — | — |
 | `SDP-PYT-100` | [Descriptors, class hooks, and metaclasses only when justified](CURRICULUM.md#sdp-pyt-100) | Advanced | Absent | Not started | — | — | — | — |
 | `SDP-CRE-010` | [Factory Method](CURRICULUM.md#sdp-cre-010) | Core | Absent | Not started | — | — | — | — |
 | `SDP-CRE-020` | [Abstract Factory](CURRICULUM.md#sdp-cre-020) | Professional | Absent | Not started | — | — | — | — |
