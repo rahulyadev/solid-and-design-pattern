@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-PYT-100 mechanism decision explorer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #0a0c14;
+      --surface: #121725;
+      --raised: #192137;
+      --line: #35415f;
+      --ink: #f6f7fb;
+      --muted: #b7bfd2;
+      --cyan: #66d9ef;
+      --violet: #b69cff;
+      --amber: #ffd27a;
+      --danger: #ff9caa;
+      --ok: #8ee6b3;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 8%, rgba(102, 217, 239, 0.13), transparent 28rem),
+        radial-gradient(circle at 88% 18%, rgba(182, 156, 255, 0.12), transparent 28rem),
+        var(--page);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 60px;
+    }
+
+    header { max-width: 850px; }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 14px;
+      font-size: clamp(2.1rem, 5vw, 3.7rem);
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+    }
+
+    header p, .guidance {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .scenario-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 28px 0 18px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 14px;
+      color: var(--muted);
+      background: var(--surface);
+      font: inherit;
+      font-size: 0.86rem;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    button:hover { color: var(--ink); border-color: var(--cyan); }
+
+    button:focus-visible {
+      outline: 3px solid rgba(102, 217, 239, 0.42);
+      outline-offset: 2px;
+    }
+
+    button[aria-pressed="true"] {
+      color: #081014;
+      border-color: var(--cyan);
+      background: var(--cyan);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr) minmax(0, 1fr);
+      gap: 14px;
+      padding: clamp(16px, 3vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(18, 23, 37, 0.94);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+    }
+
+    .card {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: var(--raised);
+    }
+
+    .card.decision-card { border-color: rgba(142, 230, 179, 0.55); }
+    .card.risk-card { border-color: rgba(255, 156, 170, 0.48); }
+
+    .label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .value {
+      overflow-wrap: anywhere;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .hero-value {
+      color: var(--ok);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 1.12rem;
+      font-weight: 800;
+    }
+
+    .risk-value { color: var(--danger); }
+
+    .divider {
+      height: 1px;
+      margin: 16px 0;
+      background: var(--line);
+    }
+
+    .ladder-panel {
+      display: grid;
+      grid-template-columns: minmax(240px, 0.75fr) minmax(0, 1.25fr);
+      gap: 22px;
+      margin-top: 20px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+    }
+
+    .ladder {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: rung;
+    }
+
+    .ladder li {
+      counter-increment: rung;
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 9px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      color: var(--muted);
+    }
+
+    .ladder li::before {
+      content: counter(rung);
+      display: grid;
+      width: 26px;
+      height: 26px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--violet);
+      font-size: 0.75rem;
+      font-weight: 850;
+    }
+
+    .ladder li.active {
+      border-color: var(--cyan);
+      color: var(--ink);
+      background: rgba(102, 217, 239, 0.08);
+    }
+
+    .ladder code {
+      color: inherit;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .guidance h2 {
+      margin: 0 0 10px;
+      color: var(--amber);
+      font-size: 1.1rem;
+    }
+
+    .guidance p { margin: 0 0 12px; }
+
+    .callout {
+      border-left: 3px solid var(--amber);
+      padding-left: 14px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 880px) {
+      .board { grid-template-columns: 1fr; }
+      .ladder-panel { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 1180px); padding-top: 28px; }
+      .board, .ladder-panel { padding: 13px; border-radius: 16px; }
+      button { width: 100%; text-align: left; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .card { transition: border-color 140ms ease, transform 140ms ease; }
+      .card:hover { transform: translateY(-1px); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">SDP-PYT-100 · least power first</div>
+      <h1>Choose the event you truly need to intercept.</h1>
+      <p>
+        Start from change pressure, not mechanism names. Every step to the right increases
+        implicit behavior, definition-time reach, inheritance coupling, or tooling cost.
+      </p>
+    </header>
+
+    <nav id="scenario-tabs" class="scenario-tabs" aria-label="Change-pressure scenarios"></nav>
+
+    <section class="board" aria-live="polite" aria-atomic="true">
+      <article class="card">
+        <span class="label">Change pressure</span>
+        <div id="pressure" class="value"></div>
+        <div class="divider"></div>
+        <span class="label">Scenario</span>
+        <div id="scenario-title" class="value"></div>
+      </article>
+
+      <article class="card decision-card">
+        <span class="label">Smallest fitting mechanism</span>
+        <div id="decision" class="value hero-value"></div>
+        <div class="divider"></div>
+        <span class="label">Execution moment</span>
+        <div id="moment" class="value"></div>
+        <div class="divider"></div>
+        <span class="label">Why sufficient</span>
+        <div id="why" class="value"></div>
+      </article>
+
+      <article class="card risk-card">
+        <span class="label">Next power deliberately rejected</span>
+        <div id="next-power" class="value risk-value"></div>
+        <div class="divider"></div>
+        <span class="label">Cost or hazard</span>
+        <div id="risk" class="value"></div>
+      </article>
+    </section>
+
+    <section class="ladder-panel">
+      <ol id="ladder" class="ladder" aria-label="Increasing mechanism power">
+        <li data-rung="function + dataclass"><code>function / dataclass</code></li>
+        <li data-rung="property"><code>property</code></li>
+        <li data-rung="data descriptor"><code>descriptor</code></li>
+        <li data-rung="explicit dictionary"><code>explicit composition / map</code></li>
+        <li data-rung="in-place class decorator"><code>class decorator</code></li>
+        <li data-rung="__init_subclass__"><code>__init_subclass__</code></li>
+        <li data-rung="metaclass __prepare__"><code>metaclass</code></li>
+        <li data-rung="do not add a mechanism"><code>reject unjustified magic</code></li>
+      </ol>
+      <div class="guidance">
+        <h2>The ladder is not a maturity model</h2>
+        <p>
+          A function is not an immature metaclass. It is the correct tool when the operation can
+          remain explicit. A descriptor is correct only when the repeated concern is attribute
+          access. A subclass hook is correct only when an existing hierarchy owns a rule.
+        </p>
+        <p class="callout">
+          Metaclass question: what must happen before the class body, during class-object creation,
+          or for every instance construction that no smaller boundary can express?
+        </p>
+        <p>
+          If the answer is unclear, stop. Build an explicit prototype and collect evidence before
+          moving the behavior into class creation.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script id="mechanism-scenarios" type="application/json">
+[
+  {
+    "id": "value-now",
+    "title": "Validate one incoming value",
+    "pressure": "One request field needs trimming and a range check.",
+    "decision": "function + dataclass",
+    "moment": "explicit call / object construction",
+    "next": "property",
+    "why": "The caller can see the operation; no attribute interception is needed.",
+    "risk": "A hook would hide a simple data transformation."
+  },
+  {
+    "id": "one-owner",
+    "title": "Manage one attribute on one class",
+    "pressure": "One mutable class needs validation whenever its port changes.",
+    "decision": "property",
+    "moment": "instance attribute access",
+    "next": "descriptor",
+    "why": "A property keeps the policy beside its sole owner.",
+    "risk": "A reusable protocol adds indirection before reuse exists."
+  },
+  {
+    "id": "repeated-field",
+    "title": "Reuse managed-attribute semantics",
+    "pressure": "Several fields on several classes share get, set, delete, and naming rules.",
+    "decision": "data descriptor",
+    "moment": "attribute lookup / assignment / deletion",
+    "next": "__init_subclass__",
+    "why": "The repeated unit is an attribute-access policy, not a class-family rule.",
+    "risk": "Lookup becomes implicit; slow I/O and surprising side effects are unacceptable."
+  },
+  {
+    "id": "explicit-set",
+    "title": "Select from an application-owned set",
+    "pressure": "Five known handlers need deterministic lookup.",
+    "decision": "explicit dictionary",
+    "moment": "startup assembly / explicit lookup",
+    "next": "__init_subclass__",
+    "why": "The application can list its handlers without definition-time global mutation.",
+    "risk": "Auto-registration would introduce import-order and test-isolation state."
+  },
+  {
+    "id": "future-subclasses",
+    "title": "Govern an existing hierarchy",
+    "pressure": "Every future subclass must declare validated metadata.",
+    "decision": "__init_subclass__",
+    "moment": "subclass creation",
+    "next": "metaclass",
+    "why": "Ordinary cooperative inheritance supplies a post-creation hook.",
+    "risk": "Missing super() or keyword forwarding can silently break sibling hooks."
+  },
+  {
+    "id": "one-class",
+    "title": "Transform one completed class explicitly",
+    "pressure": "One class needs a visible marker independent of descendants.",
+    "decision": "in-place class decorator",
+    "moment": "after class creation, before name binding",
+    "next": "replacement decorator",
+    "why": "The opt-in is local and returning the same class preserves identity.",
+    "risk": "Replacement can alter identity, MRO, typing, pickling, and tooling."
+  },
+  {
+    "id": "body-namespace",
+    "title": "Control the class-body namespace",
+    "pressure": "A framework must reject duplicate declarations while the body executes.",
+    "decision": "metaclass __prepare__",
+    "moment": "before and during class-body execution",
+    "next": "more metaclass hooks",
+    "why": "No post-creation hook can change the namespace used by the already-run body.",
+    "risk": "The framework owns metaclass composition, __classcell__, typing, and diagnostics."
+  },
+  {
+    "id": "vague-framework",
+    "title": "Add framework-like magic",
+    "pressure": "The proposal says a metaclass will make models cleaner but names no invariant.",
+    "decision": "do not add a mechanism",
+    "moment": "none",
+    "next": "explicit prototype first",
+    "why": "Power is not a requirement; there is no evidenced change pressure.",
+    "risk": "Magic would create inheritance coupling and import-time failures without a payoff."
+  }
+]
+  </script>
+  <script>
+    const scenarios = JSON.parse(document.getElementById("mechanism-scenarios").textContent);
+    const tabs = document.getElementById("scenario-tabs");
+    const ladderItems = Array.from(document.querySelectorAll("#ladder li"));
+
+    function showScenario(id) {
+      const scenario = scenarios.find(function (item) { return item.id === id; });
+      if (!scenario) return;
+      document.getElementById("scenario-title").textContent = scenario.title;
+      document.getElementById("pressure").textContent = scenario.pressure;
+      document.getElementById("decision").textContent = scenario.decision;
+      document.getElementById("moment").textContent = scenario.moment;
+      document.getElementById("next-power").textContent = scenario.next;
+      document.getElementById("why").textContent = scenario.why;
+      document.getElementById("risk").textContent = scenario.risk;
+
+      Array.from(tabs.querySelectorAll("button")).forEach(function (button) {
+        button.setAttribute("aria-pressed", String(button.dataset.id === id));
+      });
+      ladderItems.forEach(function (item) {
+        item.classList.toggle("active", item.dataset.rung === scenario.decision);
+      });
+    }
+
+    scenarios.forEach(function (scenario, index) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.id = scenario.id;
+      button.textContent = scenario.title;
+      button.setAttribute("aria-pressed", String(index === 0));
+      button.addEventListener("click", function () { showScenario(scenario.id); });
+      tabs.appendChild(button);
+    });
+
+    showScenario(scenarios[0].id);
+  </script>
+</body>
+</html>
