@@ -79,7 +79,7 @@ def replace_with_proxy(cls: type[Any]) -> type[Any]:
 
     original = cls
 
-    class Replacement(cls):  # type: ignore[valid-type,misc]
+    class Replacement(cls):  # type: ignore[misc]
         wrapped_class = original
 
     Replacement.__name__ = cls.__name__
@@ -106,6 +106,7 @@ class DefinitionMeta(type):
         mcls,
         name: str,
         bases: tuple[type[Any], ...],
+        /,
         **kwargs: Any,
     ) -> RecordingNamespace:
         del mcls, bases, kwargs

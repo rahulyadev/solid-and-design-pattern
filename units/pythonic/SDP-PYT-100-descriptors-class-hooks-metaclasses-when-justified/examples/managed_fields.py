@@ -8,7 +8,7 @@ lookup.
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Generic, TypeVar, overload
+from typing import Generic, TypeVar, cast, overload
 
 T = TypeVar("T")
 
@@ -56,9 +56,9 @@ class ManagedField(Generic[T]):  # noqa: UP046 - Python 3.11 compatibility is re
         except AttributeError as error:
             public_name = self._public_name or "<unnamed>"
             raise AttributeError(f"{public_name} has not been assigned") from error
-        return value  # type: ignore[no-any-return]
+        return cast(T, value)
 
-    def __set__(self, instance: object, raw_value: object) -> None:
+    def __set__(self, instance: object, raw_value: T) -> None:
         try:
             value = self._convert(raw_value)
             self._validate(value)

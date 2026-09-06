@@ -62,8 +62,14 @@ def observe_lookup() -> list[LookupObservation]:
         LookupObservation("sample.cached", str(sample.cached)),
         LookupObservation("Sample.data is raw_data", str(Sample.data is raw_data)),
         LookupObservation("Sample.cached is raw_non_data", str(Sample.cached is raw_non_data)),
-        LookupObservation("bound.__self__ is sample", str(bound.__self__ is sample)),
-        LookupObservation("bound.__func__ is raw_method", str(bound.__func__ is raw_method)),
+        LookupObservation(
+            "bound.__self__ is sample",
+            str(bound.__self__ is sample),  # type: ignore[attr-defined]
+        ),
+        LookupObservation(
+            "bound.__func__ is raw_method",
+            str(bound.__func__ is raw_method),  # type: ignore[attr-defined]
+        ),
         LookupObservation("bound()", bound()),
     ]
     sample.data = "assigned-through-data-descriptor"

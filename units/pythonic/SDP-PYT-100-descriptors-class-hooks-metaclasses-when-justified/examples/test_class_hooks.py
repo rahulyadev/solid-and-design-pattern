@@ -48,6 +48,43 @@ def test_cooperative_hook_order_follows_super_chain_not_base_list_guessing() -> 
     ]
 
 
+def test_reversing_cooperative_bases_changes_the_real_super_chain() -> None:
+    before = len(EVENTS)
+
+    class ReverseRule(
+        VersionedDefinition,
+        CodedRule,
+        schema_version=3,
+        code="reverse",
+    ):
+        pass
+
+    assert ReverseRule.code == "reverse"
+    assert ReverseRule.schema_version == 3
+    assert [event.detail for event in EVENTS[before:]] == [
+        "code=reverse",
+        "schema_version=3",
+    ]
+
+
+def test_set_name_completes_before_the_parent_subclass_hook() -> None:
+    order: list[str] = []
+
+    class Named:
+        def __set_name__(self, owner: type[object], name: str) -> None:
+            order.append(f"set_name:{owner.__name__}.{name}")
+
+    class Base:
+        def __init_subclass__(cls) -> None:
+            super().__init_subclass__()
+            order.append(f"init_subclass:{cls.__name__}")
+
+    class Child(Base):
+        field = Named()
+
+    assert order == ["set_name:Child.field", "init_subclass:Child"]
+
+
 def test_invalid_hook_keyword_is_rejected_at_definition_time() -> None:
     with pytest.raises(TypeError, match="lowercase"):
 
@@ -72,6 +109,42 @@ def test_in_place_class_decorator_preserves_identity_and_inheritance() -> None:
     assert decorated is original
     assert issubclass(decorated, Base)
     assert decorated.definition_label == "stable"
+
+
+def test_class_decorators_apply_bottom_up() -> None:
+    order: list[str] = []
+
+    def record(label: str) -> Any:
+        def decorate(cls: type[Any]) -> type[Any]:
+            order.append(label)
+            return cls
+
+        return decorate
+
+    @record("outer")
+    @record("inner")
+    class Decorated:
+        pass
+
+    assert order == ["inner", "outer"]
+    assert Decorated.__name__ == "Decorated"
+
+
+def test_class_decorator_is_not_reapplied_to_descendants() -> None:
+    before = len(EVENTS)
+
+    @label_definition("base")
+    class DecoratedBase:
+        pass
+
+    after_base = len(EVENTS)
+
+    class Child(DecoratedBase):
+        pass
+
+    assert after_base == before + 1
+    assert len(EVENTS) == after_base
+    assert Child.definition_label == "base"
 
 
 def test_replacing_class_decorator_changes_identity_and_adds_an_mro_layer() -> None:

@@ -142,7 +142,7 @@ creation, metaclass-level operations, or construction policy for every instance 
 | Evidence profile | `E+I+D+X+T` |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured usage statistics.
 
@@ -908,6 +908,11 @@ Production guidance:
 
 This unit deliberately does not build an annotation-driven framework.
 
+The dual-runtime
+[annotation timing experiment](experiments/EXP-03-annotation-evaluation-timing/README.md) executes
+identical source without inherited future flags. It records definition-time `NameError` on CPython
+3.11 and completed definition followed by evaluation-time `NameError` on CPython 3.14.
+
 ### Type parameter syntax
 
 Python 3.12 added class type-parameter lists. The worked generic descriptor uses
@@ -1585,10 +1590,13 @@ Smallest bridge if these are not yet studied:
 | [Worked demo](examples/run_mechanism_demo.py) | smallest chosen combination and metaclass rejection | deterministic synthetic output |
 | [Lookup probe](examples/lookup_probe.py) | precedence and binding observations | CPython executions recorded separately |
 | [Class-creation probe](examples/class_creation_probe.py) | definition versus construction phases | explicit event instrumentation |
+| [Annotation timing probe](examples/annotation_timing_probe.py) | Python 3.11 eager versus 3.14 lazy failure phase | identical synthetic source on both runtimes |
 | [EXP-01](experiments/EXP-01-descriptor-lookup-precedence/README.md) | data/non-data lookup | actual output, bounded inference |
 | [EXP-02](experiments/EXP-02-class-creation-order/README.md) | class and instance phase order | actual output, CPython detail labeled |
+| [EXP-03](experiments/EXP-03-annotation-evaluation-timing/README.md) | annotation evaluation timing | actual, different 3.11/3.14 output |
 | [Practice lab](practice/README.md) | predict, run, observe, explain, refactor, vary | unsolved; no learner evidence yet |
 | [Decision visual](visuals/mechanism-decision-explorer.html) | compare least-powerful mechanisms | embedded data tested; not browser proof |
+| [Validation record](VALIDATION.md) | checks, sources, manual review, and approval boundary | artifact evidence only |
 
 ## 35. Authoritative sources
 

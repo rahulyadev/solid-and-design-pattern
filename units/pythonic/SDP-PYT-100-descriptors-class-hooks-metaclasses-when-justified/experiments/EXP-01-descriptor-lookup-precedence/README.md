@@ -6,7 +6,7 @@
 | Curriculum | [CURRICULUM.md](../../../../../CURRICULUM.md#sdp-pyt-100) |
 | Precise question | Does an instance entry beat a data descriptor, a non-data descriptor, or a class function during dotted lookup? |
 | Classification | Python language behavior; the probe output was observed on CPython |
-| Status | Interpreted |
+| Status | Reproduced |
 
 ## Why observation is necessary
 
@@ -26,8 +26,8 @@ same lookup model.
 Date: 2026-09-06
 Operating system: Linux 7.0.0-31-generic
 Architecture: x86_64
-Python: CPython 3.14.7
-Build: Clang 22.1.3
+Python runs: CPython 3.14.7 and CPython 3.11.16
+Canonical build: Clang 22.1.3
 Dependencies: standard library only
 Relevant flags: none
 ~~~
@@ -55,6 +55,8 @@ data assignment and deletion call the descriptor
 ~~~
 
 ## Observed result
+
+Both CPython 3.14.7 and CPython 3.11.16 produced the same output:
 
 ~~~text
 sample.data -> data-default

@@ -6,7 +6,7 @@
 | Curriculum | [CURRICULUM.md](../../../../../CURRICULUM.md#sdp-pyt-100) |
 | Precise question | Which observed phases happen while a metaclass creates a class, after that class exists, and when the class is later called? |
 | Classification | Python language behavior with one separately labeled CPython `__classcell__` detail |
-| Status | Interpreted |
+| Status | Reproduced |
 
 ## Why observation is necessary
 
@@ -28,8 +28,8 @@ incorrect explanations and difficult framework bugs.
 Date: 2026-09-06
 Operating system: Linux 7.0.0-31-generic
 Architecture: x86_64
-Python: CPython 3.14.7
-Build: Clang 22.1.3
+Python runs: CPython 3.14.7 and CPython 3.11.16
+Canonical build: Clang 22.1.3
 Dependencies: standard library only
 Relevant flags: none
 ~~~
@@ -55,6 +55,8 @@ metaclass call -> instance new -> instance init
 ~~~
 
 ## Observed result
+
+Both CPython 3.14.7 and CPython 3.11.16 produced the same output:
 
 ~~~text
 init_subclass:ShippingRule:schema_version=1

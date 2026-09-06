@@ -68,6 +68,36 @@ def test_a_second_owner_reuses_semantics_without_sharing_values() -> None:
     assert HealthCheck.path.public_name == "path"
 
 
+def test_inherited_descriptor_keeps_normal_subclass_behavior() -> None:
+    class SecureEndpoint(ServiceEndpoint):
+        pass
+
+    endpoint = SecureEndpoint("catalog", 8443)
+
+    assert endpoint.authority() == "catalog:8443"
+    assert SecureEndpoint.name is ServiceEndpoint.name
+
+
+def test_failed_reassignment_preserves_the_previous_value() -> None:
+    endpoint = ServiceEndpoint("catalog", 8080)
+
+    with pytest.raises(FieldValidationError):
+        endpoint.port = 0
+
+    assert endpoint.port == 8080
+
+
+def test_descriptor_object_in_an_instance_dictionary_is_not_invoked() -> None:
+    class Plain:
+        pass
+
+    plain = Plain()
+    field = ManagedField(trimmed_text)
+    plain.__dict__["value"] = field
+
+    assert plain.value is field  # type: ignore[attr-defined]
+
+
 def test_one_descriptor_object_cannot_be_rebound_to_a_different_name() -> None:
     shared = ManagedField(trimmed_text)
 
