@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDP-CRE-030 Builder construction-pressure explorer</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --canvas: #10151f;
+      --panel: #182231;
+      --ink: #f7f7f2;
+      --muted: #bec8d8;
+      --line: #536b89;
+      --accent: #7bdff2;
+      --green: #85e0a3;
+      --amber: #ffd166;
+      --danger: #ff7b72;
+      --focus: #c6a7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 15% 0, #263951 0, var(--canvas) 44%);
+      color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1200px, 94vw); margin: 0 auto; padding: 2rem 0 3rem; }
+    h1 { margin: 0 0 .45rem; font-size: clamp(1.7rem, 3vw, 2.7rem); }
+    .lede { max-width: 82ch; color: var(--muted); margin-top: 0; }
+    .scenario-tabs {
+      display: flex;
+      gap: .55rem;
+      overflow-x: auto;
+      padding: .5rem .15rem 1rem;
+      scrollbar-width: thin;
+    }
+    button {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #141d2a;
+      color: var(--ink);
+      padding: .55rem .85rem;
+      cursor: pointer;
+    }
+    button[aria-selected="true"] { color: #071820; background: var(--accent); border-color: var(--accent); }
+    button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1.55rem;
+      align-items: stretch;
+      margin-top: 1rem;
+    }
+    .card {
+      position: relative;
+      min-height: 250px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel) 95%, transparent);
+      box-shadow: 0 14px 35px rgb(0 0 0 / 18%);
+    }
+    .card:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -1.3rem;
+      top: 46%;
+      color: var(--accent);
+      font-size: 1.35rem;
+    }
+    .step { color: var(--accent); font-weight: 800; letter-spacing: .08em; font-size: .76rem; }
+    h2 { font-size: 1.02rem; margin: .35rem 0 .8rem; }
+    .value { color: var(--muted); margin: 0; }
+    ul { margin: 0; padding-left: 1.2rem; color: var(--muted); }
+    .verdict { border-color: var(--green); }
+    .reject .verdict { border-color: var(--amber); }
+    .risk .verdict, .risk .lifecycle { border-color: var(--danger); }
+    .risk .verdict .step, .risk .lifecycle .step { color: var(--danger); }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .8rem;
+      margin-top: 1.4rem;
+      color: var(--muted);
+    }
+    .legend span { border-left: 4px solid var(--green); padding-left: .65rem; }
+    .legend span:nth-child(2) { border-color: var(--amber); }
+    .legend span:nth-child(3) { border-color: var(--danger); }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    @media (max-width: 920px) {
+      .flow { grid-template-columns: 1fr; gap: .8rem; }
+      .card { min-height: auto; }
+      .card:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -1.05rem; }
+      .legend { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Builder construction-pressure explorer</h1>
+    <p class="lede">Choose a scenario, then read from pressure to verdict. The visual asks where
+      partial state lives, when validation happens, and who owns Builder reuse.</p>
+    <div id="scenario-tabs" class="scenario-tabs" role="tablist" aria-label="Construction scenarios"></div>
+    <section id="scenario-panel" class="flow" role="tabpanel" tabindex="0" aria-live="polite">
+      <article class="card">
+        <div class="step">01 PRESSURE</div>
+        <h2 id="scenario-title"></h2>
+        <p class="value" id="pressure"></p>
+      </article>
+      <article class="card">
+        <div class="step">02 INPUTS</div>
+        <h2>What arrives?</h2>
+        <ul id="inputs"></ul>
+      </article>
+      <article class="card">
+        <div class="step">03 SEQUENCE</div>
+        <h2>Who constructs?</h2>
+        <p class="value" id="sequence"></p>
+      </article>
+      <article class="card lifecycle">
+        <div class="step">04 SAFETY BOUNDARY</div>
+        <h2 id="validation"></h2>
+        <p class="value" id="lifecycle"></p>
+      </article>
+      <article class="card verdict">
+        <div class="step">05 VERDICT</div>
+        <h2>Smallest justified design</h2>
+        <p class="value" id="verdict"></p>
+      </article>
+    </section>
+    <p id="keyboard-help" class="sr-only">Use left and right arrow keys, Home, or End on a scenario tab.</p>
+    <aside class="legend" aria-label="Visual legend">
+      <span>Green: Builder is justified</span>
+      <span>Amber: a simpler design is enough</span>
+      <span>Red: lifecycle or ordering risk</span>
+    </aside>
+  </main>
+  <script>
+    const SCENARIOS = [{"id":"keywords","title":"All values available together","pressure":"Six readable options, one call site","inputs":["required values known","optional defaults stable"],"sequence":"No meaningful stages","validation":"Product constructor","lifecycle":"No mutable construction object","verdict":"Use keyword-only construction; a Builder adds state without solving pressure."},{"id":"factory","title":"One named preset","pressure":"Many callers need the same internal-report defaults","inputs":["name","source","columns"],"sequence":"One focused policy function","validation":"Product constructor","lifecycle":"Function-local values","verdict":"Use a focused factory function; there is still no staged workflow."},{"id":"locals","title":"One local staged workflow","pressure":"Inputs arrive from three nearby decisions","inputs":["identity","columns","destination"],"sequence":"Ordinary local variables then one final call","validation":"Product constructor at the end","lifecycle":"Local scope owns partial values","verdict":"Keep incremental locals while one readable orchestration owns every stage."},{"id":"builder","title":"Repeated staged construction","pressure":"Several flows gather required and optional parts over time","inputs":["required steps","optional steps","cross-field choices"],"sequence":"Concrete Builder accumulates private state","validation":"build() plus Product invariants","lifecycle":"Request-local Builder; immutable snapshot Product","verdict":"Builder is justified; publish a Product only after explicit finalization."},{"id":"director","title":"One recipe, two representations","pressure":"The daily sequence produces an executable plan and a safe manifest","inputs":["same ordered construction calls","different Concrete Builders"],"sequence":"Optional Director drives the Builder role","validation":"Each Concrete Builder finalizes its own Product","lifecycle":"Director owns sequence, not Product state","verdict":"Add a Director only because the sequence itself is named and reusable."},{"id":"fluent-only","title":"Fluent setters with no construction pressure","pressure":"A chain looks readable but merely assigns three fields","inputs":["host","port","timeout"],"sequence":"Methods return self","validation":"Unclear or absent","lifecycle":"Mutable object can escape unfinished","verdict":"Fluency alone is not GoF Builder; prefer a small value or function."},{"id":"ordered","title":"Illegal call order is a safety risk","pressure":"Credentials must be bound only after an endpoint is verified","inputs":["endpoint stage","verification stage","credential stage"],"sequence":"Call order is part of the contract","validation":"Runtime state machine or typed stage objects","lifecycle":"Each stage exposes only legal next operations","verdict":"A plain Self-returning Builder cannot prove order; use stronger stages."},{"id":"shared","title":"Shared mutable Builder","pressure":"Two requests configure one module-global instance","inputs":["request A steps","request B steps"],"sequence":"Interleaved writes contaminate state","validation":"May validate the wrong combined candidate","lifecycle":"Ownership is ambiguous and reset races","verdict":"Create one Builder per flow or use immutable functional construction."}];
+
+    const tabs = document.querySelector("#scenario-tabs");
+    const panel = document.querySelector("#scenario-panel");
+    const fields = {
+      title: document.querySelector("#scenario-title"),
+      pressure: document.querySelector("#pressure"),
+      inputs: document.querySelector("#inputs"),
+      sequence: document.querySelector("#sequence"),
+      validation: document.querySelector("#validation"),
+      lifecycle: document.querySelector("#lifecycle"),
+      verdict: document.querySelector("#verdict")
+    };
+
+    function renderScenario(index, moveFocus = false) {
+      const scenario = SCENARIOS[index];
+      fields.title.textContent = scenario.title;
+      fields.pressure.textContent = scenario.pressure;
+      fields.inputs.replaceChildren(...scenario.inputs.map((name) => {
+        const item = document.createElement("li");
+        item.textContent = name;
+        return item;
+      }));
+      fields.sequence.textContent = scenario.sequence;
+      fields.validation.textContent = scenario.validation;
+      fields.lifecycle.textContent = scenario.lifecycle;
+      fields.verdict.textContent = scenario.verdict;
+      panel.classList.toggle("reject", ["keywords", "factory", "locals", "fluent-only"].includes(scenario.id));
+      panel.classList.toggle("risk", ["ordered", "shared"].includes(scenario.id));
+      [...tabs.children].forEach((tab, tabIndex) => {
+        const selected = tabIndex === index;
+        tab.setAttribute("aria-selected", String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+      });
+      if (moveFocus) tabs.children[index].focus();
+    }
+
+    SCENARIOS.forEach((scenario, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.id = `tab-${scenario.id}`;
+      button.setAttribute("role", "tab");
+      button.setAttribute("aria-controls", "scenario-panel");
+      button.setAttribute("aria-describedby", "keyboard-help");
+      button.textContent = scenario.title;
+      button.addEventListener("click", () => renderScenario(index));
+      button.addEventListener("keydown", (event) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        let next = index;
+        if (event.key === "ArrowLeft") next = (index - 1 + SCENARIOS.length) % SCENARIOS.length;
+        if (event.key === "ArrowRight") next = (index + 1) % SCENARIOS.length;
+        if (event.key === "Home") next = 0;
+        if (event.key === "End") next = SCENARIOS.length - 1;
+        renderScenario(next, true);
+      });
+      tabs.append(button);
+    });
+    renderScenario(0);
+  </script>
+</body>
+</html>
