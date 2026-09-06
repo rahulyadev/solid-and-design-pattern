@@ -10,7 +10,7 @@ material, demonstrated transfer, or reached any learning state.
 |---|---|
 | Branch | `topic/SDP-PYT-050` |
 | Initialization start | `a95528693e74c3ee76011553e733bfa0c114d7b4` |
-| Artifact state during this record | Draft |
+| Artifact state during this record | Approved |
 | Learning state | Not started |
 | Validation date | 2026-09-06 |
 | Canonical target | CPython 3.14.7 |
@@ -23,8 +23,8 @@ material, demonstrated transfer, or reached any learning state.
 - Canonical prerequisites: `SDP-FND-090` and `SDP-FND-100`.
 - Classification: Core; High interview, production, and Python/backend relevance; D3; size L.
 - Evidence profile: `E+I+D+X+T`.
-- Progress edit: only the `SDP-PYT-050` artifact state advanced from Absent to Draft; learning
-  state remained Not started.
+- Progress edit: only the `SDP-PYT-050` artifact state advanced from Absent through Draft to
+  Approved; learning state remained Not started.
 
 ## Artifact inventory
 
@@ -89,9 +89,10 @@ accessibility, untested engines, or color modes.
 - Used no external code, copied diagram, private data, credential, real endpoint, framework
   dependency, license, generated environment, cache, or conversation transcript.
 
-## Draft boundary
+## Approval boundary
 
-This record supports the validated initialization artifact only. Final approval still requires the
-publication-stage diff review, repeat checks, accurate state transition to Approved, normal push,
-pull-request checks, merge, and synchronized-main proof. None of those later outcomes is asserted
-here.
+The artifact is Approved because repository validation, dual-runtime unit checks, repository
+regression, lint, formatting, strict typing, experiment reproduction, snippet compilation, visual
+model/script verification, and final manual content review passed. This approves maintainer-created
+material only; it does not advance learning state or assert learner evidence. Push, pull-request,
+merge, and synchronization results are reported only after those operations actually complete.

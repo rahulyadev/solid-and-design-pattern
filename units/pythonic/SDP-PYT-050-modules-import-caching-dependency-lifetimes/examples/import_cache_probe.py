@@ -26,6 +26,7 @@ def observe_import_cache() -> dict[str, bool | int]:
     previous = sys.modules.pop(TARGET_NAME, None)
     try:
         first = _load()
+        first_count = first.execution_count
         imported_alias = first.marker
         second = _load()
 
@@ -42,7 +43,7 @@ def observe_import_cache() -> dict[str, bool | int]:
         fresh = _load()
 
         return {
-            "first_execution_count": 1,
+            "first_execution_count": first_count,
             "repeat_returns_same_module": repeat_same_module,
             "execution_count_after_repeat": count_after_repeat,
             "reload_reuses_module": reload_same_module,

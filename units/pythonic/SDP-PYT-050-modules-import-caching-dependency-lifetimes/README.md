@@ -128,7 +128,7 @@ times inside that interpreter.
 | Evidence profile | `E+I+D+X+T` |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 ## 1. Simple explanation
 

@@ -330,7 +330,6 @@
     states.forEach((state) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.role = "tab";
       button.dataset.lifetime = state.id;
       button.textContent = state.label;
       button.addEventListener("click", () => render(state.id));
