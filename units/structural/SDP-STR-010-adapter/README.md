@@ -97,7 +97,7 @@ check meaning, exceptions, state, and effects that the annotations cannot expres
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Learning remains **Not started**:
 maintainer authoring and test execution are not Rahul's evidence. Study the worked

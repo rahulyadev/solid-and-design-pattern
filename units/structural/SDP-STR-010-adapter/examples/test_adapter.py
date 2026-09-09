@@ -156,3 +156,33 @@ def test_invalid_demand_does_not_query(required: int) -> None:
     with pytest.raises(ValueError):
         availability(WarehouseAdapter(vendor), "BOLT", required)
     assert vendor.calls == []
+
+
+@pytest.mark.parametrize("sku", ["A", "A" * 24, "A0-9"])
+def test_identifier_limits_are_accepted_without_normalization(sku: str) -> None:
+    vendor = LegacyWarehouse({})
+    assert WarehouseAdapter(vendor).read(sku) == Stock(None)
+    assert vendor.calls == [sku]
+
+
+@pytest.mark.parametrize("cases,pack", [(0, 1), (1_000_000, 1000), (1, 1000)])
+def test_exact_service_boundaries(cases: int, pack: int) -> None:
+    assert decode_stock(record(cases, pack), "BOLT").units == cases * pack
+
+
+@pytest.mark.parametrize("units", [-1, True, False])
+def test_domain_value_rejects_invalid_counts(units: int) -> None:
+    with pytest.raises(ValueError, match="nonnegative integer"):
+        Stock(units)
+
+
+def test_client_does_not_turn_failure_into_stock_decision() -> None:
+    vendor = LegacyWarehouse({"BOLT": record()})
+    vendor.fail_next = True
+    with pytest.raises(StockUnavailable):
+        availability(WarehouseAdapter(vendor), "BOLT", 1)
+    vendor.rows["BOLT"] = record(-1)
+    with pytest.raises(InvalidStock):
+        availability(WarehouseAdapter(vendor), "BOLT", 1)
+    assert vendor.calls == ["BOLT", "BOLT"]
+    assert vendor.close_count == 0
