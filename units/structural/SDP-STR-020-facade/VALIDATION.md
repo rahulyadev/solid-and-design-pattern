@@ -74,3 +74,53 @@ Initial repository validation passed, including uv lock consistency and zero for
 Whitespace review passed. The tracker diff changes only this unit's Absent → Draft artifact cell;
 all learning, dates, weaknesses, and evidence cells remain unchanged. Scoped code, notes, lab boundaries,
 and source/rights claims were reviewed before the initialization commit.
+
+## Initialization publication and final review
+
+Initialization commit: `1bdaede3daaf61b01e845b17e64003d37b8c421f`. Immediately before its push, the
+exact remote topic branch remained absent. The local-only enumeration against synchronized main and
+the enumeration since INIT_START were identical: this one initialization commit. A normal exact-ref
+push set upstream, and the local/remote topic comparison returned 0 local-only and 0 remote-only.
+No PR or merge occurred during initialization. GitHub independently confirmed Adapter PR #36 merged
+with head `40405dab99ead2483b1a7bc93a910002d4f63880` and squash `c5de4ced2f486ce6d979a9fd291f3a80a7485639`.
+
+Final review added eight tests: four UTF-8 byte-count cases, fresh snapshot acquisition on repeated
+calls, no subsystem activity during facade construction, unexpected storage exception identity, and
+the consumer's PacketBuilder seam. No facade implementation change was needed. Review covered task
+cohesion, function/object alternatives, stable imports, lower-level access, trust and security limits,
+known versus unexpected failures, acknowledgement uncertainty, retry effects, borrowed ownership,
+configuration, annotations, and the independent unsolved exercise boundary.
+
+Final focused results: **41 passed on CPython 3.14.7 and 41 passed on CPython 3.11.16**, including
+positive/negative Protocol controls for both target versions on each runtime. Strict mypy passed all
+nine Python files for both 3.11 and 3.14 targets on both runtimes. Ruff lint/format passed; 13 eligible
+files were compliant. Installed tools were pytest 8.4.2, mypy 1.20.2, and Ruff 0.16.1.
+All nine Python files independently parse with the Python 3.11 grammar.
+
+Import inspection confirmed report_contracts imports only dataclasses, enum, and typing;
+report_facade imports re and report_contracts; report_subsystem imports report_contracts.
+There is no concrete subsystem import in the facade or contract module and no reverse facade import
+in the subsystem. The four README Python snippets and both demonstration programs plus unsolved
+starter had already executed successfully on both runtimes; their source was unchanged in final review.
+
+GitHub's current main rules endpoint returned an empty list, main reported protected=false, and
+Actions reported zero workflows. Exact PR base/head, commits, files, checks, and mergeability must
+still be reviewed after final publication. The Local ignored inventory and all eleven ZIP fingerprints
+were rechecked unchanged, and the dedicated Worktree contained no ignored generated state.
+
+The complete CPython 3.14.7 repository regression passed **1,183 tests across 74 isolated pytest
+directories**, including 36 Facade example tests and five unsolved baseline tests. Each directory
+ran in a separate process with a dedicated `/tmp` basetemp and pytest's cache provider disabled.
+The complete run inherited all cache exports, including MYPY_CACHE_DIR for nested checker calls.
+No previously published unit was changed.
+
+The artifact is Approved after maintainer review. Learning remains Not started; no learner dates,
+weaknesses, or evidence were invented. Normal final push, PR creation, checked squash merge, exact
+main refresh, safe Local main fast-forward, and exactly one successor are explicitly authorized.
+Publication commit IDs and merge/tree/main parity will be reported only after those actions run.
+
+Post-approval repository validation passed, including uv lock consistency and zero forbidden paths.
+Whitespace checks passed. A baseline comparison verified exactly 14 scoped files and only Facade's
+Absent → Approved artifact cell in PROGRESS.md; no untracked files remained. Final source changes
+are the eight added tests and approval/validation metadata; the demonstrated implementation, four
+README Python fences, probe, and unsolved starter remain as tested.

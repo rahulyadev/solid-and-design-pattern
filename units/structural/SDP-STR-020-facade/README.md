@@ -95,7 +95,7 @@ copying every subsystem method into the facade recreates the complexity.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Learning remains **Not started**;
 authored notes and maintainer checks are not learner evidence. Use the worked

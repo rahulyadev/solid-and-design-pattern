@@ -162,3 +162,81 @@ def test_instances_with_separate_dependencies_are_isolated() -> None:
 )
 def test_probe_contract(scenario: str, outcome: str, stores: int, objects: int, steps: str) -> None:
     assert observe(scenario) == (scenario, outcome, stores, objects, steps)
+
+
+@pytest.mark.parametrize("row", ["", "नमस्ते", "café", "🛠"])
+def test_receipt_counts_encoded_bytes_not_characters(row: str) -> None:
+    events: list[str] = []
+    archive = MemoryArchive(events)
+    facade = ReportFacade(
+        MemoryReports({"WEEK-1": Snapshot((row,))}, events), TextRenderer(events), archive
+    )
+    receipt = facade.build("WEEK-1")
+    expected = ("REPORT\n" + row + "\n").encode("utf-8")
+    assert archive.read(receipt.key) == expected
+    assert receipt.byte_count == len(expected)
+
+
+class ChangingReader:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def load(self, report_id: str) -> Snapshot:
+        self.calls += 1
+        return Snapshot((f"revision={self.calls}",))
+
+
+def test_repeated_calls_recompute_from_current_snapshot() -> None:
+    events: list[str] = []
+    archive = MemoryArchive(events)
+    reader = ChangingReader()
+    facade = ReportFacade(reader, TextRenderer(events), archive)
+    first = facade.build("WEEK-1")
+    second = facade.build("WEEK-1")
+    assert archive.read(first.key) == b"REPORT\nrevision=1\n"
+    assert archive.read(second.key) == b"REPORT\nrevision=2\n"
+    assert reader.calls == 2
+
+
+def test_construction_does_not_call_subsystem() -> None:
+    events: list[str] = []
+    archive = MemoryArchive(events)
+    make_facade(events, archive)
+    assert events == []
+    assert archive.close_count == 0
+
+
+class BuggyArchive:
+    def __init__(self, error: RuntimeError) -> None:
+        self.error = error
+
+    def store(self, report_id: str, payload: bytes) -> Receipt:
+        raise self.error
+
+
+def test_unknown_storage_failure_preserves_exception_identity() -> None:
+    events: list[str] = []
+    error = RuntimeError("unexpected storage bug")
+    facade = ReportFacade(
+        MemoryReports({"WEEK-1": Snapshot(())}, events), TextRenderer(events), BuggyArchive(error)
+    )
+    with pytest.raises(RuntimeError) as caught:
+        facade.build("WEEK-1")
+    assert caught.value is error
+
+
+class StubBuilder:
+    def __init__(self) -> None:
+        self.requested: list[str] = []
+
+    def build(self, report_id: str) -> Receipt:
+        self.requested.append(report_id)
+        return Receipt("existing/7", 12)
+
+
+def test_client_uses_task_port_without_subsystem_knowledge() -> None:
+    from run_facade_demo import request_packet
+
+    builder = StubBuilder()
+    assert request_packet(builder) == Receipt("existing/7", 12)
+    assert builder.requested == ["WEEK-1"]
