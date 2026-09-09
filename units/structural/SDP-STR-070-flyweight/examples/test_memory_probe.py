@@ -10,6 +10,7 @@ def test_workload_equivalence_and_object_count(mode: Mode, distinct: int) -> Non
     rows, owner = build(mode, 12, distinct)
     reference, _ = build("fresh", 12, distinct)
     assert rows == reference
+    assert [row.tile.pixels for row in rows] == [row.tile.pixels for row in reference]
     assert [r.sample(1, 2) for r in rows] == [r.sample(1, 2) for r in reference]
     assert len({id(row.tile) for row in rows}) == (12 if mode == "fresh" else distinct)
     if owner is not None:

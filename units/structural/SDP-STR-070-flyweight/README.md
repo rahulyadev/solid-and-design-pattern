@@ -103,7 +103,7 @@ an equivalent workload before making a memory claim.
 | Evidence profile | E+I+D+X+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured usage statistics. Generated notes and
 maintainer checks do not prove learning. The tracker remains Not started.
@@ -451,10 +451,20 @@ persistent identity so edits stay consistent; our tiles are specifications whose
 substitutable even without one canonical object. Memoization saves repeated computation; it becomes
 part of a Flyweight design only when its result is suitable shared state with extrinsic context outside.
 
+A constructor-call spy verifies that a hit and a rejected full-capacity miss do not construct
+a discarded candidate. A failure-injection test verifies retry after a construction exception.
+An incomplete-key counterexample makes a 4-by-4 value incorrectly serve an 8-by-8 request; a
+separate witness shows that equal payload bytes need not mean equal design specifications.
+
 Common misuses: use global mutable dictionaries as “immutable metadata”; key by `hash(key)` alone
 and ignore collisions; include user IDs merely to avoid analyzing ownership; call `setdefault(key,
 Tile(key))` and assume hits skip Tile construction; claim a memory win from `a is b`; or close a shared
 resource when one borrower finishes. Each needs a contract correction, not another factory layer.
+Python evaluates call arguments before calling the function, so the `Tile(key)` argument to
+`setdefault` is constructed even on a hit. See [call evaluation](https://docs.python.org/3.14/reference/expressions.html#calls)
+and [dict.setdefault](https://docs.python.org/3.14/library/stdtypes.html#dict.setdefault). Hashing is a
+lookup aid: equal keys require equal hashes; equal hashes do not establish key equality.
+[The hash contract](https://docs.python.org/3.14/reference/datamodel.html#object.__hash__).
 
 ## 13. Interview preparation
 
@@ -502,7 +512,7 @@ There is no direct SDP-STR-070 mapping, so no new cross-repository prerequisite 
 Sources actually read on 2026-09-09 are linked near claims: the GoF authors' paper §3.2 (available
 transcription), the catalog's indexed participants/collaboration excerpt (full PDF unavailable),
 Python 3.11 and 3.14 dataclasses, Python's data model, typing.final, weakref, functools cache,
-free-threading guide, sys.getsizeof, and tracemalloc. These support mechanics; the grid, lab and
+free-threading guide, sys.getsizeof, tracemalloc, expression call evaluation, and dict.setdefault. These support mechanics; the grid, lab and
 measurement workload are original synthetic material. No copied book diagrams, license change,
 private data or NotebookLM upload is included. Approved notes may be reviewed under the
 [NotebookLM policy](../../../docs/NOTEBOOKLM.md); raw attempts, solutions and logs are excluded.

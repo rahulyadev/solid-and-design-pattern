@@ -109,3 +109,49 @@ negative typing clients still verify rejection without suppression. No failed ch
 The complete Draft material is ready for the initialization commit and exact current-operation-only
 push proof. Initialization does not create a PR or merge. Approval awaits final review and repository
 regression; no learner state is advanced.
+
+## Initialization publication and final review
+
+Initialization commit: `9e1b264cd2cd14a4fbf46c5d7bce2d07a86edb63`. Refreshed main remained at
+INIT_START and the exact remote topic ref was absent. Exact local-only and current-operation commit
+lists contained only that initialization commit. Normal exact-ref push set upstream; local-only and
+remote-only counts were 0/0. No PR or merge was performed during initialization.
+
+GitHub independently confirmed Bridge PR #41 merged, its approved topic head and squash SHA as
+reported in the handoff; local Git confirmed both trees equal `dce6ab22051b0aaf165a74b5c466e468dd801109`.
+
+Final review adds five checks: failed construction leaves no entry and can retry; a hit and rejected
+miss do not construct discarded candidates; the pool alone retains a value; an incomplete key
+returns the wrong dimension; and equal payloads can belong to different specifications. Probe
+contract tests now compare complete byte payloads as well as samples and placement values.
+The lab remains unsolved. Runtime implementation and measured workload are unchanged apart from
+formatting; the two runtime experiment outputs remain applicable.
+
+## Final observed results — 2026-09-09
+
+| Check | Actual result |
+|---|---|
+| Focused CPython 3.14.7 | 68 passed |
+| Focused CPython 3.11.16 | 68 passed |
+| Strict mypy | All eight source files passed 3.11 and 3.14 targets under both runtimes |
+| Static contract controls | Positive clients passed; exactly nine intended negative diagnostics per target/runtime |
+| Ruff | py311 lint and format passed; 12 eligible unit files |
+| Python snippets | Four independent snippets parsed with 3.11 grammar, compiled and executed under both runtimes |
+| Source compatibility | All eight Python files parsed with 3.11 grammar |
+| Demo and unsolved starter | Ran successfully under both runtimes; starter reports incomplete |
+| Controlled experiment | 36 fresh-process trials; both distributions and all outputs recorded with limits |
+| Full repository regression | 1,466 passed across all 84 isolated pytest directories on CPython 3.14.7; each exited zero |
+| Validator | Passed under both runtimes, including uv lock consistency and zero forbidden paths |
+| Scope and whitespace | Only 12 Flyweight files and its tracker artifact cell; no whitespace errors |
+| Local preservation | All 24 recorded ignored paths present and all 11 ZIP hashes unchanged before publication |
+
+The final review approves the artifact while preserving learning Not started. No learner evidence,
+retrieval date, weakness or completed attempt is invented. No source implementation changes followed
+the checks; final note citations, approval and result recording are followed by validator, format/lint
+and whitespace checks before commit. Runtime negatives are deliberate tests, not suppressed API flaws.
+
+GitHub reports no main rules, no branch protection (explicit HTTP 404: Branch not protected), and
+zero CI workflows. Exact PR base/head, commits, files, reviews, checks and status contexts will be
+reviewed before an ordinary squash merge with a verified head. No bypass is authorized or used.
+The task report carries exact final commit, PR, squash tree parity, clean Local main synchronization
+and preserved artifacts. This commit will not be rewritten to contain its own hash.

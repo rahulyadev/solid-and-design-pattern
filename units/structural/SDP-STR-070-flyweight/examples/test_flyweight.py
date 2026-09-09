@@ -140,3 +140,68 @@ def test_fresh_and_shared_observations_match(seed: int, side: int, x: int) -> No
     assert [fresh.sample(dx, side - 1) for dx in range(side)] == [
         shared.sample(dx, side - 1) for dx in range(side)
     ]
+
+
+def test_constructor_failure_is_not_retained_and_retry_can_succeed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    pool = TilePool(2)
+    old = pool.get(TileKey(1))
+
+    def unavailable(key: TileKey) -> Tile:
+        raise RuntimeError("synthetic construction failure")
+
+    with monkeypatch.context() as patch:
+        patch.setattr("flyweight.Tile", unavailable)
+        assert pool.get(TileKey(1)) is old
+        with pytest.raises(RuntimeError, match="synthetic construction failure"):
+            pool.get(TileKey(2))
+        assert pool.size == 1
+    assert pool.get(TileKey(2)).key == TileKey(2)
+    assert pool.size == 2
+
+
+def test_hit_does_not_construct_a_discarded_candidate(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[TileKey] = []
+
+    def record(key: TileKey) -> Tile:
+        calls.append(key)
+        return Tile(key)
+
+    with monkeypatch.context() as patch:
+        patch.setattr("flyweight.Tile", record)
+        pool = TilePool(1)
+        first = pool.get(TileKey(7, 4))
+        assert pool.get(TileKey(7, 4)) is first
+        with pytest.raises(PoolFull):
+            pool.get(TileKey(8, 4))
+    assert calls == [TileKey(7, 4)]
+
+
+def test_pool_alone_is_an_owner() -> None:
+    pool = TilePool()
+    tile = pool.get(TileKey(1))
+    witness = weakref.ref(tile)
+    del tile
+    gc.collect()
+    assert witness() is not None
+    pool.clear()
+    gc.collect()
+    assert witness() is None
+
+
+def test_incomplete_key_counterexample() -> None:
+    # Deliberately faulty alternative: two distinct design specifications collide.
+    by_seed = {7: Tile(TileKey(7, 4))}
+    requested = TileKey(7, 8)
+    wrong = by_seed[requested.seed]
+    assert len(wrong.pixels) == 16
+    assert len(Tile(requested).pixels) == 64
+    with pytest.raises(ValueError):
+        wrong.pixel(7, 7)
+
+
+def test_equal_payload_need_not_mean_equal_specification() -> None:
+    a, b = Tile(TileKey(0, 1)), Tile(TileKey(256, 1))
+    assert a.pixels == b.pixels == b"\x00"
+    assert a != b
