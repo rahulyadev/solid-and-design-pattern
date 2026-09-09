@@ -104,7 +104,7 @@ mutation, authorization, transaction scope, and distributed coordination remain 
 | Evidence profile | E+I+D+X+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured usage statistics. Generated artifacts
 and maintainer tests do not establish Rahul's learning. The tracker remains **Not started**.
@@ -477,6 +477,7 @@ specified return contract; or define one per concrete class. The last choice is 
 across the hierarchy, not a universal singleton. Do not blindly annotate `Self` if a cached base can
 be returned. The example prohibits subclasses so the promise and return type agree. Static `final`
 is complemented by a runtime hook; static annotations alone do not block execution.
+[typing.final](https://docs.python.org/3.14/library/typing.html#typing.final).
 
 ### Copy and pickle are separate protocols
 
@@ -842,7 +843,8 @@ The linked sections above are the source of truth for subtle claims. Read on 202
    [async locks](https://docs.python.org/3.14/library/asyncio-sync.html#lock),
    [multiprocessing start methods](https://docs.python.org/3.14/library/multiprocessing.html#contexts-and-start-methods),
    and [atexit limitations](https://docs.python.org/3.14/library/atexit.html).
-7. [Typing specification: Protocols](https://typing.python.org/en/latest/spec/protocol.html).
+7. [Typing specification: Protocols](https://typing.python.org/en/latest/spec/protocol.html) and
+   [typing.final](https://docs.python.org/3.14/library/typing.html#typing.final).
 
 Design choices and hypothetical backend scenarios are professional reasoning. Runtime observations
 are labeled and tested. No benchmark, production incident, real provider, free-threaded stress run,

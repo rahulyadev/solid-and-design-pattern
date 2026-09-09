@@ -18,7 +18,7 @@ class Base:
 class Child(Base):
     initialized = False
     def __init__(self):
-        self.initialized = True
+        Child.initialized = True
 
 base = Base()
 child = Child()

@@ -5,7 +5,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy, deepcopy
 from pathlib import Path
-from pickle import dumps, loads
+from pickle import HIGHEST_PROTOCOL, dumps, loads
 
 import pytest
 from singleton import ProcessMarker
@@ -90,3 +90,43 @@ print('two class objects, two markers')
         timeout=10,
     )
     assert result.stdout.strip() == "two class objects, two markers"
+
+
+def test_cold_first_construction_under_concurrent_access() -> None:
+    source = """
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+from singleton import ProcessMarker
+start = Barrier(4, timeout=5)
+def get():
+    start.wait()
+    return ProcessMarker()
+with ThreadPoolExecutor(max_workers=4) as pool:
+    futures = [pool.submit(get) for _ in range(4)]
+    markers = [future.result(timeout=10) for future in futures]
+assert all(marker is markers[0] for marker in markers)
+print('cold concurrent identity preserved')
+"""
+    child = subprocess.run(
+        [sys.executable, "-c", source],
+        cwd=Path(__file__).parent,
+        check=True,
+        text=True,
+        capture_output=True,
+        timeout=15,
+    )
+    assert child.stdout.strip() == "cold concurrent identity preserved"
+
+
+@pytest.mark.parametrize("protocol", range(HIGHEST_PROTOCOL + 1))
+def test_all_supported_pickle_protocols_preserve_marker(protocol: int) -> None:
+    marker = ProcessMarker()
+    assert loads(dumps(marker, protocol=protocol)) is marker
+
+
+def test_deep_copy_of_repeated_marker_references() -> None:
+    marker = ProcessMarker()
+    original = [marker, marker]
+    copied = deepcopy(original)
+    assert copied is not original
+    assert copied[0] is copied[1] is marker

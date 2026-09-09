@@ -168,3 +168,72 @@ def test_simultaneous_callers_receive_same_published_value() -> None:
 
 def test_distinct_providers_have_distinct_values() -> None:
     assert LazyValue(object).get() is not LazyValue(object).get()
+
+
+def test_factory_and_close_counts_belong_to_one_root() -> None:
+    events: list[str] = []
+
+    class TracedReader(MemoryReader):
+        def close(self) -> None:
+            events.append("close")
+            super().close()
+
+    def acquire() -> TracedReader:
+        events.append("acquire")
+        return TracedReader({"cover": "green"}, revision="r1")
+
+    with application(acquire) as app:
+        for _ in range(3):
+            assert app.preview.render("cover") == app.export.render("cover")
+        assert events == ["acquire"]
+    assert events == ["acquire", "close"]
+
+
+def test_unused_provider_does_not_build() -> None:
+    def forbidden() -> object:
+        raise AssertionError("unused provider invoked its factory")
+
+    LazyValue(forbidden)
+
+
+def test_repeated_failures_do_not_become_cached_success() -> None:
+    attempts = 0
+
+    def fail() -> object:
+        nonlocal attempts
+        attempts += 1
+        raise OSError("unavailable")
+
+    provider = LazyValue(fail)
+    for _ in range(3):
+        with pytest.raises(OSError, match="unavailable"):
+            provider.get()
+    assert attempts == 3
+
+
+def test_concurrent_callers_can_retry_after_failure() -> None:
+    rendezvous = Barrier(2, timeout=5)
+    attempts = 0
+
+    def build() -> str:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            raise OSError("first attempt failed")
+        return "ready"
+
+    provider = LazyValue(build)
+
+    def call() -> str:
+        rendezvous.wait()
+        try:
+            return provider.get()
+        except OSError:
+            return "failed"
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(call) for _ in range(2)]
+        results = [future.result(timeout=10) for future in futures]
+    assert sorted(results) == ["failed", "ready"]
+    assert provider.get() == "ready"
+    assert attempts == 2

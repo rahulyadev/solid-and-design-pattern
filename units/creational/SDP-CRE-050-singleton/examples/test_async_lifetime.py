@@ -37,3 +37,13 @@ def test_normal_async_exit_closes() -> None:
         assert session.closed
 
     asyncio.run(scenario())
+
+
+def test_async_body_failure_closes_without_suppression() -> None:
+    async def scenario() -> None:
+        with pytest.raises(ValueError, match="body failed"):
+            async with session_scope() as session:
+                raise ValueError("body failed")
+        assert session.closed
+
+    asyncio.run(scenario())
