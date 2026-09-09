@@ -98,7 +98,7 @@ A fixed helper can be useful extraction without being Strategy.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 These frequency labels are curriculum judgments, not measured prevalence. Generated notes and tests
 do not prove learning; the tracker remains Not started. See [practice](practice/README.md) for the
@@ -223,7 +223,7 @@ is tuple order, not ID order. A lower job ID does not mean earlier arrival.
 | `Job` construction | Exact integer ID 0–999999; exact integer pages 1–100; bool rejected | No document loading, content or identity database |
 | `plan` input | Typed tuple of normally constructed Jobs; 0–64 jobs; unique IDs in this batch | Not a decoder for arbitrary untyped objects |
 | Policy input | Read the whole same batch; accept every valid batch, including empty | No narrower undocumented “only nonempty” precondition |
-| Policy result | Tuple of integer IDs, each input ID exactly once | May reorder; may not filter, invent, duplicate or mutate jobs |
+| Policy result | Exact built-in tuple of exact integer IDs, each input ID exactly once | May reorder; may not filter, invent, duplicate or mutate jobs |
 | Policy behavior | Deterministic for the same batch/configuration; no I/O or cross-request mutation | Documented and tested; the signature cannot enforce purity |
 | Failure | Invalid input/configuration raises ValueError; invalid output raises PolicyContractError; policy exceptions propagate | No automatic retry or fallback |
 | Result construction | Total pages always comes from validated input; no Plan on failure | Manually constructing Plan does not run these checks |
@@ -232,6 +232,8 @@ is tuple order, not ID order. A lower job ID does not mean earlier arrival.
 because input IDs are already unique. Length alone misses a duplicate; set equality alone misses
 extra repetitions. Exact-integer checks stop `True` from impersonating ID `1`. This is a deliberate
 runtime check for ordinary extension mistakes, not isolation of hostile Python code.
+Python defines bool as an int subclass; its numeric behavior explains why ordinary equality is
+insufficient for our ID rule. [Python Boolean type](https://docs.python.org/3.14/library/stdtypes.html#boolean-type-bool).
 
 This shared contract does not prove a named policy implements its advertised ordering. A function
 that returns arrival order always satisfies the permutation check but is a wrong implementation
@@ -367,13 +369,16 @@ runtime protocol admission, so it does not depend on that difference between 3.1
 [Python 3.14 runtime-checkable protocols](https://docs.python.org/3.14/library/typing.html#typing.runtime_checkable).
 
 All source uses 3.11-compatible syntax, including assignment-based aliases. Python 3.14 defers
-annotation evaluation by default; this example neither inspects annotations nor uses them for
-runtime validation. Its observed functional contracts are checked on both installed runtimes.
+annotation evaluation by default; our application code does not inspect annotations or use them
+for runtime validation. Dataclasses still processes its field annotations through the standard
+library. The functional contracts are checked on both installed runtimes.
 [Python 3.14 annotation changes](https://docs.python.org/3.14/whatsnew/3.14.html).
 
 An async policy needs an async context that awaits it and defines cancellation and failure
 ownership. Wrapping an async function under the sync annotation does not make its returned coroutine
-an Order. No async execution or free-threaded execution is claimed here.
+an Order. Calling an async function produces a coroutine object; it does not synchronously return
+the annotated result. [Python data model: coroutine functions](https://docs.python.org/3.14/reference/datamodel.html#coroutine-functions).
+No async execution or free-threaded execution is claimed here.
 
 ## 9. Refactoring and testing
 
@@ -559,7 +564,7 @@ Follow [the NotebookLM policy](../../../docs/NOTEBOOKLM.md).
 
 Sources actually read are linked beside their claims: the GoF authors' Strategy paper section
 through its available transcription; the catalog's indexed case-study excerpt (full PDF opening
-failed); Python sorting, data model, dataclasses, programming FAQ and 3.11/3.14 typing documentation;
+failed); Python sorting, data model, built-in types, dataclasses, programming FAQ and 3.11/3.14 typing documentation;
 the callable typing specification; and Python 3.14's annotation-change documentation. No complete
 book reading, copied diagram, production benchmark or CPython-internals experiment is claimed.
 

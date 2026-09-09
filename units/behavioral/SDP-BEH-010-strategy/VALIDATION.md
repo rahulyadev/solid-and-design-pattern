@@ -100,3 +100,51 @@ Logs and extracted snippets are under `/tmp/sdp-beh-010/init314` and `init311`.
 The complete Draft material is ready for its initialization commit and current-operation-only push
 proof. Final artifact approval awaits final review and repository regression. Initialization does
 not create a PR or merge, and these author checks do not advance learning state.
+
+## Initialization publication and final review
+
+Initialization commit: `4ffaea1cef9b5dad88e8aaff2e388ed27d1be9cb`. Immediately before push,
+the exact no-tag main refresh still matched INIT_START and the topic probe returned absent.
+The local-only commit list and current-operation list were identical and contained only that
+commit. Normal exact-ref push set upstream; local-only/remote-only counts were 0/0. No PR or merge
+occurred during initialization.
+
+Final review adds four targeted cases: equal-page ties with IDs in descending arrival order,
+the exact 64-job/6400-page limit and extreme valid IDs, invented output for an empty batch, and an
+independent method-based policy with no implementation inheritance. The tie case matters because
+generated IDs ascend in input order and therefore cannot alone expose an accidental numeric-ID
+tiebreaker. Runtime implementation and the unsolved starter remain unchanged.
+
+## Final observed results — 2026-09-10
+
+| Check | Actual result |
+|---|---|
+| Focused CPython 3.14.7 | 70 passed |
+| Focused CPython 3.11.16 | 70 passed |
+| Strict mypy | All seven Python files passed 3.11 and 3.14 targets on both runtimes |
+| Static contract controls | Positive clients passed; exactly ten intended negative diagnostics per target/runtime |
+| Ruff | py311 lint and format checks passed; ten eligible unit files |
+| README Python | Four independent snippets parsed with 3.11 grammar, compiled and executed on both runtimes |
+| Source compatibility | All seven Python files parsed with 3.11 grammar |
+| Demo and lab | Both ran on both runtimes; exact demo rows above; starter remains incomplete |
+| Repository regression | 1,536 passed across all 86 isolated pytest directories on CPython 3.14.7; every exit zero |
+| Repository validator | Passed on both runtimes, including uv lock consistency and zero forbidden paths |
+| Scope and whitespace | Only ten unit files and the Strategy tracker artifact cell; no whitespace errors |
+| Local preservation before publication | All 24 ignored paths present; all 11 ZIP hashes unchanged; Local main clean |
+
+The runtime platform is Linux 7.0.0-31-generic x86_64 with glibc 2.43. Focused logs and extracted
+snippets are under `/tmp/sdp-beh-010/final314` and `final311`; per-directory regression results are
+under `/tmp/sdp-beh-010/regression`. All tracked pytest directories were included, with none outside
+`units/`. No generated state appeared in the dedicated Worktree.
+
+The final review approves the artifact while preserving learning Not started and the unsolved lab.
+After the successful code checks, only citation precision, approval cells and this result record
+changed; final validator, format/lint and whitespace checks precede commit. No learner evidence or
+performance result is inferred from author verification.
+
+GitHub currently reports no main rules, no branch protection (explicit HTTP 404: Branch not
+protected), and zero CI workflows. Publication uses a normal push, exact PR base/head/commit/file
+review and a verified-head squash merge after checking current reviews, statuses and check runs.
+No bypass or force-push is authorized. The task report records final commit/PR/merge IDs, tree parity,
+safe Local main synchronization and artifact preservation without rewriting this commit to include
+its own hash.

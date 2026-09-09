@@ -198,3 +198,34 @@ def test_shape_valid_output_does_not_prove_named_policy_semantics() -> None:
 
     assert plan(JOBS, misleading).total_pages == 15
     assert plan(JOBS, misleading).job_ids != plan(JOBS, fewest_pages).job_ids
+
+
+def test_ties_follow_arrival_not_numeric_id() -> None:
+    jobs = (Job(99, 3), Job(2, 3), Job(0, 1))
+    assert plan(jobs, fewest_pages).job_ids == (0, 99, 2)
+    assert plan(jobs, small_jobs_first(3)).job_ids == (99, 2, 0)
+
+
+def test_maximum_valid_batch_and_integer_boundaries() -> None:
+    jobs = (Job(999_999, 100), *(Job(i, 100) for i in range(63)))
+    assert len(jobs) == 64
+    for policy in POLICIES:
+        assert plan(jobs, policy).total_pages == 6400
+        assert plan(jobs, policy).job_ids == tuple(job.job_id for job in jobs)
+
+
+def test_empty_input_does_not_allow_invented_output() -> None:
+    def invented(jobs: Jobs) -> Order:
+        return (1,)
+
+    with pytest.raises(PolicyContractError):
+        plan((), invented)
+
+
+def test_method_contract_accepts_independent_implementation() -> None:
+    class ReverseOrdering:
+        def order(self, batch: Jobs, /) -> Order:
+            return tuple(job.job_id for job in reversed(batch))
+
+    context = ObjectPlanner(ReverseOrdering())
+    assert context.plan(JOBS) == Plan((5, 9, 2, 7), 15)
