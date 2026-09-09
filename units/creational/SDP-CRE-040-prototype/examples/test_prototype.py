@@ -131,3 +131,69 @@ def test_tag_mutation_is_isolated(tags: list[str]) -> None:
 
 def test_demo() -> None:
     assert demo() == (True, True, True, True, 0)
+
+
+def test_mutable_rules_representation_is_rejected() -> None:
+    with pytest.raises(CopyPolicyError, match="mutable_rules"):
+        CompiledRules(revision=1, operations=["scan"])
+
+
+@pytest.mark.parametrize("operation", [copy, deepcopy])
+def test_unreviewed_node_subclass_is_rejected(operation) -> None:
+    extended = type("ExtendedNode", (GraphNode,), {})
+    source = extended("query")
+    with pytest.raises(CopyPolicyError, match="unsupported_node_type"):
+        operation(source)
+
+
+def test_unreviewed_draft_subclass_is_rejected() -> None:
+    extended = type("ExtendedDraft", (QueryDraft,), {})
+    source = extended(
+        request_id="template",
+        rules=CompiledRules(revision=1, operations=("scan",)),
+        root=GraphNode("query"),
+    )
+    with pytest.raises(CopyPolicyError, match="unsupported_draft_type"):
+        source.clone(request_id="a", expected_revision=1)
+
+
+def test_failed_graph_copy_does_not_publish_or_change_source(monkeypatch) -> None:
+    import prototype
+
+    source = exemplar()
+    source.cache["keep"] = "yes"
+    previous = exemplar()
+    result = previous
+
+    def fail_after_partial_copy(
+        root: GraphNode, memo: dict[int, object] | None = None
+    ) -> GraphNode:
+        if memo is not None:
+            return deepcopy(root, memo)
+        partial = deepcopy(root)
+        partial.tags.append("partial")
+        raise RuntimeError("synthetic_copy_failure")
+
+    monkeypatch.setattr(prototype, "deepcopy", fail_after_partial_copy)
+    with pytest.raises(RuntimeError, match="synthetic_copy_failure"):
+        result = source.clone(request_id="a", expected_revision=3)
+    assert result is previous
+    assert source.root.tags == [] and source.cache == {"keep": "yes"}
+    assert source.root.edges[0].edges[0] is source.root
+
+
+def test_source_tags_container_alias_is_preserved_inside_clone() -> None:
+    source = exemplar()
+    source.root.tags = source.root.edges[0].tags
+    result = source.clone(request_id="a", expected_revision=3)
+    assert result.root.tags is result.root.edges[0].tags
+    assert result.root.tags is not source.root.tags
+
+
+def test_direct_construction_rejects_empty_request_id() -> None:
+    with pytest.raises(CopyPolicyError, match="empty_request_id"):
+        QueryDraft(
+            request_id=" ",
+            rules=CompiledRules(revision=1, operations=("scan",)),
+            root=GraphNode("query"),
+        )

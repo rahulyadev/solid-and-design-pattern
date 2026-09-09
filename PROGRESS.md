@@ -104,7 +104,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-CRE-010` | [Factory Method](CURRICULUM.md#sdp-cre-010) | Core | Approved | Not started | — | — | — | — |
 | `SDP-CRE-020` | [Abstract Factory](CURRICULUM.md#sdp-cre-020) | Professional | Approved | Not started | — | — | — | — |
 | `SDP-CRE-030` | [Builder](CURRICULUM.md#sdp-cre-030) | Core | Approved | Not started | — | — | — | — |
-| `SDP-CRE-040` | [Prototype](CURRICULUM.md#sdp-cre-040) | Advanced | Draft | Not started | — | — | — | — |
+| `SDP-CRE-040` | [Prototype](CURRICULUM.md#sdp-cre-040) | Advanced | Approved | Not started | — | — | — | — |
 | `SDP-CRE-050` | [Singleton](CURRICULUM.md#sdp-cre-050) | Core | Absent | Not started | — | — | — | — |
 | `SDP-STR-010` | [Adapter](CURRICULUM.md#sdp-str-010) | Core | Absent | Not started | — | — | — | — |
 | `SDP-STR-020` | [Facade](CURRICULUM.md#sdp-str-020) | Core | Absent | Not started | — | — | — | — |

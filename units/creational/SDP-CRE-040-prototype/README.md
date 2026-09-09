@@ -110,7 +110,7 @@ independent stale value is still stale. State the domain contract first.
 | Evidence profile | E+I+D+X+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured usage statistics. This is maintainer-authored
 material; neither these files nor passing checks establish Rahul's learning evidence.

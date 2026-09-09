@@ -123,3 +123,53 @@ def test_list_subclass_container_copy_differs_from_generic_copy() -> None:
     source = Labels(["x"])
     assert type(source.copy()) is list
     assert type(copy.copy(source)) is Labels
+
+
+def test_failed_caller_memo_can_retain_incomplete_shell() -> None:
+    class Failing:
+        def __deepcopy__(self, memo):
+            shell = object.__new__(Failing)
+            memo[id(self)] = shell
+            raise RuntimeError("before_fields_initialized")
+
+    source = Failing()
+    memo = {}
+    with pytest.raises(RuntimeError, match="before_fields_initialized"):
+        copy.deepcopy(source, memo)
+    assert id(source) in memo
+    # Observation of why reusing the failed memo is unsafe, not a recovery recipe.
+    assert copy.deepcopy(source, memo) is memo[id(source)]
+
+
+def test_custom_replace_hook_on_supported_runtime() -> None:
+    class Window:
+        def __init__(self, limit: int) -> None:
+            self.limit = limit
+
+        def __replace__(self, **changes):
+            if set(changes) - {"limit"}:
+                raise TypeError("unknown_field")
+            return Window(changes.get("limit", self.limit))
+
+    available = getattr(copy, "replace", None)
+    if available is None:
+        assert sys.version_info < (3, 13)
+        return
+    source = Window(20)
+    result = available(source, limit=30)
+    assert type(result) is Window and result is not source
+    assert source.limit == 20 and result.limit == 30
+    with pytest.raises(TypeError, match="unknown_field"):
+        available(source, unsupported=1)
+
+
+def test_deepcopy_of_function_keeps_its_mutable_closure() -> None:
+    values = [1]
+
+    def current() -> list[int]:
+        return values
+
+    cloned = copy.deepcopy(current)
+    values.append(2)
+    assert cloned is current and cloned() is values
+    assert cloned() == [1, 2]

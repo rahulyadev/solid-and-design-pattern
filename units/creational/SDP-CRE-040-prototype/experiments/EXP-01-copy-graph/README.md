@@ -22,8 +22,8 @@ are not a substitute for your own experiment evidence.
 
 ## Environment and commands
 
-Maintainer execution date: 2026-09-09. The initial recorded probe ran on CPython 3.14.7. Final
-compatibility execution and complete quality-check results are recorded in [VALIDATION.md](../../VALIDATION.md).
+Maintainer execution date: 2026-09-09. The probe ran on CPython 3.14.7 and CPython 3.11.16
+with identical observations. Complete quality-check results are recorded in [VALIDATION.md](../../VALIDATION.md).
 Use a locked development interpreter; select Python 3.11 and 3.14 separately when reproducing.
 
 From the repository root:
@@ -65,7 +65,8 @@ reaches the root we assembled as the result. Topology changed despite the word â
 
 The tests also examine default dataclass copy versus replacement, post-init call counts, recomputed
 `init=False` fields, required `InitVar`, the `copy.replace` version boundary, a shared plain function,
-a rejected actual file object, a custom sharing hook, and list subclass behavior. Exact executed
+a rejected actual file object, a custom sharing hook, list subclass behavior, incomplete memo retention after failure, a
+custom replacement hook on 3.14, and mutable closure state retained by a copied function. Exact executed
 results belong to the validation record. These checks use synthetic data and temporary file paths.
 
 ## Limitations and next variation
