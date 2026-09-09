@@ -239,3 +239,77 @@ def test_aggregation_agrees_with_independent_flat_values(minutes: list[int]) -> 
     root = Group("root", (Group("left", leaves[:midpoint]), Group("right", leaves[midpoint:])))
     assert root.estimate() == Estimate(sum(minutes), len(minutes))
     assert [o.task.minutes for o in walk_tasks(root)] == minutes
+
+
+def test_actual_delegation_order_counts_alias_calls(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+    original = Task.estimate
+
+    def traced(task: Task) -> Estimate:
+        calls.append(task.name)
+        return original(task)
+
+    kit = Group("kit", (Task("cut", 12), Task("tag", 3)))
+    root = Group("root", (Task("setup", 5), kit, kit))
+    # Instrumentation exposes actual delegation; it is not a supported plugin/mutation API.
+    monkeypatch.setattr(Task, "estimate", traced)
+    assert root.estimate() == Estimate(35, 5)
+    assert calls == ["setup", "cut", "tag", "cut", "tag"]
+
+
+def test_query_failure_propagates_without_later_visits(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+    failure = RuntimeError("synthetic query failure")
+    original = Task.estimate
+
+    def failing(task: Task) -> Estimate:
+        calls.append(task.name)
+        if task.name == "broken":
+            raise failure
+        return original(task)
+
+    root = Group("root", (Task("first", 1), Group("inner", (Task("broken", 2),)), Task("last", 3)))
+    with monkeypatch.context() as patch:
+        patch.setattr(Task, "estimate", failing)
+        with pytest.raises(RuntimeError) as caught:
+            root.estimate()
+        assert caught.value is failure
+    assert calls == ["first", "broken"]
+    assert root.estimate() == Estimate(6, 3)
+
+
+@pytest.mark.parametrize("field", ["height", "occurrences"])
+def test_derived_bounds_cannot_be_rebound_normally(field: str) -> None:
+    root = Group("root", (Task("cut", 1),))
+    with pytest.raises(FrozenInstanceError):
+        setattr(root, field, 0)
+    assert root.height == 1
+    assert root.occurrences == 2
+
+
+def test_converted_input_list_is_not_a_live_child_collection() -> None:
+    source: list[Work] = [Task("cut", 12)]
+    root = Group("root", tuple(source))
+    source.append(Task("tag", 3))
+    assert root.estimate() == Estimate(12, 1)
+    assert len(root.children) == 1
+
+
+def test_reorder_changes_paths_without_changing_sum_or_previous_root() -> None:
+    first, second = Task("a", 1), Task("b", 2)
+    old = Group("root", (first, second))
+    new = replace(old, children=(second, first))
+    assert new.estimate() == old.estimate() == Estimate(3, 2)
+    assert next(walk_tasks(old)).task is first
+    assert next(walk_tasks(new)).task is second
+    assert next(walk_tasks(old)).path == next(walk_tasks(new)).path == (0,)
+
+
+def test_static_capability_does_not_enforce_business_meaning() -> None:
+    class DishonestEstimator:
+        def estimate(self) -> Estimate:
+            return Estimate(-5, -1)
+
+    component: Estimable = DishonestEstimator()
+    # A client trusts its semantic contract; accepting this shape cannot prove that contract.
+    assert describe(component) == "-5 min / -1 tasks"

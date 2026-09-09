@@ -109,7 +109,7 @@ structure alone need not provide it, and leaf objects need no pretend child-mana
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Learning remains **Not started**.
 Maintainer-generated notes and passing tests do not establish Rahul's learning evidence. Use the
@@ -556,8 +556,8 @@ Explain why the formatter is open to a foreign estimator while group children ar
 leaf path in a rebuilt root. Reject Composite for one flat-data scenario and defend it for one
 recursive scenario. Explain one failure caused by changing from recipes to real entities.
 
-Evidence profile: E = explain the collaboration and contract; I = attempt the separate lab;
-D = expose the starter's semantic gap with a small counterexample; T = select or reject the design
+Evidence profile: E = explain the collaboration and contract; I = implement and test a separate lab
+attempt; D = debug/refactor the starter using a small counterexample; T = select or reject the design
 under changed identity/ownership requirements. A maintainer test run supplies none of Rahul's attempt,
 delayed recall or transfer evidence. Record learner evidence only through PROGRESS.md rules.
 

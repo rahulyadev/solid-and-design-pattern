@@ -14,7 +14,7 @@ were absent (origin probe exit 2); no other Worktree owned the branch. The task 
 Restricted authentication reported invalid credentials together with a network error. Elevated
 `gh auth status` and `gh api user --jq .login` succeeded as `rahulyadev`; the exact no-tag main fetch
 and exact topic probe reached origin. Shared Git metadata required elevated branch permission.
-No broad refspec, history rewrite, credential output or unrelated environment change was used.
+No broad refspec, history rewrite, plaintext credential output or unrelated environment change was used.
 
 Read: AGENTS.md, docs/WORKFLOW.md, the current canonical entry, matching progress and prerequisite
 rows, Python-reference mappings, relevant foundation bridges, unit/practice/experiment templates,
@@ -108,3 +108,45 @@ Proxy PR #39 was independently confirmed merged with head
 `bcb5a14fcc1ceb437a1dcfdaa4e7d022a4a69062`; both trees equal
 `5cb795e26f0dd9cf8922d66cd0f2e62ef70888f6`. Its local/remote topic counts are 0/0 and its Worktree
 is clean. Initialization publication uses the exact current-operation-only proof before pushing.
+
+## Initialization publication and final review
+
+Initialization commit: `e34b75eab99e5f0ff058b1fb65a7bc0703674f5c`. Just before push, the exact
+remote topic ref was still absent and refreshed origin/main still matched Local main/INIT_START.
+The local-only and current-operation lists contained that identical single commit. The normal
+exact-ref push set upstream and local-only/remote-only counts were 0/0. No PR or merge occurred
+during initialization; final publication is separately authorized by the standing instruction.
+
+Final review adds seven cases covering actual delegation order with aliases, failure propagation
+without later visits, frozen derived bounds, snapshotting a caller list into a tuple, root-local
+paths after reordering, and a statically valid but semantically dishonest estimator. Method tracing
+and failure injection temporarily instrument Task in tests; they do not broaden supported mutation
+or plugin admission. Runtime code needs no change after initialization. No lab solution is exposed.
+
+## Final observed results — 2026-09-09
+
+| Check | Actual result |
+|---|---|
+| CPython 3.14.7 focused suite | 57 passed |
+| CPython 3.11.16 focused suite | 57 passed |
+| Strict mypy | Seven Python files passed both 3.11/3.14 targets on both runtimes |
+| Positive and negative controls | Positive client assignments accepted; exactly five intended errors on both targets/runtimes |
+| Ruff lint/format | Passed with py311 lint target; all 11 format-eligible unit files compliant |
+| README Python fences | Five independently parsed with 3.11 grammar, compiled and executed on both runtimes, including final artifact rerun |
+| Runnable artifacts | Demo, five-case probe plus doubling bound, unsolved starter succeeded identically on both runtimes |
+| Full repository regression | 1,335 passed across 80 isolated pytest directories on CPython 3.14.7; all directory runs exited zero |
+| Repository validator | Passed, including uv lock consistency and zero forbidden paths |
+| Scope/whitespace review | Exactly 12 paths versus main: 11 Composite artifacts and only the matching tracker artifact cell |
+| Local unrelated artifacts | All 24 recorded ignored paths present; all 11 ZIP SHA-256 fingerprints unchanged before publication |
+
+The artifact is Approved after source, pedagogical, contract, lab, typing, failure, visualization and
+regression review. Learning remains Not started. No attempt, delayed recall, review date or weakness
+has been fabricated. The last changes only record results and approval; the tested runtime code is
+unchanged from initialization. Validator, lint/format and whitespace checks are repeated after this
+record before the final commit.
+
+GitHub currently reports no main branch protection/rules and zero CI workflows. PR-specific exact
+base/head, commit and file lists, checks, status contexts and review requirements are inspected
+again before squash merge. The final commit, PR, merge/tree-parity and Local synchronization facts
+are reported in the task so this approved commit need not be rewritten to contain its own hash.
+No failed check is bypassed.
