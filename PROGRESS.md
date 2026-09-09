@@ -114,7 +114,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-STR-060` | [Bridge](CURRICULUM.md#sdp-str-060) | Professional | Approved | Not started | — | — | — | — |
 | `SDP-STR-070` | [Flyweight](CURRICULUM.md#sdp-str-070) | Advanced | Approved | Not started | — | — | — | — |
 | `SDP-BEH-010` | [Strategy](CURRICULUM.md#sdp-beh-010) | Core | Approved | Not started | — | — | — | — |
-| `SDP-BEH-020` | [State](CURRICULUM.md#sdp-beh-020) | Core | Absent | Not started | — | — | — | — |
+| `SDP-BEH-020` | [State](CURRICULUM.md#sdp-beh-020) | Core | Draft | Not started | — | — | — | — |
 | `SDP-BEH-030` | [Observer](CURRICULUM.md#sdp-beh-030) | Core | Absent | Not started | — | — | — | — |
 | `SDP-BEH-040` | [Command](CURRICULUM.md#sdp-beh-040) | Core | Absent | Not started | — | — | — | — |
 | `SDP-BEH-050` | [Chain of Responsibility](CURRICULUM.md#sdp-beh-050) | Core | Absent | Not started | — | — | — | — |
