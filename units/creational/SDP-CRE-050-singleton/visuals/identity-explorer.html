@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SDP-CRE-050 — Identity and lifetime</title>
+<style>
+:root{color-scheme:light dark;--bg:#f5f5f1;--fg:#182625;--panel:#fff;--line:#526b64;--accent:#155c4b}
+@media(prefers-color-scheme:dark){:root{--bg:#15211f;--fg:#edf4ef;--panel:#20322d;--line:#b5c8be;--accent:#93dcc0}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+main{max-width:850px;margin:auto;padding:24px}h1{font-size:1.9rem;line-height:1.2}h2{font-size:1.15rem;margin-top:28px}
+label{display:block}select{max-width:100%;width:100%;min-height:44px;font:inherit;padding:8px;background:var(--panel);color:var(--fg)}
+.graph{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);grid-template-rows:1fr 1fr;gap:18px 0;align-items:center;margin:30px 0}
+.node{border:2px solid var(--line);padding:16px 10px;text-align:center;border-radius:7px;background:var(--panel);overflow-wrap:anywhere}
+.caller-a{grid-area:1/1}.caller-b{grid-area:2/1}.arrow-a{grid-area:1/2}.arrow-b{grid-area:2/2}.arrow{text-align:center;color:var(--accent);font-size:1.6rem}
+.object-a{grid-area:1/3}.object-b{grid-area:2/3}.graph.shared .object-a{grid-row:1/3}.graph.shared .object-b{display:none}
+.result{border-left:4px solid var(--accent);padding-left:16px}output{display:block;font-weight:600}p{max-width:72ch}
+@media(max-width:420px){main{padding:16px}.node{padding:12px 6px}.graph{grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr)}h1{font-size:1.6rem}}
+</style>
+</head>
+<body><main>
+<p>SDP-CRE-050 · Singleton</p>
+<h1>Same object. Which promise?</h1>
+<label for="scenario">Select a measured scenario</label>
+<select id="scenario">
+<option value="repeated-init">One allocation, repeated initialization</option>
+<option value="cache-race">Two overlapping cache misses</option>
+<option value="locked-provider">One locked provider</option>
+<option value="retry">Failure followed by successful retry</option>
+<option value="two-apps">Two independent application owners</option>
+</select>
+<div id="graph" class="graph shared" role="img" aria-label="Two calls return one object">
+<div id="caller-a" class="node caller-a">First call</div><span class="arrow arrow-a" aria-hidden="true">→</span>
+<div id="caller-b" class="node caller-b">Second call</div><span class="arrow arrow-b" aria-hidden="true">→</span>
+<div class="node object-a">Object A</div><div class="node object-b">Object B</div>
+</div>
+<div class="result" aria-live="polite"><output id="result"></output><p id="detail"></p></div>
+<h2>How to read this visual</h2>
+<p>Arrows mean returned references, not ownership or memory addresses. A single right-hand box means
+both displayed calls return the same object. In the retry case, only successful calls are drawn;
+the failed attempt is included in the count. In the two-app case, each left-hand box is an app owner.</p>
+<h2>Key insight</h2>
+<p>Identity, initialization count, safe publication, and lifetime are different promises. One object
+can be reinitialized; one coherent cache can let two factories run.</p>
+<h2>Simplification or limitation</h2>
+<p>These are conceptual relationships for five synthetic Python observations. The diagram is not a
+live thread scheduler, benchmark, memory layout, or proof of safety across all schedules. A creation
+lock does not guard later use. Each application shares internally; the two-app view compares roots.</p>
+<noscript>The Python experiment and its README contain the same five observations without scripting.</noscript>
+<script id="observations" type="application/json">
+[
+ {"scenario":"repeated-init","constructions":1,"same_identity":true,"detail":"init calls=2; label=second"},
+ {"scenario":"cache-race","constructions":2,"same_identity":false,"detail":"two overlapping cache misses"},
+ {"scenario":"locked-provider","constructions":1,"same_identity":true,"detail":"one publication per provider"},
+ {"scenario":"retry","constructions":2,"same_identity":true,"detail":"failed attempt was not published"},
+ {"scenario":"two-apps","constructions":2,"same_identity":false,"detail":"both closed=True"}
+]
+</script>
+<script>
+'use strict';
+const observations=JSON.parse(document.getElementById('observations').textContent);
+const select=document.getElementById('scenario');
+const graph=document.getElementById('graph');
+const labels={'repeated-init':'Allocations','cache-race':'Factory calls','locked-provider':'Factory calls','retry':'Factory attempts','two-apps':'Reader acquisitions'};
+function render(){
+ const row=observations.find(item=>item.scenario===select.value);
+ graph.classList.toggle('shared',row.same_identity);
+ graph.setAttribute('aria-label',row.same_identity?'Two successful calls return one object':'Two calls return distinct objects');
+ document.getElementById('caller-a').textContent=row.scenario==='two-apps'?'Application A':'First successful call';
+ document.getElementById('caller-b').textContent=row.scenario==='two-apps'?'Application B':'Second successful call';
+ document.getElementById('result').textContent=`${labels[row.scenario]}: ${row.constructions} · Same identity: ${row.same_identity?'yes':'no'}`;
+ document.getElementById('detail').textContent=row.detail;
+}
+select.addEventListener('change',render);
+render();
+</script>
+</main></body></html>
