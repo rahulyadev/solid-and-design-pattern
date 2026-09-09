@@ -108,7 +108,7 @@ changing families whose behavior can be combined through a stable contract.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency classifications are curriculum judgments, not measured prevalence. Generated material
 and maintainer tests do not prove learning; the tracker remains Not started.
@@ -138,13 +138,13 @@ import io
 
 def stock_csv(items: tuple[tuple[str, int], ...]) -> str:
     with io.StringIO(newline="") as stream:
-        writer = csv.writer(stream, lineterminator="\n")
+        writer = csv.writer(stream, lineterminator="\r\n")
         writer.writerow(("sku", "on_hand"))
         writer.writerows(items)
         return stream.getvalue()
 
 
-assert stock_csv((("clip", 3),)) == "sku,on_hand\nclip,3\n"
+assert stock_csv((("clip", 3),)) == "sku,on_hand\r\nclip,3\r\n"
 ```
 
 This is a sound answer to the current problem. A boolean option for including a column can also
@@ -287,7 +287,8 @@ unchecked code or bypassing setters is outside it.
 [The typing specification](https://typing.python.org/en/latest/spec/protocol.html#assignability-relationships-with-other-types)
 uses structural assignability: compatible members suffice without explicit inheritance. Tests admit
 an external encoder and reject missing `encode`, wrong return type and an extra required argument.
-They also reject encoder field replacement, a nonexistent `close`, and a mutable-list request.
+They also reject encoder field replacement, a nonexistent `close`, a mutable-list request, and
+overriding the final render workflow.
 
 Yet an encoder that returns a valid empty JSON document for a nonempty Table type-checks. It breaks
 cell preservation. The semantic-liar test demonstrates that the client trusts this promise and does
@@ -300,9 +301,10 @@ not use runtime Protocol checks, so those differences do not govern this design.
 has no runtime override enforcement. These are [typing-library contracts](https://docs.python.org/3.14/library/typing.html#typing.runtime_checkable),
 not Bridge mechanics.
 
-Python 3.14 adds deferred annotation evaluation; this example uses no annotation introspection,
+Python 3.14 adds deferred annotation evaluation; `bridge.py` retains the Python 3.11-compatible
+`from __future__ import annotations` behavior. Our application code performs no annotation introspection,
 so it needs no version-specific dispatch path. See the official
-[Python 3.14 annotation change](https://docs.python.org/3.14/whatsnew/3.14.html#pep-649-and-pep-749-deferred-evaluation-of-annotations).
+[Python 3.14 annotation change](https://docs.python.org/3.14/whatsnew/3.14.html).
 The source uses syntax supported by Python 3.11. Actual runtime and typing results are recorded in
 [VALIDATION.md](VALIDATION.md); no CPython memory or GIL assumptions are required.
 
@@ -398,7 +400,7 @@ report object when selection changes; `@final` and frozen fields are not concurr
 ## 10. Performance and standard-library details
 
 For the supplied reports, projection scans N input items and builds at most N output rows. For
-fixed columns, encoding work follows the amount of text produced; whole tables and whole output
+fixed columns, built-in encoding work follows the amount of text produced; whole tables and whole output
 bodies remain in memory. Boundaries of 100 items and 80 characters per cell keep this a small
 in-memory teaching example. These are design/algorithm observations, not measured speedups.
 
@@ -420,7 +422,7 @@ and recovered by decoding. Its contract is text, not encoded bytes, as described
 | Check | What it establishes | Limit |
 |---|---|---|
 | Four report/format combinations | Current projections survive both serializations | No proof about future formats |
-| Shared encoder contract cases | Order, duplicates, special text, empty schema, repeatability | Specific tested values; trusted collaborators |
+| Shared encoder contract cases | Order, duplicates, special text, empty schema, repeatability | Targeted values plus 40 generated cases per encoder; trusted collaborators |
 | Boundaries and failures | Invalid values fail; no encoding after projection failure; no retry | No transactional side-effect rollback |
 | Extension witnesses | One added report and encoder need no opposite-side edits | Shared Table contract stays unchanged |
 | Static positive/negative clients | Supported call surface and intended diagnostics | Semantics remain outside type checking |

@@ -21,6 +21,8 @@ from bridge import (
     Table,
     make_report,
 )
+from hypothesis import given, settings
+from hypothesis import strategies as st
 from matrix_probe import Observation, RecordingEncoder, observe
 
 ENCODERS: tuple[Encoder, ...] = (CsvEncoder(), JsonEncoder())
@@ -240,3 +242,28 @@ def test_matrix_observations() -> None:
         Observation("ShortageReport", "CsvEncoder", 1, 1),
         Observation("ShortageReport", "JsonEncoder", 1, 1),
     )
+
+
+@pytest.mark.parametrize("encoder", ENCODERS)
+@pytest.mark.parametrize("cell", ["\r", "\n", "\r\n"])
+def test_independent_record_characters_are_data(encoder: Encoder, cell: str) -> None:
+    assert decode(encoder.encode(Table(("value",), ((cell,),)))) == (["value"], [[cell]])
+
+
+@pytest.mark.parametrize("encoder", ENCODERS)
+@settings(max_examples=40, derandomize=True, database=None)
+@given(rows=st.lists(st.tuples(st.text(max_size=80), st.text(max_size=80)), max_size=20))
+def test_generated_text_round_trips(encoder: Encoder, rows: list[tuple[str, str]]) -> None:
+    table = Table(("first", "second"), tuple(rows))
+    assert decode(encoder.encode(table)) == (["first", "second"], [list(row) for row in rows])
+
+
+def test_shortage_strict_boundary_and_order() -> None:
+    items = (StockItem("a", 2, 5), StockItem("b", 0, 0), StockItem("c", 8, 5), StockItem("d", 0, 1))
+    assert decode(ShortageReport(CsvEncoder()).render(items))[1] == [["a", "3"], ["d", "1"]]
+
+
+def test_table_normal_mutation_is_blocked() -> None:
+    table = Table(("sku",), (("clip",),))
+    with pytest.raises(FrozenInstanceError):
+        setattr(table, "rows", ())  # noqa: B010 -- explicit runtime frozen boundary probe

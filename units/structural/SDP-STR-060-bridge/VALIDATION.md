@@ -78,8 +78,8 @@ to `/tmp`, parsed with the Python 3.11 grammar, compiled and executed on both ru
 unit examples directory on PYTHONPATH. Shell fences are command guides, not Python snippets.
 
 Static contract tests compile positive and negative clients for both target versions under each
-runtime. The six expected diagnostics are wrong result type, missing encode, extra required argument,
-frozen encoder replacement, nonexistent close and list instead of tuple input. Bad clients are
+runtime. The final seven expected diagnostics are wrong result type, missing encode, extra required argument,
+frozen encoder replacement, nonexistent close, list instead of tuple input and final-method override. Bad clients are
 never executed. Behavioral tests separately expose a statically valid but semantically wrong encoder.
 
 ## Controlled matrix probe
@@ -126,3 +126,48 @@ corrected. Review selected explicit CRLF CSV record endings to preserve carriage
 No failed check was bypassed. Initial content is complete study material and remains Draft pending
 final review and repository regression. Initialization publication will use the exact current-operation
 commit enumeration; it will not create a PR or merge.
+
+
+## Initialization publication and final review
+
+Initialization commit: `9187fc134c120879c5b08dc9623c34d9f3ad3ab9`. Refreshed main remained at
+INIT_START and the exact remote Bridge ref was still absent. Both exact local-only and
+current-operation lists contained that single commit. Normal exact-ref push set upstream and
+local-only/remote-only counts were 0/0. No PR or merge occurred during initialization.
+
+Final review adds isolated CR, LF and CRLF cell preservation, bounded generated-text round trips
+(40 examples per encoder, deterministic Hypothesis settings), mixed shortage boundary/order, and
+normal frozen Table mutation checks. A seventh negative typing diagnostic checks overriding final
+render. The simple direct-function snippet now uses the same explicit CRLF convention. The 3.14
+annotation note explicitly distinguishes the retained future import from the new default semantics.
+No worked runtime behavior or learner starter solution is changed by this review.
+
+
+## Final observed results — 2026-09-09
+
+| Check | Actual result |
+|---|---|
+| Focused CPython 3.14.7 suite | 63 passed |
+| Focused CPython 3.11.16 suite | 63 passed |
+| Strict mypy | All seven Python files passed both 3.11 and 3.14 targets on both runtimes |
+| Static contract controls | Positive clients accepted; exactly seven intended negative diagnostics per target/runtime |
+| Ruff | py311 lint and formatting passed; 10 format-eligible unit files |
+| Python fences | Four independent README snippets parsed with 3.11 grammar, compiled and executed on both runtimes |
+| Source compatibility | All seven Python source files also parsed with 3.11 grammar |
+| Runnable artifacts | Demo, matrix probe and unsolved starter succeeded on both runtimes |
+| Generated-text contract tests | 40 deterministic Hypothesis examples per encoder in each focused runtime suite |
+| Repository regression | 1,398 passed across 82 isolated pytest directories on CPython 3.14.7; every directory exited zero |
+| Repository validator | Passed, including uv lock consistency and zero forbidden paths |
+| Scope and whitespace | Exactly 11 paths versus main: 10 Bridge artifacts and only its tracker artifact cell |
+| Unrelated Local artifacts | All 24 recorded ignored paths present; all 11 ZIP SHA-256 fingerprints unchanged |
+
+Artifact Approved follows source, pedagogy, contract, typing, failure, lab and regression review.
+Learning stays Not started; no learner attempt, retrieval, date or weakness is fabricated. All
+runtime code is unchanged from the validated initialization. Final review changed tests and notes.
+Final approval/result edits are followed by validator, lint/format and whitespace checks before commit.
+
+GitHub currently reports no main rules, no branch protection (explicit HTTP 404: Branch not protected)
+and zero CI workflows. Exact PR base/head, commits, files, reviews, checks and status contexts must
+also be inspected before squash merge. The exact final commit, PR, merge tree parity and safe Local
+main synchronization are reported in the task; this commit is not rewritten to contain its own hash.
+No failed check, protection or unrelated change is bypassed.

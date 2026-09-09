@@ -15,7 +15,7 @@ encoder: Encoder = External()
 report = InventoryReport(encoder)
 result: Artifact = report.render(())
 """
-NEGATIVE = """from bridge import Artifact, Encoder, InventoryReport, JsonEncoder, Table
+NEGATIVE = """from bridge import Artifact, Encoder, InventoryReport, JsonEncoder, StockItem, Table
 class WrongResult:
     def encode(self, table: Table, /) -> str:
         return "lost media type"
@@ -32,6 +32,9 @@ report = InventoryReport(JsonEncoder())
 report.encoder = JsonEncoder()
 report.encoder.close()
 report.render([])
+class Bypass(InventoryReport):
+    def render(self, items: tuple[StockItem, ...]) -> Artifact:
+        return Artifact("text/plain", "unchecked")
 """
 
 
@@ -46,6 +49,7 @@ def test_positive_and_negative_client_contracts(tmp_path: Path, version: str) ->
         15: "misc",
         16: "attr-defined",
         17: "arg-type",
+        19: "misc",
     }
     for name, source in (("positive", POSITIVE), ("negative", NEGATIVE)):
         path = tmp_path / f"{name}.py"
