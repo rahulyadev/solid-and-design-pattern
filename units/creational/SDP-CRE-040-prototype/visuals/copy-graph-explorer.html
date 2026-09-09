@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Prototype · Follow the references</title>
+<style>
+:root { color-scheme: light dark; --paper: light-dark(#faf9f6,#151b20); --ink: light-dark(#172b35,#e0ecf0); --line: light-dark(#bac8ce,#546974); --accent: light-dark(#075c61,#87ded5); --panel: light-dark(#eef3f2,#213039); }
+* { box-sizing: border-box; }
+body { margin: 0; padding: clamp(16px,4vw,44px); background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui,sans-serif; }
+main { max-width: 1000px; margin: auto; }
+h1 { font-size: clamp(28px,5vw,48px); line-height: 1.12; max-width: 700px; }
+h2 { font-size: 20px; }
+.eyebrow { color: var(--accent); letter-spacing: .12em; font-size: 13px; }
+.controls { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin: 28px 0; }
+select,button { font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; min-height: 44px; }
+label { display: grid; gap: 6px; }
+button[aria-pressed="true"] { background: var(--accent); color: var(--paper); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.graphs { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.graph { min-width: 0; background: var(--panel); padding: 20px; border-radius: 10px; }
+.node { border: 1px solid var(--line); padding: 12px; margin: 12px 0; border-radius: 6px; overflow-wrap: anywhere; }
+.ref { color: var(--accent); font-weight: 600; }
+.path { padding: 8px 0; overflow-wrap: anywhere; }
+.tags { font-family: ui-monospace,monospace; }
+dl { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px 20px; margin-top: 28px; }
+dt,dd { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--line); }
+dd { font-weight: 600; }
+.explainer { margin-top: 32px; max-width: 780px; }
+footer { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 16px; font-size: 14px; }
+@media (max-width: 620px) { .graphs { grid-template-columns: 1fr; } .controls { align-items: stretch; } select { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<main id="copy-explorer">
+<p class="eyebrow">SDP-CRE-040 · PROTOTYPE</p>
+<h1>A new root does not guarantee an independent graph.</h1>
+<p>Two edges start at one shared filter. That filter points back to the source root.</p>
+<div class="controls">
+<label for="mode">Creation operation
+<select id="mode">
+<option value="assignment">Assignment</option>
+<option value="shallow">Shallow copy</option>
+<option value="deep" selected>Deep copy · one traversal</option>
+<option value="replace">Replace root label</option>
+<option value="split-memos">Deep copy each child separately</option>
+</select></label>
+<button id="mutate" type="button" aria-pressed="false">Append “edit” through result edge 0</button>
+</div>
+<div id="state" aria-live="polite" aria-atomic="true">
+<div class="graphs" role="group" aria-label="Conceptual source and result reference graphs">
+<section class="graph" aria-labelledby="source-title"><h2 id="source-title">Source</h2>
+<div class="node"><span class="ref">R</span> · query root</div>
+<div class="path">edge 0 → C · edge 1 → C</div>
+<div class="node"><span class="ref">C</span> · shared filter<br>tags: <span id="source-tags" class="tags">[base]</span></div>
+<div class="path">C back edge → R</div>
+</section>
+<section class="graph" aria-labelledby="result-title"><h2 id="result-title">Result</h2>
+<div class="node"><span id="result-root" class="ref">R′</span> · <span id="result-label">query root</span></div>
+<div id="edge-zero" class="path">edge 0 → C′ → R′</div>
+<div id="edge-one" class="path">edge 1 → C′ → R′</div>
+<div class="node">edge 0 tags: <span id="first-tags" class="tags">[base]</span><br>edge 1 tags: <span id="second-tags" class="tags">[base]</span></div>
+</section>
+</div>
+<dl>
+<dt>Fresh root</dt><dd id="fresh">Yes</dd>
+<dt>Child still shared with source</dt><dd id="shared">No</dd>
+<dt>Result edges 0 and 1 alias</dt><dd id="alias">Yes</dd>
+<dt>Back edge reaches returned new root</dt><dd id="cycle">Yes</dd>
+</dl>
+<p id="insight">One traversal preserves internal sharing and rebases the cycle.</p>
+</div>
+<div class="explainer">
+<h2>How to read this visual</h2>
+<p>R and C identify original objects; primes identify new ones. Follow each edge to its named object.
+Select an operation, then toggle the edit to trace who observes a mutation through result edge 0.</p>
+<h2>Key insight</h2>
+<p>Sharing within a request can be intentional. Isolation between requests is a separate promise.</p>
+<h2>Simplification or limitation</h2>
+<p>This is a conceptual graph of the synthetic Python experiment, not memory layout or a live Python
+interpreter. Root-to-child list containers are collapsed into edges. Split copying creates additional
+subgraphs; R₀′ and R₁′ denote those hidden roots, neither of which is the returned R′. Custom hooks,
+resources, and concurrent mutation are outside this visual.</p>
+</div>
+<noscript>The default diagram shows a deep copy: the root and child are new; both result edges share
+one new child, whose back edge reaches the new root. Interactive comparisons require JavaScript.</noscript>
+<footer>Original synthetic example · no network requests · observations verified against the Python probe.</footer>
+</main>
+<script id="observations" type="application/json">[
+  {
+    "mode": "assignment",
+    "root_fresh": false,
+    "child_shared_with_source": true,
+    "internal_alias_preserved": true,
+    "cycle_rebased": false,
+    "source_tags_after": [
+      "base",
+      "edit"
+    ],
+    "second_child_tags_after": [
+      "base",
+      "edit"
+    ]
+  },
+  {
+    "mode": "shallow",
+    "root_fresh": true,
+    "child_shared_with_source": true,
+    "internal_alias_preserved": true,
+    "cycle_rebased": false,
+    "source_tags_after": [
+      "base",
+      "edit"
+    ],
+    "second_child_tags_after": [
+      "base",
+      "edit"
+    ]
+  },
+  {
+    "mode": "deep",
+    "root_fresh": true,
+    "child_shared_with_source": false,
+    "internal_alias_preserved": true,
+    "cycle_rebased": true,
+    "source_tags_after": [
+      "base"
+    ],
+    "second_child_tags_after": [
+      "base",
+      "edit"
+    ]
+  },
+  {
+    "mode": "replace",
+    "root_fresh": true,
+    "child_shared_with_source": true,
+    "internal_alias_preserved": true,
+    "cycle_rebased": false,
+    "source_tags_after": [
+      "base",
+      "edit"
+    ],
+    "second_child_tags_after": [
+      "base",
+      "edit"
+    ]
+  },
+  {
+    "mode": "split-memos",
+    "root_fresh": true,
+    "child_shared_with_source": false,
+    "internal_alias_preserved": false,
+    "cycle_rebased": false,
+    "source_tags_after": [
+      "base"
+    ],
+    "second_child_tags_after": [
+      "base"
+    ]
+  }
+]</script>
+<script>
+"use strict";
+(() => {
+  const root = document.getElementById("copy-explorer");
+  const data = JSON.parse(document.getElementById("observations").textContent);
+  const get = id => root.querySelector("#" + id);
+  const mode = get("mode");
+  const mutate = get("mutate");
+  const descriptions = {
+    assignment: "Both names reach the original graph. No clone was created.",
+    shallow: "Only the outer root is new; child edits still reach the source.",
+    deep: "One traversal preserves internal sharing and rebases the cycle.",
+    replace: "Replacing the label rebuilds the root but retains the original child references.",
+    "split-memos": "Independent traversals isolate the source but break the intended internal alias."
+  };
+  let edited = false;
+  function render() {
+    const d = data.find(item => item.mode === mode.value);
+    const tags = items => "[" + items.join(", ") + "]";
+    get("source-tags").textContent = tags(edited ? d.source_tags_after : ["base"]);
+    get("first-tags").textContent = tags(edited ? ["base", "edit"] : ["base"]);
+    get("second-tags").textContent = tags(edited ? d.second_child_tags_after : ["base"]);
+    get("result-root").textContent = d.root_fresh ? "R′" : "R";
+    get("result-label").textContent = d.mode === "replace" ? "renamed root" : "query root";
+    let paths = ["C → R", "C → R"];
+    if (d.mode === "deep") paths = ["C′ → R′", "C′ → R′"];
+    if (d.mode === "split-memos") paths = ["C₀′ → R₀′", "C₁′ → R₁′"];
+    get("edge-zero").textContent = "edge 0 → " + paths[0];
+    get("edge-one").textContent = "edge 1 → " + paths[1];
+    for (const [id, key] of [["fresh","root_fresh"],["shared","child_shared_with_source"],["alias","internal_alias_preserved"],["cycle","cycle_rebased"]]) {
+      get(id).textContent = d[key] ? "Yes" : "No";
+    }
+    get("insight").textContent = descriptions[d.mode];
+    mutate.setAttribute("aria-pressed", String(edited));
+  }
+  mode.addEventListener("change", () => { edited = false; render(); });
+  mutate.addEventListener("click", () => { edited = !edited; render(); });
+  render();
+})();
+</script>
+</body>
+</html>
