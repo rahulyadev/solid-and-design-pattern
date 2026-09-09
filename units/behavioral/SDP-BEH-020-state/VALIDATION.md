@@ -95,3 +95,63 @@ Logs are under `/tmp/sdp-beh-020/init314`, `init311`, `init314-finish` and `init
 Initialization is complete enough to study with an unsolved lab. Final approval awaits the separate
 review/regression phase. The task's publication report will record the initialization commit and
 current-operation-only push proof; initialization itself creates no PR and performs no merge.
+
+## Initialization publication and final review
+
+Initialization commit: `955a5e95f454c16d96f12bbd858de5673baf1312`. The immediately preceding exact
+no-tag main refresh still matched INIT_START, and the exact topic probe returned absent. The
+local-only and current-operation lists matched and contained only this commit. A normal exact-ref
+push set upstream; local/remote-only counts were 0/0. No PR or merge occurred during initialization.
+
+Final review adds a standalone delegation snippet, clarifies candidate installation and optional
+entry/exit-hook failure ordering, and makes the two cancellation arrows clearer. Four targeted
+checks cover cumulative capacity after reopening, a caught nested error not clearing the outer busy
+guard (including malformed nested input), exact-int rejection of integer subclasses, and read-only
+public snapshot installation. A constructor test uses its precise callable type instead of a cast.
+The worked implementation and unsolved lab remain unchanged.
+
+Final focused checks passed on CPython 3.14.7 and 3.11.16: 91 tests each; strict mypy on seven source
+files for 3.11/3.14 targets on both runtimes; positive and exactly ten negative typing diagnostics
+per target/runtime; Ruff py311 lint and formatting. Five independent README Python snippets parsed
+with 3.11 grammar, compiled and executed on both runtimes, as did the seven Python source grammar
+checks. Demo, starter and controlled observation executed on both. Repository validators passed
+including uv lock consistency and zero forbidden paths. Logs and snippets are in
+`/tmp/sdp-beh-020/final314` and `final311`.
+
+Manual comparison verified the conceptual graph and 20-cell transition table against the
+independent test model and actual traces. No browser rendering was performed. Source reading,
+argument preconditions, state/gate ownership, effect limits, lab solution protection and the
+unchanged Not started learning state were reviewed. Before final publication all 24 ignored Local
+paths remained present, all 11 ZIP hashes matched the preservation snapshot, and Local main was
+clean. GitHub reported no main rules, no branch protection (explicit HTTP 404: Branch not protected),
+and zero CI workflows. Current PR checks, statuses and reviews must still be inspected at the
+verified head before merge.
+
+## Final result and approval — 2026-09-10
+
+| Check | Observed result |
+|---|---|
+| Focused tests | 91 passed on CPython 3.14.7; 91 passed on CPython 3.11.16 |
+| Static contract | Positive clients accepted; exactly ten negative diagnostics for each target/runtime |
+| Strict mypy | Seven source files passed both 3.11 and 3.14 targets on both runtimes |
+| Ruff | py311 lint and formatting passed |
+| README Python | Five independent snippets parsed as 3.11, compiled and executed on both runtimes |
+| Python sources | All seven parsed with 3.11 grammar |
+| Demo, starter, EXP-01 | Executed on both runtimes; observations matched; starter remains incomplete |
+| Repository regression | 1,627 passed across all 88 isolated pytest directories on CPython 3.14.7; all exits zero |
+| Validator | Passed on both runtimes, including uv lock consistency and zero forbidden paths |
+| Visual contracts | Graph/table manually matched to complete transition matrix and executed observations |
+| Preservation | 24 ignored Local paths present, 11 ZIP hashes unchanged, clean Local main |
+
+The regression included every tracked pytest directory; none were outside `units/`. Its logs and
+machine-readable results are under `/tmp/sdp-beh-020/regression`. All caches, bytecode, generated
+static clients, snippets, pytest temporary files and logs were routed to `/tmp`.
+
+The exact main/topic refs were refreshed again without divergence: main remained INIT_START;
+topic and remote topic remained the initialization commit with 0/0 counts. Final review approves
+only the State artifact. The tracker remains Not started with no invented evidence or dates.
+After successful code checks, only approval cells and validation records changed; validator and
+whitespace checks precede the final commit. Publication uses a normal push, exact PR base/head,
+commit/file/check/review inspection, and verified-head squash merge. The final task report records
+commit, PR, merge, tree parity, clean Local main synchronization and successor identity without
+rewriting the approved commit to contain its own hash.

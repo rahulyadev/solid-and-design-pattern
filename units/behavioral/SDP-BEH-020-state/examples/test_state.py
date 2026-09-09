@@ -113,11 +113,9 @@ def test_bad_event(value: object) -> None:
 
 @pytest.mark.parametrize("state_type", [Editing, Sealed, Released, Cancelled])
 @pytest.mark.parametrize("value", [True, -1, 21, 1.0])
-def test_state_value_construction(state_type: type[PacketState], value: object) -> None:
-    # A separate constructor contract is tested through precise callable typing below.
-    constructor = cast(Callable[[int], PacketState], state_type)
+def test_state_value_construction(state_type: Callable[[int], PacketState], value: object) -> None:
     with pytest.raises(ValueError):
-        constructor(cast(int, value))
+        state_type(cast(int, value))
 
 
 def test_empty_cancellation_and_nonempty_state_guards() -> None:
@@ -256,3 +254,54 @@ def test_observation_contract(
         f"{mode}: seen=['sealed->released'], effects={effects}, error={error}, "
         f"state={phase}, rev={revision}, same_snapshot={same}"
     )
+
+
+def test_reopen_keeps_pages_and_capacity_guard() -> None:
+    packet = Packet()
+    old = packet.handle(Event.ADD, 19)
+    packet.handle(Event.SEAL)
+    packet.handle(Event.REOPEN)
+    full = packet.handle(Event.ADD, 1)
+    assert full == Snapshot(Phase.EDITING, 20, 4)
+    assert old == Snapshot(Phase.EDITING, 19, 1)
+    with pytest.raises(ValueError):
+        packet.handle(Event.ADD, 1)
+    assert packet.snapshot is full
+    assert packet.handle(Event.SEAL).pages == 20
+
+
+def test_caught_nested_request_does_not_clear_outer_guard() -> None:
+    seen: list[Snapshot] = []
+
+    def probe(proposal: Snapshot) -> None:
+        for event in (cast(Event, "bad"), Event.CANCEL):
+            with pytest.raises(ReentrantEvent):
+                packet.handle(event)
+            seen.append(packet.snapshot)
+
+    packet = at_phase(Phase.SEALED, probe)
+    before = packet.snapshot
+    result = packet.handle(Event.RELEASE)
+    assert seen == [before, before]
+    assert result == Snapshot(Phase.RELEASED, 2, 3)
+
+
+def test_exact_integer_policy_excludes_subclasses() -> None:
+    class PageCount(int):
+        pass
+
+    packet = Packet()
+    before = packet.snapshot
+    with pytest.raises(ValueError):
+        packet.handle(Event.ADD, PageCount(1))
+    with pytest.raises(ValueError):
+        packet.handle(Event.CANCEL, PageCount(0))
+    assert packet.snapshot is before
+
+
+def test_public_snapshot_property_cannot_install_arbitrary_phase() -> None:
+    packet = Packet()
+    field_name = "snapshot"
+    with pytest.raises(AttributeError):
+        setattr(packet, field_name, Snapshot(Phase.RELEASED, 0, 99))
+    assert packet.snapshot == Snapshot(Phase.EDITING, 0, 0)

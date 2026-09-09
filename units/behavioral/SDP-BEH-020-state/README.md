@@ -19,15 +19,14 @@ lifecycle rules and makes it easy to allow an impossible transition.
 start -> EDITING --SEAL [pages > 0]--> SEALED --RELEASE [gate returns]--> RELEASED
             ^                           |
             +----------REOPEN-----------+
-            |                           |
-            +---CANCEL---> CANCELLED <---+---CANCEL
+EDITING ----CANCEL----> CANCELLED <----CANCEL---- SEALED
 EDITING --ADD [total ≤ 20]--> EDITING
 ```
 
 ### How to read this visual
 
 Follow a named event from its current phase to its next phase. Brackets are guards that must pass.
-RELEASED and CANCELLED have no outgoing events. The split CANCEL arrows have the same destination.
+RELEASED and CANCELLED have no outgoing events. Both CANCEL arrows have the same destination.
 
 ### Key insight
 
@@ -104,7 +103,7 @@ lifecycle. A tiny conditional may already express that lifecycle better than fou
 | Evidence profile | E+I+D+X+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 The frequency labels are curriculum judgments, not measured prevalence. Artifact approval and
 learning completion are separate. The prerequisites have authored notes; no learner mastery is
@@ -288,6 +287,25 @@ assert first is not packet.snapshot
 
 ## 6. Why these Python forms exist
 
+The smallest view of the delegation is executable on its own:
+
+```python
+from state import Editing, Event, PacketState, Phase
+
+current: PacketState = Editing(2)
+previous = current
+candidate = current.handle(Event.SEAL, 0)
+assert previous.phase is Phase.EDITING
+current = candidate
+assert current.phase is Phase.SEALED
+assert previous.pages == current.pages == 2
+```
+
+This lower-level sketch uses valid arguments and omits Packet's gate, revision and busy guard.
+Notice that returning a successor does not mutate the old value. The complete context bundles its
+successor and new snapshot into `_Current` so they are installed together through one reference.
+That is a local representation choice, not proof of thread or crash atomicity.
+
 `Editing.handle` answers its local event questions and constructs the next immutable state. It
 uses ordinary `if` statements; State removes a switch *over all phases* from the context, not all
 conditions from the program. The sealed state groups reopening, release and cancellation rules.
@@ -370,6 +388,12 @@ gate once, and installs the candidate only if it returns. It neither retries nor
 fallback. The same exception object propagates. A `finally` block clears the busy flag on exit;
 that cleanup is not state rollback. Python's try/finally semantics explain this cleanup boundary.
 [Language reference: finally](https://docs.python.org/3.14/reference/compound_stmts.html#finally-clause).
+
+There are no entry/exit hooks in this sample. If you introduce them, define whether they run
+before or after installation and whether they may send another event. A failing exit hook before
+commit can preserve local state while leaving an effect; a failing entry hook after commit cannot
+honestly report that nothing changed. Prefer returning a value describing intended work when that
+keeps the boundary clear. Do not silently execute another transition from a hook.
 
 A gate may inspect the candidate while `packet.snapshot` still describes SEALED. A gate calling
 `packet.handle(CANCEL)` reenters the same object. We reject this nesting. If the gate lets that
