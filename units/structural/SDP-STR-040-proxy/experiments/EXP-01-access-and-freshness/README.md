@@ -4,7 +4,7 @@
 
 Does a cached snapshot bypass a revoked permission, and when does a stored update become visible?
 Hypothesis: permission is checked even on a would-be hit; source updates remain hidden until expiry
-or invalidation; only the first permitted load constructs a catalog. This supports explanation and
+or invalidation; only the first permitted load invokes the target factory. This supports explanation and
 debugging without changing the canonical E+I+D+T profile.
 
 ## Environment and commands
@@ -48,7 +48,10 @@ invalidation permit a new value to be loaded while retaining the same target.
 A deterministic observation table of the included sequential synthetic objects. It is not a
 performance benchmark, browser rendering, security penetration test or distributed cache test.
 Source freshness is controlled here. No wall-clock latency, real resources or cross-process
-invalidation is measured. The tests assert all seven rows, so changes to policy must reconcile
+invalidation is measured. The probe uses a preconstructed spy so its reads and updates are visible;
+the factory count measures deferred acquisition, not actual object-construction cost. The separate
+worked demo constructs its real MemoryCatalog inside the factory. The tests assert all seven rows,
+so changes to policy must reconcile
 both code and this interpretation.
 
 ## Interpretation and follow-up

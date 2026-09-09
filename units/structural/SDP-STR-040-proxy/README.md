@@ -106,7 +106,7 @@ Name those differences so the client can make a correct decision.
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Learning remains **Not started**.
 Generated notes and maintainer checks do not supply Rahul's evidence. Study the
@@ -605,7 +605,7 @@ The gap column guides the reviewer, not a memorized answer script.
 | Is this a Decorator, Adapter or Proxy? | Class-name guessing | Identify the change force and preserved/changed interface |
 | What can bypass your policy? | “Private fields are secure” | Trace all real-object and credential access paths |
 | Add concurrency to the design | “Use a lock” | Define shared in-flight work, invalidation and close ordering first |
-| Remote read times out after a write | “Retry automatically” | Separate transport failure from known operation completion |
+| Remote operation times out after a write | “Retry automatically” | Separate transport failure from known operation completion |
 | Only one handler needs this rule | Unnecessary framework | Compare a helper and explicit dependency passing concretely |
 | Review a False-returning authorizer | “False denies” | Read the actual callback contract and control flow |
 

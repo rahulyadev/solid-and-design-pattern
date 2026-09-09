@@ -109,7 +109,7 @@ Failed review may lower a state. This is evidence correction, not punishment.
 | `SDP-STR-010` | [Adapter](CURRICULUM.md#sdp-str-010) | Core | Approved | Not started | — | — | — | — |
 | `SDP-STR-020` | [Facade](CURRICULUM.md#sdp-str-020) | Core | Approved | Not started | — | — | — | — |
 | `SDP-STR-030` | [Decorator](CURRICULUM.md#sdp-str-030) | Core | Approved | Not started | — | — | — | — |
-| `SDP-STR-040` | [Proxy](CURRICULUM.md#sdp-str-040) | Core | Draft | Not started | — | — | — | — |
+| `SDP-STR-040` | [Proxy](CURRICULUM.md#sdp-str-040) | Core | Approved | Not started | — | — | — | — |
 | `SDP-STR-050` | [Composite](CURRICULUM.md#sdp-str-050) | Professional | Absent | Not started | — | — | — | — |
 | `SDP-STR-060` | [Bridge](CURRICULUM.md#sdp-str-060) | Professional | Absent | Not started | — | — | — | — |
 | `SDP-STR-070` | [Flyweight](CURRICULUM.md#sdp-str-070) | Advanced | Absent | Not started | — | — | — | — |

@@ -352,3 +352,89 @@ def test_controlled_observation_table() -> None:
         ("invalidated", "3", 1, 3, "miss"),
         ("closed", "1", 1, 3, "-"),
     ]
+
+
+def test_hits_do_not_slide_the_expiry_window() -> None:
+    r = rig()
+    r.proxy.read(KEY)
+    r.clock.now = 9
+    assert r.proxy.read(KEY).revision == 1
+    r.base.put(Document(KEY, 2, ()))
+    r.clock.now = 10
+    assert r.proxy.read(KEY).revision == 2
+    assert r.base.reads == 2
+
+
+def test_denial_occurs_before_clock_access() -> None:
+    def deny(principal: str, key: Key) -> None:
+        raise PermissionError("denied")
+
+    def forbidden_clock() -> float:
+        pytest.fail("denial must not reach the clock")
+
+    proxy = CatalogProxy("reader", lambda: MemoryCatalog({}), deny, ttl=10, clock=forbidden_clock)
+    with pytest.raises(PermissionError):
+        proxy.read(KEY)
+
+
+def test_failed_other_key_load_discards_former_slot() -> None:
+    r = rig()
+    r.proxy.read(KEY)
+    other = Key("orchard", "missing")
+    r.permissions.add(("reader", other))
+    with pytest.raises(KeyError):
+        r.proxy.read(other)
+    r.base.put(Document(KEY, 2, ()))
+    assert r.proxy.read(KEY).revision == 2
+    assert r.base.reads == 3
+
+
+def test_principal_decisions_are_per_proxy() -> None:
+    checks: list[str] = []
+
+    def authorize(principal: str, key: Key) -> None:
+        checks.append(principal)
+        if principal != "reader":
+            raise PermissionError("denied")
+
+    reader = CatalogProxy("reader", lambda: MemoryCatalog({KEY: DOC}), authorize, ttl=10)
+    visitor = CatalogProxy("visitor", lambda: MemoryCatalog({KEY: DOC}), authorize, ttl=10)
+    try:
+        assert reader.read(KEY) == DOC
+        with pytest.raises(PermissionError):
+            visitor.read(KEY)
+        assert reader.read(KEY) == DOC
+        assert checks == ["reader", "visitor", "reader"]
+    finally:
+        reader.close()
+        visitor.close()
+
+
+def test_real_subject_self_call_stays_on_real_receiver() -> None:
+    class SelfCallingCatalog(MemoryCatalog):
+        def read(self, key: Key, /) -> Document:
+            return self.internal_read(key)
+
+        def internal_read(self, key: Key) -> Document:
+            return super().read(key)
+
+    base = SelfCallingCatalog({KEY: DOC})
+    checks: list[str] = []
+    proxy = CatalogProxy("reader", lambda: base, lambda p, k: checks.append(p), ttl=10)
+    assert proxy.read(KEY) == DOC
+    assert checks == ["reader"]
+    assert base.reads == 1
+    proxy.close()
+
+
+def test_root_finally_closes_constructed_target_after_read_error() -> None:
+    base = MemoryCatalog({})
+    proxy = CatalogProxy("reader", lambda: base, allow, ttl=10)
+    with pytest.raises(KeyError):
+        try:
+            proxy.read(KEY)
+        finally:
+            proxy.close()
+    assert base.closes == 1
+    with pytest.raises(Closed):
+        proxy.read(KEY)

@@ -102,3 +102,47 @@ Repository validator passed, including uv lock consistency and zero forbidden pa
 correctly reported the experiment and validation links before those files had been written; after
 the records were added, it passed. Diff whitespace review passed. Final review and repository
 regression follow after initialization. No check failure was bypassed.
+
+## Initialization publication and final review
+
+Initialization commit: `edca33d8df280cca1617f154f03f3482f34537ec`. Immediately before its push, the
+exact remote topic probe was still absent. The local-only list against synchronized main and the
+current-operation list since INIT_START contained that identical single commit. The normal exact-ref
+push set upstream; local-only/remote-only counts were 0/0 afterward. No PR or merge occurred during
+initialization. Further publication uses the explicit standing authorization.
+
+Final review adds six behavioral cases: hits do not slide expiry, denial precedes clock access,
+a failed other-key load discards the former slot, principal decisions stay per proxy, real-subject
+self-calls stay on the actual receiver, and root cleanup closes a constructed target after read
+failure. These verify documented boundaries without exposing a lab solution. The runtime design
+needed no change after initialization. The table's remote interview scenario was clarified to refer
+to an operation timeout rather than conflating a read with a write.
+
+The experiment review explicitly distinguishes its preconstructed spy and factory invocation count
+from actual deferred MemoryCatalog construction in the demo. It does not measure construction cost.
+
+## Final observed results — 2026-09-09
+
+| Check | Actual result |
+|---|---|
+| CPython 3.14.7 focused suite | 50 passed |
+| CPython 3.11.16 focused suite | 50 passed |
+| Strict mypy | Eight Python files passed both 3.11/3.14 targets on both runtimes |
+| Negative typing controls | Two assignment errors and one callback arg-type error, exactly, on both targets/runtimes; positive controls passed |
+| Ruff lint/format | Passed with py311 lint target; all 12 format-eligible unit files compliant |
+| README snippets | Five independently parsed with 3.11 grammar, compiled and executed on both runtimes |
+| Runnable artifacts | Demo, seven-row probe and unsolved starter passed on both runtimes |
+| Full repository regression | 1,278 tests passed across 78 isolated directories on CPython 3.14.7 |
+| Validator | Passed, including uv lock consistency and zero forbidden paths |
+| Scope and diff checks | Only this unit's paths and matching artifact cell; no whitespace errors |
+| Local ignored artifacts | All 24 recorded ignored paths present; all eleven ZIP SHA-256 fingerprints unchanged before publication |
+
+The artifact is Approved after source, contract, teaching, failure, typing, visual and independent-lab
+review. Learning remains Not started; no learner evidence is inferred. Final prose clarifications
+and state changes do not change the tested code. Validation and formatting are repeated for those
+final documentation changes before committing.
+
+GitHub pre-publication inspection found no main rules/protection or CI workflows. PR-specific
+base/head, commits, files, check runs and status contexts must still be inspected before the normal
+squash merge. Publication and synchronization results are reported in the task and PR so the approved
+commit need not be rewritten to include its own hash. No failed checks are bypassed.
