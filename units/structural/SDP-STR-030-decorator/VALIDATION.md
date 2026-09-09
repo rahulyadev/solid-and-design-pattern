@@ -83,3 +83,56 @@ that a static cast cannot supply runtime behavior. Checks were rerun successfull
 bypassed. Maintainer review covered the source and exception boundaries, layer ordering, snapshot
 and borrowed ownership, type/metadata limits, original sources, conceptual diagrams, and independent
 unsolved lab. The artifact remains Draft until final review and regression.
+
+## Initialization publication and final review
+
+Initialization commit: `c947531fb0c47fdc44119e5ea345bfdb77a0dd55`. Immediately before pushing,
+the exact remote topic probe still returned absent. The local-only list against synchronized main
+and the list since INIT_START were identical: this single initialization commit. A normal exact-ref
+push set upstream and returned 0 local-only/0 remote-only commits. No PR or merge occurred during
+initialization. Further publication is covered by the explicit standing authorization.
+
+Final review added six meaningful cases: no render/observation during wiring, self-calls staying on
+the inner receiver, an observer effect retained before its exception, root cleanup on source failure,
+observation fields excluding key/content, and explicit unwrap bypass of added tracing. The review
+clarified that `dropped` counts observer failures rather than proving no event was recorded, and that
+observer BaseExceptions may interrupt the ordinary-exception preservation promise. Runtime
+implementation behavior did not need to change. Docstrings and source citations now make those
+boundaries more precise. No lab solution was added.
+
+Final focused results: **45 passed on CPython 3.14.7 and 45 passed on CPython 3.11.16**. Both
+runtime suites include positive/negative typing controls for both target versions. Strict mypy
+passed all ten Python files for 3.11/3.14 targets on both runtimes. Ruff lint and formatting passed,
+with 14 format-eligible files compliant. All ten Python source files also parsed with the 3.11
+grammar. The five independent README snippets, both probes, demo and unsolved starter executed
+successfully on each runtime. Tooling inspected: pytest 8.4.2, mypy 1.20.2, Ruff 0.16.1,
+Hypothesis 6.165.2, and pytest-cov 7.1.0 in the existing canonical environment.
+
+Manual review checked template coverage, original simple-first teaching, the reconstruction core,
+contract-compatible composition, ordinary function alternatives, inheritance/order trade-offs,
+identity and self-call limits, effects/failures, ownership, typing, metadata/version boundaries,
+proportionate production limits, and the separate unsolved lab. Approved notes may be used under
+NotebookLM policy; no upload or evidence-state advancement is performed.
+
+Current GitHub pre-publication inspection: main rules returned an empty list, main reported
+protected=false at `63c9a0bf20e649ae5fdfbdf24fb17a762d69a61c`, and Actions had zero workflows.
+The PR's exact base/head, commits, files, checks, and mergeability must still be reviewed after
+creation. Local's 24 ignored paths and all eleven ZIP fingerprints were rechecked unchanged.
+The dedicated Worktree contains no ignored generated state.
+
+Complete regression on CPython 3.14.7 passed **1,228 tests across 76 isolated pytest directories**,
+including this unit's 41 example tests and four unsolved lab baseline tests. Each directory ran in
+a separate process with a distinct `/tmp` basetemp. All cache exports, including MYPY_CACHE_DIR,
+were inherited throughout. No previously published unit was modified.
+
+The artifact is Approved after source, code, teaching, and test review. Learning remains Not started;
+all learner dates, weaknesses, and evidence cells are unchanged. Final normal push, PR creation,
+checked squash merge, exact no-tag main refresh, clean Local main fast-forward, and exactly one
+successor task are authorized. Publication hashes, PR, merge/tree parity, and main synchronization
+will be reported only after execution, without a circular self-referential commit record.
+
+Post-approval repository validation passed, including uv lock consistency and zero forbidden paths.
+Whitespace and format checks passed. Baseline scope comparison verified exactly 15 changed files,
+all under this unit except the single matching PROGRESS.md artifact cell; no untracked files remain.
+Final note-only changes after execution add source links, precise evidence wording, and approval
+metadata; all Python code fences and executable behavior remain as tested.

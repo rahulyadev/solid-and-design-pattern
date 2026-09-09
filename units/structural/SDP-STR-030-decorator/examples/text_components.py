@@ -48,7 +48,8 @@ class Bracket:
 class Observed:
     """Best-effort diagnostics, never a mandatory audit or security boundary.
 
-    Ordinary observer exceptions are dropped and counted. Control-flow
+    Ordinary observer exceptions are suppressed and counted by dropped.
+    An observer may already have performed an effect before raising. Control-flow
     BaseExceptions propagate. The synchronous observer must be fast and must
     not call this same observed capability recursively.
     """

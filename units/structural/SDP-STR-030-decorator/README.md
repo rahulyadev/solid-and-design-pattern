@@ -102,7 +102,7 @@ object, replace it, or wrap it. GoF Decorator describes compatible objects colla
 | Evidence profile | E+I+D+T |
 | Canonical Python | Python 3.14 |
 | Interview compatibility | Python 3.11 |
-| Artifact state | Draft |
+| Artifact state | Approved |
 
 Frequency labels are curriculum judgments, not measured statistics. Learning remains **Not started**.
 Authoring and maintainer checks supply material, not learner evidence. Start with the
@@ -260,7 +260,9 @@ The implementation is two tiny frozen dataclasses, each with `inner: TextSource`
 `render` method. Label prepends its configured text; Bracket encloses its inner result. They need no
 base Decorator class and no unknown-attribute forwarding. `eq=False` keeps equality at object identity
 for these wrappers, rather than accidentally equating differently owned layer objects by their fields.
-Their configuration is fixed by convention; `Observed` also has mutable diagnostic state.
+These [dataclass options](https://docs.python.org/3.14/library/dataclasses.html#dataclasses.dataclass)
+control generated assignment/equality behavior; they do not freeze borrowed dependencies.
+`Observed` also has mutable diagnostic state.
 
 “Dynamic” here means choosing objects and wiring at runtime. Existing references still point to their
 old objects if a root assigns a new wrapper to a variable. Reconfiguration should build a new stack
@@ -311,8 +313,8 @@ reusable one-operation wrapping. Use an object when a named capability or retain
 Functions are not a less serious design.
 
 [function_wrappers.py](examples/function_wrappers.py) contains a generic `traced` decorator using
-`ParamSpec`, `TypeVar`, and `wraps`. It preserves the parameter/return types for static callers while
-adding trace entries. The list sink is assumed to work, so it has a different failure policy from
+[`ParamSpec`](https://docs.python.org/3.11/library/typing.html#typing.ParamSpec), `TypeVar`, and `wraps`.
+It preserves the parameter/return types for static callers while adding trace entries. The list sink is assumed to work, so it has a different failure policy from
 Observed. It records exit on failure through `finally`; “exit” is not “success.”
 
 ```python
@@ -430,8 +432,10 @@ logging in a `finally` block that raises and masks the original source failure.
 
 The [failure tests](examples/test_decorator.py) inject a source error and an observer error together.
 They assert the original source exception object reaches the client, exactly one source call occurs,
-and a dropped observation is counted. Successful rendering still succeeds under ordinary observer
-failure. This does not make observation durable or independent of observer latency.
+and an observer failure is counted. Successful rendering still succeeds under ordinary observer
+failure. The `dropped` counter means the observer raised; it does not prove that no observation
+was recorded. A sink can append an event and then fail, as a separate test demonstrates.
+This does not make observation durable or independent of observer latency.
 
 When debugging, first record the root's stack description, then identify where each observation was
 made. In the experiment, observation inside formatting counts 5 characters; outside counts 13. Both
@@ -590,11 +594,11 @@ raw data. Explain which assumptions fail before writing another wrapper.
 5. Diagnose a changed order or failure and test the boundary you claim.
 6. Transfer to another scenario, or reject Decorator with a simpler design and a reason.
 
-E is your explanation; I is your own implementation attempt; D is a diagnosis with a corrected
-assumption; T is selecting or rejecting this design under changed requirements. Generated examples,
+E is your explanation; I is your implementation and tests; D is debugging or refactoring with
+a corrected assumption; T is selecting or rejecting this design for a changed production scenario. Generated examples,
 a green maintainer suite, and this document do not satisfy those learning evidence thresholds.
 For NotebookLM, use only the approved note and permitted curriculum context after approval. Do not
-upload this draft, the progress tracker, raw attempts, lab solutions, source trees, or tool logs; follow
+upload drafts, the progress tracker, raw attempts, lab solutions, source trees, or tool logs; follow
 [the repository policy](../../../docs/NOTEBOOKLM.md). No upload has been performed.
 
 ## 21. Vocabulary and professional English
@@ -650,6 +654,9 @@ Sources below were opened/read for this unit. Important claims are linked near t
 6. Python [data model](https://docs.python.org/3.14/reference/datamodel.html): bound methods and implicit special-method lookup.
 7. Python typing [Protocols specification](https://typing.python.org/en/latest/spec/protocol.html): structural assignability.
 8. Python [I/O lifecycle](https://docs.python.org/3.14/library/io.html#io.IOBase.close), [asyncio cancellation](https://docs.python.org/3.14/library/asyncio-task.html#task-cancellation), and [text sequences](https://docs.python.org/3.14/library/stdtypes.html#text-sequence-type-str): bounded library/language comparisons.
+9. Python [dataclasses](https://docs.python.org/3.14/library/dataclasses.html#dataclasses.dataclass) and
+   [ParamSpec](https://docs.python.org/3.11/library/typing.html#typing.ParamSpec): generated methods and
+   typed callable forwarding.
 
 The contract and domain are original design choices. Static diagnostics are tool results. Probe outputs
 are CPython observations on the recorded versions that illustrate documented mechanics. No framework

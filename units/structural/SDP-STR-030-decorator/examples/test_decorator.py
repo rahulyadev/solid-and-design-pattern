@@ -187,3 +187,71 @@ def test_probe_matches_documented_observations() -> None:
         "source_failure | KeyError | error",
         "lifetime | calls=6 | closes=1",
     )
+
+
+def test_wiring_has_no_render_or_observation_effects() -> None:
+    base = MemoryText({"N-1": "ready"})
+    events: list[Observation] = []
+    source: TextSource = Observed(Bracket(Label(base, "note: ")), events.append)
+    assert base.calls == 0
+    assert base.close_count == 0
+    assert events == []
+    assert source.render("N-1") == "[note: ready]"
+
+
+def test_self_calls_stay_on_inner_receiver() -> None:
+    class Base:
+        def render(self, key: str, /) -> str:
+            return self.description()
+
+        def description(self) -> str:
+            return "from base"
+
+    class Wrapper:
+        def __init__(self, inner: Base) -> None:
+            self.inner = inner
+
+        def description(self) -> str:
+            return "from wrapper"
+
+        def render(self, key: str, /) -> str:
+            return self.inner.render(key)
+
+    source: TextSource = Wrapper(Base())
+    assert source.render("N-1") == "from base"
+
+
+def test_observer_side_effect_before_failure_is_not_rolled_back() -> None:
+    events: list[Observation] = []
+
+    def partly_failing_sink(event: Observation) -> None:
+        events.append(event)
+        raise OSError("acknowledgement failed after append")
+
+    base = MemoryText({"N-1": "ready"})
+    source = Observed(base, partly_failing_sink)
+    assert source.render("N-1") == "ready"
+    assert source.dropped == 1
+    assert events == [Observation("ok", 5)]
+    assert base.calls == 1
+
+
+def test_root_cleanup_runs_when_render_fails() -> None:
+    base = MemoryText({})
+    source = Bracket(Label(base, "note: "))
+    with pytest.raises(KeyError):
+        try:
+            preview(source, "missing")
+        finally:
+            base.close()
+    assert base.close_count == 1
+    with pytest.raises(SourceClosed):
+        preview(source, "missing")
+
+
+def test_observer_can_inspect_result_without_receiving_key_or_content() -> None:
+    events: list[Observation] = []
+    source = Observed(MemoryText({"synthetic-private-key": "synthetic body"}), events.append)
+    source.render("synthetic-private-key")
+    assert events == [Observation("ok", 14)]
+    assert set(vars(events[0])) == {"outcome", "characters"}

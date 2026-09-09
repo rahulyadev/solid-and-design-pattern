@@ -14,7 +14,8 @@ class TextSource(Protocol):
 
         Callers accept configured presentation, not exact unformatted storage text.
         Implementations do not consume keys or own the caller's resource lifetime.
-        The worked wrappers delegate once and preserve underlying exceptions.
+        The worked wrappers delegate once and preserve underlying exceptions
+        under ordinary observer failures; observer BaseExceptions may interrupt.
         Optional observations are permitted. No escaping or delivery is promised.
         """
         ...

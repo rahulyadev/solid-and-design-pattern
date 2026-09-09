@@ -75,3 +75,17 @@ def test_getattr_does_not_supply_implicit_len() -> None:
     # Deliberate invalid static assumption: cast does not add a runtime special method.
     with pytest.raises(TypeError):
         len(cast(Sized, wrapper))
+
+
+def test_unwrapping_explicitly_bypasses_added_trace() -> None:
+    events: list[str] = []
+
+    def plain() -> str:
+        return "ready"
+
+    wrapped = traced(events, "notice")(plain)
+    before = list(events)
+    assert unwrap(wrapped)() == "ready"
+    assert events == before
+    assert wrapped() == "ready"
+    assert events[-2:] == ["enter:notice", "exit:notice"]
